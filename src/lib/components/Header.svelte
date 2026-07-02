@@ -19,7 +19,7 @@
 </script>
 
 <header class="bg-background sticky top-0 z-40 w-full border-b">
-	<div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
+	<div class="mx-auto flex h-16 max-w-350 items-center justify-between px-4 sm:px-6 lg:px-8">
 		<div class="flex items-center gap-4">
 			<a href="/" class="text-lg font-bold tracking-tight">
 				Sri Lankan Food Corner

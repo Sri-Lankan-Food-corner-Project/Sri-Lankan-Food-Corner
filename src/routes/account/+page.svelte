@@ -5,7 +5,7 @@
 	let { data } = $props();
 </script>
 
-<div class="mx-auto max-w-3xl px-4 py-8">
+<div class="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
 	<h1 class="text-2xl font-bold">My Account</h1>
 	<div class="mt-6 grid gap-6 md:grid-cols-2">
 		<Card.Root>

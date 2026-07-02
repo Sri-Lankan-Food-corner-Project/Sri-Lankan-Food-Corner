@@ -1,5 +1,5 @@
 <footer class="bg-muted/40 mt-16 border-t">
-	<div class="mx-auto grid max-w-7xl gap-8 px-4 py-10 md:grid-cols-3">
+	<div class="mx-auto grid max-w-350 gap-8 px-4 py-10 sm:px-6 md:grid-cols-3 lg:px-8">
 		<div>
 			<h3 class="text-base font-semibold">Sri Lankan Food Corner</h3>
 			<p class="text-muted-foreground mt-2 text-sm">
@@ -23,7 +23,7 @@
 		</div>
 	</div>
 	<div class="border-t">
-		<div class="text-muted-foreground mx-auto max-w-7xl px-4 py-4 text-center text-xs">
+		<div class="text-muted-foreground mx-auto max-w-350 px-4 py-4 text-center text-xs sm:px-6 lg:px-8">
 			© {new Date().getFullYear()} Sri Lankan Food Corner. All rights reserved.
 		</div>
 	</div>

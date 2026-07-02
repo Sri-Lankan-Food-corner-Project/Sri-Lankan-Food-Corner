@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
@@ -21,6 +21,7 @@
 			errorMsg = error.message ?? 'Login failed';
 			return;
 		}
+		await invalidateAll();
 		await goto('/account');
 	}
 </script>

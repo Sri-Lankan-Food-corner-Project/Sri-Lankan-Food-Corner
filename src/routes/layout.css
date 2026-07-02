@@ -119,3 +119,13 @@
 		@apply bg-background text-foreground;
 	}
 }
+
+.bprogress .bar {
+	background: var(--primary);
+	height: 3px;
+}
+.bprogress .peg {
+	box-shadow:
+		0 0 10px var(--primary),
+		0 0 5px var(--primary);
+}

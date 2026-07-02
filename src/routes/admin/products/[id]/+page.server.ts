@@ -91,7 +91,6 @@ export const actions: Actions = {
 		const files = formData
 			.getAll('images')
 			.filter((f): f is File => f instanceof File && f.size > 0);
-		console.log(`[admin/products/${params.id}] received ${files.length} new image file(s)`);
 
 		const uploadErrors: string[] = [];
 		for (const file of files) {
@@ -100,11 +99,8 @@ export const actions: Actions = {
 				await db
 					.insert(productImages)
 					.values({ productId: params.id, imageUrl, sortOrder: sortOrder++ });
-				console.log(`[admin/products/${params.id}] uploaded ${file.name} -> ${imageUrl}`);
 			} catch (e) {
-				const msg = (e as Error).message ?? String(e);
-				console.error(`[admin/products/${params.id}] upload failed for ${file.name}:`, msg);
-				uploadErrors.push(`${file.name}: ${msg}`);
+				uploadErrors.push(`${file.name}: ${(e as Error).message ?? String(e)}`);
 			}
 		}
 

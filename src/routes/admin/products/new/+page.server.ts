@@ -26,7 +26,6 @@ export const actions: Actions = {
 		if (!form.valid) return fail(400, { form });
 
 		const files = formData.getAll('images').filter((f): f is File => f instanceof File && f.size > 0);
-		console.log(`[admin/products/new] received ${files.length} image file(s)`);
 
 		let productId: string;
 		try {
@@ -57,11 +56,8 @@ export const actions: Actions = {
 				await db
 					.insert(productImages)
 					.values({ productId, imageUrl, sortOrder: sortOrder++ });
-				console.log(`[admin/products/new] uploaded ${file.name} -> ${imageUrl}`);
 			} catch (e) {
-				const msg = (e as Error).message ?? String(e);
-				console.error(`[admin/products/new] upload failed for ${file.name}:`, msg);
-				uploadErrors.push(`${file.name}: ${msg}`);
+				uploadErrors.push(`${file.name}: ${(e as Error).message ?? String(e)}`);
 			}
 		}
 

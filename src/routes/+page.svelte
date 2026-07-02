@@ -5,15 +5,15 @@
 	const slides = [
 		{
 			eyebrow: 'Everything Under One Roof',
-			title: 'එළවලු, මස්, මාලු, කුළුබඩු, සහල්',
-			subtitle: 'Vegetables, meat, fish, spices, rice — all in one place.',
+			title: 'Vegetables, Meat, Fish, Spices & Rice',
+			subtitle: 'එළවලු, මස්, මාලු, කුළුබඩු, සහල් — all in one place.',
 			cta: 'Shop All Products',
 			href: '/products'
 		},
 		{
 			eyebrow: '택배 · Home Delivery',
-			title: 'ඔබේ නිවසටම ගෙන්වා දෙනවා',
-			subtitle: '택배 මගින් ඔබේ නිවසටම — Delivered across South Korea.',
+			title: 'Delivered to Your Doorstep',
+			subtitle: '택배 මගින් ඔබේ නිවසටම — across South Korea.',
 			cta: 'Start Shopping',
 			href: '/products'
 		},

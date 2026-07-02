@@ -78,11 +78,12 @@ export const products = pgTable('products', {
 	slug: text('slug').notNull().unique(),
 	description: text('description'),
 	price: integer('price').notNull(),
+	compareAtPrice: integer('compare_at_price'),
 	unit: text('unit'),
 	stockQuantity: integer('stock_quantity').notNull().default(0),
-	isActive: boolean('is_active').default(true),
-	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
-	updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow()
+	isActive: boolean('is_active').notNull().default(true),
+	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
 });
 
 export const productImages = pgTable('product_images', {

@@ -10,8 +10,7 @@
 	let { data } = $props();
 
 	const sf = superForm(untrack(() => data.form), {
-		validators: zodClient(productSchema),
-		dataType: 'json'
+		validators: zodClient(productSchema)
 	});
 
 	const message = sf.message;

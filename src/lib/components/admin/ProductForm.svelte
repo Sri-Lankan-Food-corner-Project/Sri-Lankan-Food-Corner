@@ -1,40 +1,85 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
 	import type { SuperForm } from 'sveltekit-superforms';
+	import { enhance } from '$app/forms';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { Switch } from '$lib/components/ui/switch';
 	import { slugify } from '$lib/utils/slugify';
+	import { cn } from '$lib/utils';
+	import { X, Upload } from '@lucide/svelte';
 	import type { ProductInput } from '$lib/schemas/product';
 
 	type Category = { id: string; name: string };
+	type ExistingImage = { id: string; imageUrl: string };
 
 	let {
 		superform,
 		categories = [],
+		existingImages = [],
 		submitLabel = 'Save',
 		action = ''
 	}: {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		superform: SuperForm<ProductInput, any>;
 		categories?: Category[];
+		existingImages?: ExistingImage[];
 		submitLabel?: string;
 		action?: string;
 	} = $props();
 
-	const { form, errors, enhance } = untrack(() => superform);
+	const { form, errors } = untrack(() => superform);
 
 	let slugTouched = $state(untrack(() => Boolean($form.slug)));
+	let toRemove = $state<string[]>([]);
+	let fileInput = $state<HTMLInputElement | null>(null);
+	let newFiles = $state<File[]>([]);
+	let previews = $derived(newFiles.map((f) => URL.createObjectURL(f)));
 
 	function handleNameInput(e: Event) {
 		$form.name = (e.target as HTMLInputElement).value;
 		if (!slugTouched) $form.slug = slugify($form.name);
 	}
+
+	function toggleRemove(id: string) {
+		toRemove = toRemove.includes(id)
+			? toRemove.filter((i) => i !== id)
+			: [...toRemove, id];
+	}
+
+	// Accumulate across multiple picker opens. DataTransfer lets us both build
+	// up the selection AND keep those files in the actual file input, so the
+	// browser includes them in the form submission.
+	function handleFilesChange(e: Event) {
+		const input = e.target as HTMLInputElement;
+		if (!input.files) return;
+		const dt = new DataTransfer();
+		for (const f of newFiles) dt.items.add(f);
+		for (const f of Array.from(input.files)) dt.items.add(f);
+		input.files = dt.files;
+		newFiles = Array.from(dt.files);
+	}
+
+	function removeNewFile(i: number) {
+		if (!fileInput) return;
+		const dt = new DataTransfer();
+		for (let j = 0; j < newFiles.length; j++) {
+			if (j !== i) dt.items.add(newFiles[j]);
+		}
+		fileInput.files = dt.files;
+		newFiles = Array.from(dt.files);
+	}
 </script>
 
-<form method="POST" {action} use:enhance class="grid max-w-2xl gap-4">
+<form
+	method="POST"
+	enctype="multipart/form-data"
+	{action}
+	use:enhance
+	class="grid max-w-2xl gap-4"
+>
 	<div class="grid gap-2">
 		<Label for="name">Name</Label>
 		<Input
@@ -167,6 +212,79 @@
 				$form.description = v === '' ? null : v;
 			}}
 		/>
+	</div>
+
+	<!-- Images -->
+	<div class="grid gap-2">
+		<Label>Product images</Label>
+
+		{#if existingImages.length > 0}
+			<div class="grid grid-cols-4 gap-2">
+				{#each existingImages as img (img.id)}
+					{@const marked = toRemove.includes(img.id)}
+					<div class="relative aspect-square overflow-hidden rounded-md border">
+						<img
+							src={img.imageUrl}
+							alt=""
+							class={cn('h-full w-full object-cover', marked && 'opacity-30 grayscale')}
+						/>
+						<button
+							type="button"
+							onclick={() => toggleRemove(img.id)}
+							aria-label={marked ? 'Undo remove' : 'Remove image'}
+							class="bg-background/90 absolute top-1 right-1 rounded-full p-1 shadow"
+						>
+							<X class="size-3" />
+						</button>
+						{#if marked}
+							<span class="bg-destructive text-destructive-foreground absolute bottom-1 left-1 rounded px-1.5 py-0.5 text-[10px] font-medium">
+								Will remove
+							</span>
+						{/if}
+					</div>
+				{/each}
+			</div>
+		{/if}
+
+		<input type="hidden" name="removedImageIds" value={toRemove.join(',')} />
+
+		{#if newFiles.length > 0}
+			<div class="grid grid-cols-4 gap-2">
+				{#each newFiles as file, i (file.name + i)}
+					<div class="bg-muted relative aspect-square overflow-hidden rounded-md border">
+						<img src={previews[i]} alt="" class="h-full w-full object-cover" />
+						<button
+							type="button"
+							onclick={() => removeNewFile(i)}
+							aria-label="Remove selection"
+							class="bg-background/90 absolute top-1 right-1 rounded-full p-1 shadow"
+						>
+							<X class="size-3" />
+						</button>
+					</div>
+				{/each}
+			</div>
+		{/if}
+
+		<label
+			class="border-input hover:bg-accent/50 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-md border border-dashed p-6 text-center transition-colors"
+		>
+			<Upload class="text-muted-foreground size-5" />
+			<span class="text-sm">Click to select images</span>
+			<span class="text-muted-foreground text-xs">JPEG/PNG/WebP — max 10 MB each</span>
+			<input
+				bind:this={fileInput}
+				type="file"
+				name="images"
+				multiple
+				accept="image/*"
+				class="hidden"
+				onchange={handleFilesChange}
+			/>
+		</label>
+		<p class="text-muted-foreground text-xs">
+			Images are resized to 1200px wide and converted to WebP on upload.
+		</p>
 	</div>
 
 	<div class="flex items-center justify-between rounded-md border p-4">

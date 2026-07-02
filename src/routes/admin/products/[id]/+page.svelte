@@ -13,8 +13,7 @@
 	let confirmingDelete = $state(false);
 
 	const sf = superForm(untrack(() => data.form), {
-		validators: zodClient(productSchema),
-		dataType: 'json'
+		validators: zodClient(productSchema)
 	});
 
 	const message = sf.message;
@@ -40,6 +39,7 @@
 <ProductForm
 	superform={sf}
 	categories={data.categories}
+	existingImages={data.images}
 	submitLabel="Save changes"
 	action="?/update"
 />

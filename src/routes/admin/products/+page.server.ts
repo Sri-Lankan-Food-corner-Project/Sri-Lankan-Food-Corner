@@ -1,7 +1,8 @@
-import { asc, desc, eq } from 'drizzle-orm';
+import { asc, desc, eq, inArray } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
-import { products, categories } from '$lib/server/db/schema';
+import { products, categories, productImages } from '$lib/server/db/schema';
+import { deleteProductImageByUrl } from '$lib/server/storage/productImages';
 import type { PageServerLoad, Actions } from './$types';
 
 export const load: PageServerLoad = async ({ url }) => {
@@ -28,12 +29,30 @@ export const load: PageServerLoad = async ({ url }) => {
 			? await baseQuery.where(eq(products.categoryId, categoryFilter)).orderBy(desc(products.createdAt))
 			: await baseQuery.orderBy(desc(products.createdAt));
 
+	// First thumbnail per product (min sort_order)
+	const ids = rows.map((r) => r.id);
+	const imgs = ids.length
+		? await db
+				.select({ productId: productImages.productId, imageUrl: productImages.imageUrl })
+				.from(productImages)
+				.where(inArray(productImages.productId, ids))
+				.orderBy(asc(productImages.sortOrder))
+		: [];
+	const firstImage = new Map<string, string>();
+	for (const img of imgs) {
+		if (img.productId && !firstImage.has(img.productId)) firstImage.set(img.productId, img.imageUrl);
+	}
+
 	const cats = await db
 		.select({ id: categories.id, name: categories.name })
 		.from(categories)
 		.orderBy(asc(categories.sortOrder), asc(categories.name));
 
-	return { products: rows, categories: cats, selectedCategory: categoryFilter ?? 'all' };
+	return {
+		products: rows.map((r) => ({ ...r, imageUrl: firstImage.get(r.id) ?? null })),
+		categories: cats,
+		selectedCategory: categoryFilter ?? 'all'
+	};
 };
 
 export const actions: Actions = {
@@ -41,7 +60,15 @@ export const actions: Actions = {
 		const form = await request.formData();
 		const id = String(form.get('id') ?? '');
 		if (!id) return fail(400, { error: 'Missing id' });
+
+		const imgs = await db
+			.select({ imageUrl: productImages.imageUrl })
+			.from(productImages)
+			.where(eq(productImages.productId, id));
+
 		await db.delete(products).where(eq(products.id, id));
+
+		await Promise.all(imgs.map((i) => deleteProductImageByUrl(i.imageUrl)));
 		return { ok: true };
 	},
 

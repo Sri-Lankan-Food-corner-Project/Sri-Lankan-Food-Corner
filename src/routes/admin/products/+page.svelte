@@ -55,6 +55,7 @@
 	<Table.Root>
 		<Table.Header>
 			<Table.Row>
+				<Table.Head class="w-16"></Table.Head>
 				<Table.Head>Name</Table.Head>
 				<Table.Head>Category</Table.Head>
 				<Table.Head class="text-right">Price</Table.Head>
@@ -66,6 +67,13 @@
 		<Table.Body>
 			{#each data.products as p (p.id)}
 				<Table.Row>
+					<Table.Cell>
+						<div class="bg-muted size-10 overflow-hidden rounded">
+							{#if p.imageUrl}
+								<img src={p.imageUrl} alt={p.name} class="h-full w-full object-cover" />
+							{/if}
+						</div>
+					</Table.Cell>
 					<Table.Cell>
 						<div class="font-medium">{p.name}</div>
 						{#if p.unit}
@@ -123,7 +131,7 @@
 				</Table.Row>
 			{:else}
 				<Table.Row>
-					<Table.Cell colspan={6} class="text-muted-foreground py-8 text-center">
+					<Table.Cell colspan={7} class="text-muted-foreground py-8 text-center">
 						{data.selectedCategory === 'all'
 							? 'No products yet. Click "New product" to add one.'
 							: 'No products in this category.'}

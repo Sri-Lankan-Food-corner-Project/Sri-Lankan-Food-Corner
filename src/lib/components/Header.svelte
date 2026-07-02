@@ -1,23 +1,12 @@
 <script lang="ts">
 	import { Badge } from '$lib/components/ui/badge';
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { cartCount } from '$lib/stores/cart';
-	import {
-		MapPin,
-		Phone,
-		Heart,
-		User,
-		LogOut,
-		Package,
-		Menu,
-		Search,
-		ShoppingBag,
-		ChevronDown
-	} from '@lucide/svelte';
-	import { signOut } from '$lib/auth-client';
-	import { goto, invalidateAll } from '$app/navigation';
+	import { MapPin, Phone, Heart, User, Search, ShoppingBag } from '@lucide/svelte';
+	import { goto } from '$app/navigation';
 	import logo from '$lib/assets/logo.webp';
 	import { site, telHref } from '$lib/config/site';
+	import AccountMenu from '$lib/components/header/AccountMenu.svelte';
+	import CategoriesMenu from '$lib/components/header/CategoriesMenu.svelte';
 
 	type Category = { slug: string; name: string };
 	type HeaderUser = { email: string; role?: string | null | undefined };
@@ -27,12 +16,6 @@
 	}: { categories?: Category[]; user?: HeaderUser | null } = $props();
 
 	let searchQuery = $state('');
-
-	async function handleSignOut() {
-		await signOut();
-		await invalidateAll();
-		await goto('/');
-	}
 
 	function handleSearch(e: SubmitEvent) {
 		e.preventDefault();
@@ -77,50 +60,7 @@
 				</a>
 
 				{#if user}
-					<DropdownMenu.Root>
-						<DropdownMenu.Trigger>
-							{#snippet child({ props })}
-								<button
-									{...props}
-									class="flex items-center gap-1.5 transition-colors hover:text-white"
-								>
-									<User class="size-3.5" />
-									My Account
-									<ChevronDown class="size-3" />
-								</button>
-							{/snippet}
-						</DropdownMenu.Trigger>
-						<DropdownMenu.Content align="end">
-							<DropdownMenu.Label>{user.email}</DropdownMenu.Label>
-							<DropdownMenu.Separator />
-							<DropdownMenu.Item>
-								{#snippet child({ props })}
-									<a href="/account" {...props}>
-										<User class="mr-2 size-4" /> Profile
-									</a>
-								{/snippet}
-							</DropdownMenu.Item>
-							<DropdownMenu.Item>
-								{#snippet child({ props })}
-									<a href="/account/orders" {...props}>
-										<Package class="mr-2 size-4" /> Orders
-									</a>
-								{/snippet}
-							</DropdownMenu.Item>
-							{#if user.role === 'admin'}
-								<DropdownMenu.Separator />
-								<DropdownMenu.Item>
-									{#snippet child({ props })}
-										<a href="/admin" {...props}>Admin Panel</a>
-									{/snippet}
-								</DropdownMenu.Item>
-							{/if}
-							<DropdownMenu.Separator />
-							<DropdownMenu.Item onSelect={handleSignOut}>
-								<LogOut class="mr-2 size-4" /> Sign out
-							</DropdownMenu.Item>
-						</DropdownMenu.Content>
-					</DropdownMenu.Root>
+					<AccountMenu {user} />
 				{:else}
 					<a
 						href="/account/login"
@@ -143,36 +83,7 @@
 			</a>
 
 			<div class="flex flex-1 items-center gap-3">
-				<DropdownMenu.Root>
-					<DropdownMenu.Trigger>
-						{#snippet child({ props })}
-							<button
-								{...props}
-								class="hidden shrink-0 items-center gap-2 rounded-full bg-neutral-900 px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-neutral-800 md:inline-flex"
-							>
-								<Menu class="size-4" />
-								All Categories
-							</button>
-						{/snippet}
-					</DropdownMenu.Trigger>
-					<DropdownMenu.Content align="start" class="w-56">
-						<DropdownMenu.Item>
-							{#snippet child({ props })}
-								<a href="/products" {...props}>All Products</a>
-							{/snippet}
-						</DropdownMenu.Item>
-						{#if categories.length > 0}
-							<DropdownMenu.Separator />
-							{#each categories as c (c.slug)}
-								<DropdownMenu.Item>
-									{#snippet child({ props })}
-										<a href="/category/{c.slug}" {...props}>{c.name}</a>
-									{/snippet}
-								</DropdownMenu.Item>
-							{/each}
-						{/if}
-					</DropdownMenu.Content>
-				</DropdownMenu.Root>
+				<CategoriesMenu {categories} />
 
 				<form onsubmit={handleSearch} class="flex-1" role="search">
 					<div

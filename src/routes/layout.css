@@ -9,6 +9,19 @@
 	--font-sans:
 		'Poppins', 'Noto Sans KR', ui-sans-serif, system-ui, -apple-system,
 		BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+	/* Brand palette — customer-facing color system.
+	   Documented in CLAUDE.md → "Design System / Color Palette".
+	   Use these via `bg-brand-green`, `text-brand-amber`, etc. */
+	--color-brand-green: #2b4b1f;
+	--color-brand-green-hover: #22391a;
+	--color-brand-amber: #e8b267;
+	--color-brand-amber-hover: #dfa755;
+	--color-brand-cream: #f6eedc;
+	--color-brand-sand: #f3f1ea;
+	--color-brand-charcoal: #353535;
+	--color-brand-charcoal-hover: #2a2a2a;
+
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);

@@ -6,7 +6,7 @@
 	let { categories = [] }: { categories?: Category[] } = $props();
 
 	const itemClass =
-		"flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-sm text-neutral-700! cursor-pointer focus:bg-[#353535]! focus:text-white! focus:[&_svg]:text-white! outline-none transition-colors [&_svg.chev]:opacity-0 focus:[&_svg.chev]:opacity-100";
+		"flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-sm text-neutral-700! cursor-pointer focus:bg-brand-charcoal! focus:text-white! focus:[&_svg]:text-white! outline-none transition-colors [&_svg.chev]:opacity-0 focus:[&_svg.chev]:opacity-100";
 </script>
 
 <DropdownMenu.Root>
@@ -14,7 +14,7 @@
 		{#snippet child({ props })}
 			<button
 				{...props}
-				class="hidden shrink-0 items-center gap-2 rounded-full bg-[#353535] px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-[#2A2A2A] md:inline-flex"
+				class="hidden shrink-0 items-center gap-2 rounded-full bg-brand-charcoal px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-brand-charcoal-hover md:inline-flex"
 			>
 				<Menu class="size-4" />
 				All Categories

@@ -26,7 +26,7 @@
 
 <header class="sticky top-0 z-40 w-full shadow-sm">
 	<!-- Top thin bar: dark brown, desktop only -->
-	<div class="hidden bg-[#2B4B1F] text-white/80 md:block">
+	<div class="hidden bg-brand-green text-white/80 md:block">
 		<div
 			class="mx-auto flex h-9 max-w-350 items-center justify-between px-4 text-xs sm:px-6 lg:px-8"
 		>
@@ -74,7 +74,7 @@
 	</div>
 
 	<!-- Main bar: 86px, cream -->
-	<div class="bg-[#F6EEDC]">
+	<div class="bg-brand-cream">
 		<div
 			class="mx-auto flex h-21.5 max-w-350 items-center gap-3 px-4 sm:gap-4 sm:px-6 lg:gap-6 lg:px-8"
 		>
@@ -107,7 +107,7 @@
 				aria-label="Cart ({$cartCount} items)"
 			>
 				<span
-					class="flex size-11 items-center justify-center rounded-full bg-[#E8B267] text-neutral-900 shadow-sm transition-colors hover:bg-[#DFA755]"
+					class="flex size-11 items-center justify-center rounded-full bg-brand-amber text-neutral-900 shadow-sm transition-colors hover:bg-brand-amber-hover"
 				>
 					<ShoppingBag class="size-5" />
 				</span>

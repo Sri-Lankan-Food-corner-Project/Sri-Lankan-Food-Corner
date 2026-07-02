@@ -21,7 +21,7 @@
 	}
 
 	const itemClass =
-		"flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-neutral-700! cursor-pointer focus:bg-[#353535]! focus:text-white! focus:[&_svg]:text-white! outline-none transition-colors";
+		"flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-neutral-700! cursor-pointer focus:bg-brand-charcoal! focus:text-white! focus:[&_svg]:text-white! outline-none transition-colors";
 </script>
 
 <DropdownMenu.Root>
@@ -43,7 +43,7 @@
 		sideOffset={12}
 		class="min-w-64! rounded-xl! border! border-black/5! bg-white! p-0! text-neutral-800! shadow-xl! ring-0! overflow-hidden"
 	>
-		<div class="border-b border-black/10 bg-[#2B4B1F] px-4 py-3">
+		<div class="border-b border-black/10 bg-brand-green px-4 py-3">
 			<p class="text-[10px] font-semibold tracking-wider text-white/70 uppercase">
 				Signed in as
 			</p>
@@ -80,8 +80,8 @@
 				<DropdownMenu.Item class={itemClass}>
 					{#snippet child({ props })}
 						<a href="/admin" {...props}>
-							<ShieldCheck class="size-4 text-[#2B4B1F]" />
-							<span class="font-medium text-[#2B4B1F]">Admin Panel</span>
+							<ShieldCheck class="size-4 text-brand-green" />
+							<span class="font-medium text-brand-green">Admin Panel</span>
 						</a>
 					{/snippet}
 				</DropdownMenu.Item>
@@ -91,7 +91,7 @@
 
 			<DropdownMenu.Item
 				onSelect={handleSignOut}
-				class="flex w-full cursor-pointer items-center gap-2.5 rounded-md px-3 py-2 text-sm text-red-600! outline-none transition-colors focus:bg-[#353535]! focus:text-white! focus:[&_svg]:text-white!"
+				class="flex w-full cursor-pointer items-center gap-2.5 rounded-md px-3 py-2 text-sm text-red-600! outline-none transition-colors focus:bg-brand-charcoal! focus:text-white! focus:[&_svg]:text-white!"
 			>
 				<LogOut class="size-4" /> Sign out
 			</DropdownMenu.Item>

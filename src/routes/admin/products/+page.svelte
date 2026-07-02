@@ -3,12 +3,12 @@
 	import { page } from '$app/state';
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
-	import { Switch } from '$lib/components/ui/switch';
 	import { Label } from '$lib/components/ui/label';
 	import * as Table from '$lib/components/ui/table';
 	import ConfirmDialog from '$lib/components/admin/ConfirmDialog.svelte';
 	import { Pencil, Trash2, Plus } from '@lucide/svelte';
 	import { formatPrice } from '$lib/utils/formatPrice';
+	import { cn } from '$lib/utils';
 
 	let { data } = $props();
 
@@ -91,11 +91,26 @@
 						{/if}
 					</Table.Cell>
 					<Table.Cell class="text-center">
-						<Switch
-							checked={p.isActive}
-							onCheckedChange={() => (toggling = p)}
+						<button
+							type="button"
+							role="switch"
+							aria-checked={p.isActive}
 							aria-label={p.isActive ? 'Deactivate' : 'Activate'}
-						/>
+							onclick={() => (toggling = p)}
+							class={cn(
+								'inline-flex h-[18.4px] w-8 shrink-0 items-center rounded-full border transition-colors',
+								p.isActive
+									? 'bg-primary border-transparent'
+									: 'bg-secondary border-border'
+							)}
+						>
+							<span
+								class={cn(
+									'block size-4 rounded-full bg-background transition-transform',
+									p.isActive ? 'translate-x-3.5' : 'translate-x-0'
+								)}
+							></span>
+						</button>
 					</Table.Cell>
 					<Table.Cell class="text-right">
 						<Button href="/admin/products/{p.id}" variant="ghost" size="icon">

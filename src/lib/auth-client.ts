@@ -1,8 +1,9 @@
-// Better Auth browser client — safe to import in .svelte files.
-// Wire up with createAuthClient({ baseURL: BETTER_AUTH_URL }) once configured.
+import { createAuthClient } from 'better-auth/svelte';
+import { inferAdditionalFields } from 'better-auth/client/plugins';
+import type { auth } from '$lib/server/auth';
 
-export const authClient = {
-	signIn: async (_input: unknown) => ({ ok: false }),
-	signUp: async (_input: unknown) => ({ ok: false }),
-	signOut: async () => ({ ok: false })
-};
+export const authClient = createAuthClient({
+	plugins: [inferAdditionalFields<typeof auth>()]
+});
+
+export const { signIn, signUp, signOut, useSession } = authClient;

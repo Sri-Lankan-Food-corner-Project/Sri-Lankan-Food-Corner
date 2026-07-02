@@ -5,9 +5,18 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { cartCount } from '$lib/stores/cart';
 	import { ShoppingCart, Menu, User, LogOut, Package } from '@lucide/svelte';
+	import { signOut } from '$lib/auth-client';
+	import { goto, invalidateAll } from '$app/navigation';
 
 	type Category = { slug: string; name: string };
-	let { categories = [], user = null }: { categories?: Category[]; user?: { email: string; role: string } | null } = $props();
+	type HeaderUser = { email: string; role?: string | null | undefined };
+	let { categories = [], user = null }: { categories?: Category[]; user?: HeaderUser | null } = $props();
+
+	async function handleSignOut() {
+		await signOut();
+		await invalidateAll();
+		await goto('/');
+	}
 </script>
 
 <header class="bg-background sticky top-0 z-40 w-full border-b">
@@ -99,7 +108,7 @@
 							</DropdownMenu.Item>
 						{/if}
 						<DropdownMenu.Separator />
-						<DropdownMenu.Item>
+						<DropdownMenu.Item onSelect={handleSignOut}>
 							<LogOut class="mr-2 size-4" /> Sign out
 						</DropdownMenu.Item>
 					</DropdownMenu.Content>

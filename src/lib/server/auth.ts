@@ -1,9 +1,49 @@
-// Better Auth server instance.
-// Wire up with drizzleAdapter(db) and add the `role` additionalField
-// (default 'customer', check ['customer','admin']) — see CLAUDE.md.
+import { betterAuth } from 'better-auth';
+import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { env } from '$env/dynamic/private';
+import { db } from './db';
+import * as schema from './db/schema';
 
-export const auth = {
-	handler: async (_request: Request): Promise<Response> => {
-		return new Response('Better Auth not configured', { status: 501 });
+export const auth = betterAuth({
+	baseURL: env.BETTER_AUTH_URL,
+	secret: env.BETTER_AUTH_SECRET,
+	database: drizzleAdapter(db, {
+		provider: 'pg',
+		schema: {
+			user: schema.user,
+			session: schema.session,
+			account: schema.account,
+			verification: schema.verification
+		}
+	}),
+	emailAndPassword: {
+		enabled: true,
+		autoSignIn: true,
+		minPasswordLength: 8
+	},
+	user: {
+		additionalFields: {
+			phone: {
+				type: 'string',
+				required: true,
+				input: true
+			},
+			role: {
+				type: 'string',
+				required: false,
+				defaultValue: 'customer',
+				// don't accept role from signup form — only server code/admin promotes users
+				input: false
+			}
+		}
+	},
+	session: {
+		expiresIn: 60 * 60 * 24 * 30, // 30 days
+		updateAge: 60 * 60 * 24 // refresh once per day
+	},
+	advanced: {
+		useSecureCookies: env.BETTER_AUTH_URL?.startsWith('https://') ?? false
 	}
-};
+});
+
+export type Session = typeof auth.$Infer.Session;

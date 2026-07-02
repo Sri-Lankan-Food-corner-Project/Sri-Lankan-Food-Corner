@@ -1,8 +1,10 @@
-import { asc } from 'drizzle-orm';
+﻿import { asc } from 'drizzle-orm';
 import { fail, redirect } from '@sveltejs/kit';
+import { superValidate } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
 import { db } from '$lib/server/db';
 import { products, categories } from '$lib/server/db/schema';
-import { slugify } from '$lib/utils/slugify';
+import { productSchema } from '$lib/schemas/product';
 import type { PageServerLoad, Actions } from './$types';
 
 export const load: PageServerLoad = async () => {
@@ -10,55 +12,30 @@ export const load: PageServerLoad = async () => {
 		.select({ id: categories.id, name: categories.name })
 		.from(categories)
 		.orderBy(asc(categories.sortOrder), asc(categories.name));
-	return { categories: cats };
+
+	const form = await superValidate(zod(productSchema));
+	return { categories: cats, form };
 };
-
-function toInt(v: FormDataEntryValue | null): number {
-	const n = Number(v);
-	return Number.isFinite(n) ? Math.trunc(n) : 0;
-}
-
-function toOptionalInt(v: FormDataEntryValue | null): number | null {
-	const s = String(v ?? '').trim();
-	if (!s) return null;
-	const n = Number(s);
-	return Number.isFinite(n) ? Math.trunc(n) : null;
-}
 
 export const actions: Actions = {
 	default: async ({ request }) => {
-		const form = await request.formData();
-		const name = String(form.get('name') ?? '').trim();
-		const slugRaw = String(form.get('slug') ?? '').trim();
-		const categoryIdRaw = String(form.get('categoryId') ?? '');
-		const price = toInt(form.get('price'));
-		const compareAtPrice = toOptionalInt(form.get('compareAtPrice'));
-		const unit = String(form.get('unit') ?? '').trim() || null;
-		const stockQuantity = toInt(form.get('stockQuantity'));
-		const description = String(form.get('description') ?? '').trim() || null;
-		const isActive = form.get('isActive') === 'on';
-
-		if (!name) return fail(400, { error: 'Name is required' });
-		const slug = slugRaw ? slugify(slugRaw) : slugify(name);
-		if (!slug) return fail(400, { error: 'Slug could not be generated from name' });
-		if (price < 0) return fail(400, { error: 'Price must be non-negative' });
-		if (compareAtPrice !== null && compareAtPrice < price)
-			return fail(400, { error: 'Compare-at price should be higher than the sale price' });
+		const form = await superValidate(request, zod(productSchema));
+		if (!form.valid) return fail(400, { form });
 
 		try {
 			await db.insert(products).values({
-				name,
-				slug,
-				categoryId: categoryIdRaw || null,
-				price,
-				compareAtPrice,
-				unit,
-				stockQuantity,
-				description,
-				isActive
+				name: form.data.name,
+				slug: form.data.slug,
+				categoryId: form.data.categoryId ?? null,
+				price: form.data.price,
+				compareAtPrice: form.data.compareAtPrice ?? null,
+				unit: form.data.unit ?? null,
+				stockQuantity: form.data.stockQuantity,
+				description: form.data.description ?? null,
+				isActive: form.data.isActive ?? true
 			});
 		} catch (e) {
-			return fail(400, { error: 'A product with that slug already exists' });
+			return fail(400, { form: { ...form, message: 'A product with that slug already exists' } });
 		}
 
 		throw redirect(303, '/admin/products');

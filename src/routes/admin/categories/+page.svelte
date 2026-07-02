@@ -1,29 +1,82 @@
-<script lang="ts">
-	import { enhance } from '$app/forms';
+﻿<script lang="ts">
+	import { untrack } from 'svelte';
+	import { superForm } from 'sveltekit-superforms';
+	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import * as Table from '$lib/components/ui/table';
+	import ConfirmDialog from '$lib/components/admin/ConfirmDialog.svelte';
 	import { Pencil, Trash2, Plus } from '@lucide/svelte';
+	import { categorySchema } from '$lib/schemas/category';
+	import { slugify } from '$lib/utils/slugify';
 
-	let { data, form } = $props();
+	let { data } = $props();
 
-	let editing = $state<null | (typeof data.categories)[number]>(null);
 	let creating = $state(false);
+	let editing = $state<null | (typeof data.categories)[number]>(null);
+	let deletingId = $state<string | null>(null);
+	let deletingName = $state('');
+
+	const create = superForm(untrack(() => data.createForm), {
+		id: 'create',
+		validators: zodClient(categorySchema),
+		resetForm: true,
+		onUpdated: ({ form }) => {
+			if (form.valid && !form.message) creating = false;
+		}
+	});
+	const createForm = create.form;
+	const createErrors = create.errors;
+	const createMessage = create.message;
+
+	const edit = superForm(untrack(() => data.editForm), {
+		id: 'edit',
+		validators: zodClient(categorySchema),
+		resetForm: false,
+		onUpdated: ({ form }) => {
+			if (form.valid && !form.message) editing = null;
+		}
+	});
+	const editForm = edit.form;
+	const editErrors = edit.errors;
+	const editMessage = edit.message;
+
+	function openCreate() {
+		$createForm.name = '';
+		$createForm.slug = '';
+		$createForm.description = '';
+		$createForm.sortOrder = 0;
+		creating = true;
+	}
+
+	function openEdit(c: (typeof data.categories)[number]) {
+		$editForm.id = c.id;
+		$editForm.name = c.name;
+		$editForm.slug = c.slug;
+		$editForm.description = c.description ?? '';
+		$editForm.sortOrder = c.sortOrder ?? 0;
+		editing = c;
+	}
+
+	function openDelete(c: (typeof data.categories)[number]) {
+		deletingId = c.id;
+		deletingName = c.name;
+	}
+
+	function autoSlug(base: string) {
+		return slugify(base);
+	}
 </script>
 
 <div class="flex items-center justify-between">
 	<h1 class="text-2xl font-bold">Categories</h1>
-	<Button onclick={() => (creating = true)}>
+	<Button onclick={openCreate}>
 		<Plus class="mr-2 size-4" /> New category
 	</Button>
 </div>
-
-{#if form?.error}
-	<p class="text-destructive mt-4 text-sm">{form.error}</p>
-{/if}
 
 <div class="bg-card mt-6 rounded-md border">
 	<Table.Root>
@@ -42,29 +95,18 @@
 					<Table.Cell class="text-muted-foreground text-sm">{c.slug}</Table.Cell>
 					<Table.Cell>{c.sortOrder}</Table.Cell>
 					<Table.Cell class="text-right">
-						<Button variant="ghost" size="icon" onclick={() => (editing = c)}>
+						<Button variant="ghost" size="icon" onclick={() => openEdit(c)}>
 							<Pencil class="size-4" />
 						</Button>
-						<form
-							method="POST"
-							action="?/delete"
-							use:enhance
-							class="inline"
-							onsubmit={(e) => {
-								if (!confirm(`Delete category "${c.name}"?`)) e.preventDefault();
-							}}
-						>
-							<input type="hidden" name="id" value={c.id} />
-							<Button type="submit" variant="ghost" size="icon">
-								<Trash2 class="text-destructive size-4" />
-							</Button>
-						</form>
+						<Button variant="ghost" size="icon" onclick={() => openDelete(c)}>
+							<Trash2 class="text-destructive size-4" />
+						</Button>
 					</Table.Cell>
 				</Table.Row>
 			{:else}
 				<Table.Row>
-					<Table.Cell colspan={4} class="text-muted-foreground text-center py-8">
-						No categories yet. Click "New category" to add one.
+					<Table.Cell colspan={4} class="text-muted-foreground py-8 text-center">
+						No categories yet.
 					</Table.Cell>
 				</Table.Row>
 			{/each}
@@ -79,33 +121,43 @@
 			<Dialog.Title>New category</Dialog.Title>
 			<Dialog.Description>Add a product category.</Dialog.Description>
 		</Dialog.Header>
-		<form
-			method="POST"
-			action="?/create"
-			use:enhance={() => {
-				return async ({ result, update }) => {
-					if (result.type === 'success') creating = false;
-					await update();
-				};
-			}}
-			class="grid gap-4"
-		>
+		<form method="POST" action="?/create" use:create.enhance class="grid gap-4">
 			<div class="grid gap-2">
-				<Label for="new-name">Name</Label>
-				<Input id="new-name" name="name" required />
+				<Label for="c-name">Name</Label>
+				<Input
+					id="c-name"
+					name="name"
+					bind:value={$createForm.name}
+					oninput={() => ($createForm.slug = autoSlug($createForm.name))}
+					aria-invalid={$createErrors.name ? 'true' : undefined}
+				/>
+				{#if $createErrors.name}
+					<p class="text-destructive text-xs">{$createErrors.name}</p>
+				{/if}
 			</div>
 			<div class="grid gap-2">
-				<Label for="new-slug">Slug (auto if blank)</Label>
-				<Input id="new-slug" name="slug" placeholder="e.g. spices" />
+				<Label for="c-slug">Slug</Label>
+				<Input
+					id="c-slug"
+					name="slug"
+					bind:value={$createForm.slug}
+					aria-invalid={$createErrors.slug ? 'true' : undefined}
+				/>
+				{#if $createErrors.slug}
+					<p class="text-destructive text-xs">{$createErrors.slug}</p>
+				{/if}
 			</div>
 			<div class="grid gap-2">
-				<Label for="new-desc">Description</Label>
-				<Textarea id="new-desc" name="description" rows={3} />
+				<Label for="c-desc">Description</Label>
+				<Textarea id="c-desc" name="description" rows={3} bind:value={$createForm.description} />
 			</div>
 			<div class="grid gap-2">
-				<Label for="new-sort">Sort order</Label>
-				<Input id="new-sort" name="sortOrder" type="number" value="0" />
+				<Label for="c-sort">Sort order</Label>
+				<Input id="c-sort" name="sortOrder" type="number" bind:value={$createForm.sortOrder} />
 			</div>
+			{#if $createMessage}
+				<p class="text-destructive text-sm">{$createMessage}</p>
+			{/if}
 			<Dialog.Footer>
 				<Button type="button" variant="outline" onclick={() => (creating = false)}>Cancel</Button>
 				<Button type="submit">Create</Button>
@@ -120,40 +172,59 @@
 		<Dialog.Header>
 			<Dialog.Title>Edit category</Dialog.Title>
 		</Dialog.Header>
-		{#if editing}
-			<form
-				method="POST"
-				action="?/update"
-				use:enhance={() => {
-					return async ({ result, update }) => {
-						if (result.type === 'success') editing = null;
-						await update();
-					};
-				}}
-				class="grid gap-4"
-			>
-				<input type="hidden" name="id" value={editing.id} />
-				<div class="grid gap-2">
-					<Label for="edit-name">Name</Label>
-					<Input id="edit-name" name="name" value={editing.name} required />
-				</div>
-				<div class="grid gap-2">
-					<Label for="edit-slug">Slug</Label>
-					<Input id="edit-slug" name="slug" value={editing.slug} required />
-				</div>
-				<div class="grid gap-2">
-					<Label for="edit-desc">Description</Label>
-					<Textarea id="edit-desc" name="description" rows={3} value={editing.description ?? ''} />
-				</div>
-				<div class="grid gap-2">
-					<Label for="edit-sort">Sort order</Label>
-					<Input id="edit-sort" name="sortOrder" type="number" value={editing.sortOrder ?? 0} />
-				</div>
-				<Dialog.Footer>
-					<Button type="button" variant="outline" onclick={() => (editing = null)}>Cancel</Button>
-					<Button type="submit">Save</Button>
-				</Dialog.Footer>
-			</form>
-		{/if}
+		<form method="POST" action="?/update" use:edit.enhance class="grid gap-4">
+			<input type="hidden" name="id" value={$editForm.id} />
+			<div class="grid gap-2">
+				<Label for="e-name">Name</Label>
+				<Input
+					id="e-name"
+					name="name"
+					bind:value={$editForm.name}
+					aria-invalid={$editErrors.name ? 'true' : undefined}
+				/>
+				{#if $editErrors.name}
+					<p class="text-destructive text-xs">{$editErrors.name}</p>
+				{/if}
+			</div>
+			<div class="grid gap-2">
+				<Label for="e-slug">Slug</Label>
+				<Input
+					id="e-slug"
+					name="slug"
+					bind:value={$editForm.slug}
+					aria-invalid={$editErrors.slug ? 'true' : undefined}
+				/>
+				{#if $editErrors.slug}
+					<p class="text-destructive text-xs">{$editErrors.slug}</p>
+				{/if}
+			</div>
+			<div class="grid gap-2">
+				<Label for="e-desc">Description</Label>
+				<Textarea id="e-desc" name="description" rows={3} bind:value={$editForm.description} />
+			</div>
+			<div class="grid gap-2">
+				<Label for="e-sort">Sort order</Label>
+				<Input id="e-sort" name="sortOrder" type="number" bind:value={$editForm.sortOrder} />
+			</div>
+			{#if $editMessage}
+				<p class="text-destructive text-sm">{$editMessage}</p>
+			{/if}
+			<Dialog.Footer>
+				<Button type="button" variant="outline" onclick={() => (editing = null)}>Cancel</Button>
+				<Button type="submit">Save</Button>
+			</Dialog.Footer>
+		</form>
 	</Dialog.Content>
 </Dialog.Root>
+
+<!-- Delete confirm -->
+<ConfirmDialog
+	open={deletingId !== null}
+	onOpenChange={(v) => !v && (deletingId = null)}
+	title="Delete category?"
+	description={`Delete category "${deletingName}"? Products in this category won't be deleted â€” they'll just become uncategorized.`}
+	confirmLabel="Delete"
+	variant="destructive"
+	action="?/delete"
+	hiddenFields={deletingId ? { id: deletingId } : {}}
+/>

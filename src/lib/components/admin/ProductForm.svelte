@@ -1,47 +1,52 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
+	import type { SuperForm } from 'sveltekit-superforms';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { Switch } from '$lib/components/ui/switch';
 	import { slugify } from '$lib/utils/slugify';
+	import type { ProductInput } from '$lib/schemas/product';
 
 	type Category = { id: string; name: string };
-	type ProductInput = {
-		id?: string;
-		name?: string;
-		slug?: string;
-		categoryId?: string | null;
-		price?: number;
-		compareAtPrice?: number | null;
-		unit?: string | null;
-		stockQuantity?: number;
-		description?: string | null;
-		isActive?: boolean | null;
-	};
 
 	let {
-		product = {},
+		superform,
 		categories = [],
-		submitLabel = 'Save'
-	}: { product?: ProductInput; categories?: Category[]; submitLabel?: string } = $props();
+		submitLabel = 'Save',
+		action = ''
+	}: {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		superform: SuperForm<ProductInput, any>;
+		categories?: Category[];
+		submitLabel?: string;
+		action?: string;
+	} = $props();
 
-	let name = $state(untrack(() => product.name ?? ''));
-	let slug = $state(untrack(() => product.slug ?? ''));
-	let slugTouched = $state(untrack(() => Boolean(product.slug)));
-	let isActive = $state(untrack(() => product.isActive ?? true));
+	const { form, errors, enhance } = untrack(() => superform);
+
+	let slugTouched = $state(untrack(() => Boolean($form.slug)));
 
 	function handleNameInput(e: Event) {
-		name = (e.target as HTMLInputElement).value;
-		if (!slugTouched) slug = slugify(name);
+		$form.name = (e.target as HTMLInputElement).value;
+		if (!slugTouched) $form.slug = slugify($form.name);
 	}
 </script>
 
-<div class="grid max-w-2xl gap-4">
+<form method="POST" {action} use:enhance class="grid max-w-2xl gap-4">
 	<div class="grid gap-2">
 		<Label for="name">Name</Label>
-		<Input id="name" name="name" value={name} oninput={handleNameInput} required />
+		<Input
+			id="name"
+			name="name"
+			value={$form.name}
+			oninput={handleNameInput}
+			aria-invalid={$errors.name ? 'true' : undefined}
+		/>
+		{#if $errors.name}
+			<p class="text-destructive text-xs">{$errors.name}</p>
+		{/if}
 	</div>
 
 	<div class="grid gap-2">
@@ -49,13 +54,17 @@
 		<Input
 			id="slug"
 			name="slug"
-			bind:value={slug}
+			bind:value={$form.slug}
 			oninput={() => (slugTouched = true)}
-			required
+			aria-invalid={$errors.slug ? 'true' : undefined}
 		/>
-		<p class="text-muted-foreground text-xs">
-			Used in the product URL (/products/{slug || 'your-slug'}).
-		</p>
+		{#if $errors.slug}
+			<p class="text-destructive text-xs">{$errors.slug}</p>
+		{:else}
+			<p class="text-muted-foreground text-xs">
+				Used in the URL: /products/{$form.slug || 'your-slug'}
+			</p>
+		{/if}
 	</div>
 
 	<div class="grid gap-2">
@@ -63,48 +72,71 @@
 		<select
 			id="categoryId"
 			name="categoryId"
+			bind:value={$form.categoryId}
 			class="border-input bg-background focus-visible:ring-ring rounded-md border px-3 py-2 text-sm focus-visible:ring-1 focus-visible:outline-none"
 		>
-			<option value="">— None —</option>
+			<option value={null}>— None —</option>
 			{#each categories as c (c.id)}
-				<option value={c.id} selected={product.categoryId === c.id}>{c.name}</option>
+				<option value={c.id}>{c.name}</option>
 			{/each}
 		</select>
 	</div>
 
-	<div class="grid grid-cols-2 gap-4">
-		<div class="grid gap-2">
-			<Label for="price">Price (KRW)</Label>
-			<Input
-				id="price"
-				name="price"
-				type="number"
-				min="0"
-				step="1"
-				value={product.price ?? 0}
-				required
-			/>
+	<div>
+		<div class="grid grid-cols-2 gap-4">
+			<div class="grid gap-2">
+				<Label for="price">Price (KRW)</Label>
+				<Input
+					id="price"
+					name="price"
+					type="number"
+					min="0"
+					step="1"
+					bind:value={$form.price}
+					aria-invalid={$errors.price ? 'true' : undefined}
+				/>
+				{#if $errors.price}
+					<p class="text-destructive text-xs">{$errors.price}</p>
+				{/if}
+			</div>
+			<div class="grid gap-2">
+				<Label for="compareAtPrice">Compare-at price (KRW)</Label>
+				<Input
+					id="compareAtPrice"
+					name="compareAtPrice"
+					type="number"
+					min="0"
+					step="1"
+					value={$form.compareAtPrice ?? ''}
+					oninput={(e) => {
+						const v = (e.target as HTMLInputElement).value;
+						$form.compareAtPrice = v === '' ? null : Number(v);
+					}}
+					placeholder="Optional"
+					aria-invalid={$errors.compareAtPrice ? 'true' : undefined}
+				/>
+				{#if $errors.compareAtPrice}
+					<p class="text-destructive text-xs">{$errors.compareAtPrice}</p>
+				{/if}
+			</div>
 		</div>
-		<div class="grid gap-2">
-			<Label for="compareAtPrice">Compare-at price (KRW)</Label>
-			<Input
-				id="compareAtPrice"
-				name="compareAtPrice"
-				type="number"
-				min="0"
-				step="1"
-				value={product.compareAtPrice ?? ''}
-				placeholder="Optional"
-			/>
-			<p class="text-muted-foreground text-xs">
-				Original price to show a discount (e.g. 3800 for a strikethrough).
-			</p>
-		</div>
+		<p class="text-muted-foreground mt-2 text-xs">
+			Compare-at price is the original price — shown as a strikethrough to signal a discount.
+		</p>
 	</div>
 
 	<div class="grid gap-2">
 		<Label for="unit">Unit</Label>
-		<Input id="unit" name="unit" value={product.unit ?? ''} placeholder="e.g. 500g, 1 pack" />
+		<Input
+			id="unit"
+			name="unit"
+			value={$form.unit ?? ''}
+			oninput={(e) => {
+				const v = (e.target as HTMLInputElement).value;
+				$form.unit = v === '' ? null : v;
+			}}
+			placeholder="e.g. 500g, 1 pack"
+		/>
 	</div>
 
 	<div class="grid gap-2">
@@ -115,9 +147,12 @@
 			type="number"
 			min="0"
 			step="1"
-			value={product.stockQuantity ?? 0}
-			required
+			bind:value={$form.stockQuantity}
+			aria-invalid={$errors.stockQuantity ? 'true' : undefined}
 		/>
+		{#if $errors.stockQuantity}
+			<p class="text-destructive text-xs">{$errors.stockQuantity}</p>
+		{/if}
 	</div>
 
 	<div class="grid gap-2">
@@ -126,7 +161,11 @@
 			id="description"
 			name="description"
 			rows={5}
-			value={product.description ?? ''}
+			value={$form.description ?? ''}
+			oninput={(e) => {
+				const v = (e.target as HTMLTextAreaElement).value;
+				$form.description = v === '' ? null : v;
+			}}
 		/>
 	</div>
 
@@ -135,10 +174,10 @@
 			<Label for="isActive" class="text-base">Active</Label>
 			<p class="text-muted-foreground text-sm">Show this product on the storefront.</p>
 		</div>
-		<Switch id="isActive" name="isActive" bind:checked={isActive} />
+		<Switch id="isActive" name="isActive" bind:checked={$form.isActive} />
 	</div>
 
 	<div class="flex justify-end gap-2">
 		<Button type="submit">{submitLabel}</Button>
 	</div>
-</div>
+</form>

@@ -1,7 +1,10 @@
+﻿import { asc, eq } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
-import { asc, eq } from 'drizzle-orm';
+import { superValidate } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
 import { db } from '$lib/server/db';
 import { categories } from '$lib/server/db/schema';
+import { categorySchema } from '$lib/schemas/category';
 import { slugify } from '$lib/utils/slugify';
 import type { PageServerLoad, Actions } from './$types';
 
@@ -10,53 +13,55 @@ export const load: PageServerLoad = async () => {
 		.select()
 		.from(categories)
 		.orderBy(asc(categories.sortOrder), asc(categories.name));
-	return { categories: rows };
-};
 
-function parseSortOrder(value: FormDataEntryValue | null): number {
-	const n = Number(value);
-	return Number.isFinite(n) ? n : 0;
-}
+	const createForm = await superValidate(zod(categorySchema));
+	const editForm = await superValidate(zod(categorySchema));
+
+	return { categories: rows, createForm, editForm };
+};
 
 export const actions: Actions = {
 	create: async ({ request }) => {
-		const form = await request.formData();
-		const name = String(form.get('name') ?? '').trim();
-		const slugInput = String(form.get('slug') ?? '').trim();
-		const description = String(form.get('description') ?? '').trim() || null;
-		const sortOrder = parseSortOrder(form.get('sortOrder'));
+		const form = await superValidate(request, zod(categorySchema));
+		if (!form.valid) return fail(400, { form });
 
-		if (!name) return fail(400, { error: 'Name is required' });
-		const slug = slugInput ? slugify(slugInput) : slugify(name);
-		if (!slug) return fail(400, { error: 'Slug could not be generated from name' });
+		const slug = slugify(form.data.slug || form.data.name);
+		if (!slug) return fail(400, { form: { ...form, message: 'Invalid slug' } });
 
 		try {
-			await db.insert(categories).values({ name, slug, description, sortOrder });
+			await db.insert(categories).values({
+				name: form.data.name,
+				slug,
+				description: form.data.description ?? null,
+				sortOrder: form.data.sortOrder
+			});
 		} catch (e) {
-			return fail(400, { error: 'A category with that slug already exists' });
+			return fail(400, { form: { ...form, message: 'A category with that slug already exists' } });
 		}
-		return { ok: true };
+		return { form };
 	},
 
 	update: async ({ request }) => {
-		const form = await request.formData();
-		const id = String(form.get('id') ?? '');
-		const name = String(form.get('name') ?? '').trim();
-		const slug = slugify(String(form.get('slug') ?? '').trim() || name);
-		const description = String(form.get('description') ?? '').trim() || null;
-		const sortOrder = parseSortOrder(form.get('sortOrder'));
+		const form = await superValidate(request, zod(categorySchema));
+		if (!form.valid) return fail(400, { form });
+		if (!form.data.id) return fail(400, { form: { ...form, message: 'Missing id' } });
 
-		if (!id || !name || !slug) return fail(400, { error: 'Missing required fields' });
+		const slug = slugify(form.data.slug || form.data.name);
 
 		try {
 			await db
 				.update(categories)
-				.set({ name, slug, description, sortOrder })
-				.where(eq(categories.id, id));
+				.set({
+					name: form.data.name,
+					slug,
+					description: form.data.description ?? null,
+					sortOrder: form.data.sortOrder
+				})
+				.where(eq(categories.id, form.data.id));
 		} catch (e) {
-			return fail(400, { error: 'A category with that slug already exists' });
+			return fail(400, { form: { ...form, message: 'A category with that slug already exists' } });
 		}
-		return { ok: true };
+		return { form };
 	},
 
 	delete: async ({ request }) => {

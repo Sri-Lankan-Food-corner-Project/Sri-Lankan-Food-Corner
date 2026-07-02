@@ -1,9 +1,20 @@
-<script lang="ts">
+﻿<script lang="ts">
+	import { untrack } from 'svelte';
+	import { superForm } from 'sveltekit-superforms';
+	import { zodClient } from 'sveltekit-superforms/adapters';
 	import ProductForm from '$lib/components/admin/ProductForm.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { ChevronLeft } from '@lucide/svelte';
+	import { productSchema } from '$lib/schemas/product';
 
-	let { data, form } = $props();
+	let { data } = $props();
+
+	const sf = superForm(untrack(() => data.form), {
+		validators: zodClient(productSchema),
+		dataType: 'json'
+	});
+
+	const message = sf.message;
 </script>
 
 <div class="mb-4 flex items-center gap-2">
@@ -13,10 +24,8 @@
 	<h1 class="text-2xl font-bold">New product</h1>
 </div>
 
-{#if form?.error}
-	<p class="text-destructive mb-4 text-sm">{form.error}</p>
+{#if $message}
+	<p class="text-destructive mb-4 text-sm">{$message}</p>
 {/if}
 
-<form method="POST">
-	<ProductForm categories={data.categories} submitLabel="Create product" />
-</form>
+<ProductForm superform={sf} categories={data.categories} submitLabel="Create product" />

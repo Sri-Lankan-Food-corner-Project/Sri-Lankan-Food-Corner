@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { Button } from '$lib/components/ui/button';
@@ -7,10 +6,16 @@
 	import { Switch } from '$lib/components/ui/switch';
 	import { Label } from '$lib/components/ui/label';
 	import * as Table from '$lib/components/ui/table';
+	import ConfirmDialog from '$lib/components/admin/ConfirmDialog.svelte';
 	import { Pencil, Trash2, Plus } from '@lucide/svelte';
 	import { formatPrice } from '$lib/utils/formatPrice';
 
-	let { data, form } = $props();
+	let { data } = $props();
+
+	type Row = (typeof data.products)[number];
+
+	let deleting = $state<Row | null>(null);
+	let toggling = $state<Row | null>(null);
 
 	function handleCategoryChange(e: Event) {
 		const value = (e.target as HTMLSelectElement).value;
@@ -45,10 +50,6 @@
 		{data.products.length} product{data.products.length === 1 ? '' : 's'}
 	</span>
 </div>
-
-{#if form?.error}
-	<p class="text-destructive mt-4 text-sm">{form.error}</p>
-{/if}
 
 <div class="bg-card mt-4 rounded-md border">
 	<Table.Root>
@@ -90,41 +91,19 @@
 						{/if}
 					</Table.Cell>
 					<Table.Cell class="text-center">
-						<form
-							method="POST"
-							action="?/toggleActive"
-							use:enhance
-							class="inline"
-							id="toggle-{p.id}"
-						>
-							<input type="hidden" name="id" value={p.id} />
-							<input type="hidden" name="isActive" value={p.isActive ? 'false' : 'true'} />
-							<Switch
-								checked={p.isActive ?? false}
-								onCheckedChange={() =>
-									(document.getElementById(`toggle-${p.id}`) as HTMLFormElement)?.requestSubmit()}
-								aria-label={p.isActive ? 'Deactivate' : 'Activate'}
-							/>
-						</form>
+						<Switch
+							checked={p.isActive}
+							onCheckedChange={() => (toggling = p)}
+							aria-label={p.isActive ? 'Deactivate' : 'Activate'}
+						/>
 					</Table.Cell>
 					<Table.Cell class="text-right">
 						<Button href="/admin/products/{p.id}" variant="ghost" size="icon">
 							<Pencil class="size-4" />
 						</Button>
-						<form
-							method="POST"
-							action="?/delete"
-							use:enhance
-							class="inline"
-							onsubmit={(e) => {
-								if (!confirm(`Delete "${p.name}"?`)) e.preventDefault();
-							}}
-						>
-							<input type="hidden" name="id" value={p.id} />
-							<Button type="submit" variant="ghost" size="icon">
-								<Trash2 class="text-destructive size-4" />
-							</Button>
-						</form>
+						<Button variant="ghost" size="icon" onclick={() => (deleting = p)}>
+							<Trash2 class="text-destructive size-4" />
+						</Button>
 					</Table.Cell>
 				</Table.Row>
 			{:else}
@@ -139,3 +118,27 @@
 		</Table.Body>
 	</Table.Root>
 </div>
+
+<ConfirmDialog
+	open={toggling !== null}
+	onOpenChange={(v) => !v && (toggling = null)}
+	title={toggling?.isActive ? 'Deactivate product?' : 'Activate product?'}
+	description={toggling?.isActive
+		? `"${toggling?.name}" will be hidden from the storefront until reactivated.`
+		: `"${toggling?.name}" will be visible on the storefront.`}
+	confirmLabel={toggling?.isActive ? 'Deactivate' : 'Activate'}
+	variant={toggling?.isActive ? 'destructive' : 'default'}
+	action="?/toggleActive"
+	hiddenFields={toggling ? { id: toggling.id, isActive: toggling.isActive ? 'false' : 'true' } : {}}
+/>
+
+<ConfirmDialog
+	open={deleting !== null}
+	onOpenChange={(v) => !v && (deleting = null)}
+	title="Delete product?"
+	description={`"${deleting?.name}" will be permanently removed. This cannot be undone.`}
+	confirmLabel="Delete"
+	variant="destructive"
+	action="?/delete"
+	hiddenFields={deleting ? { id: deleting.id } : {}}
+/>

@@ -21,7 +21,7 @@
 	}
 
 	const itemClass =
-		'flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm !text-neutral-700 cursor-pointer focus:!bg-[#F6EEDC] focus:!text-neutral-900 outline-none transition-colors';
+		"flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-neutral-700! cursor-pointer focus:bg-[#353535]! focus:text-white! focus:[&_svg]:text-white! outline-none transition-colors";
 </script>
 
 <DropdownMenu.Root>
@@ -41,13 +41,13 @@
 	<DropdownMenu.Content
 		align="end"
 		sideOffset={12}
-		class="!min-w-64 !rounded-xl !border !border-black/5 !bg-white !p-0 !text-neutral-800 !shadow-xl !ring-0 overflow-hidden"
+		class="min-w-64! rounded-xl! border! border-black/5! bg-white! p-0! text-neutral-800! shadow-xl! ring-0! overflow-hidden"
 	>
-		<div class="border-b border-black/5 bg-[#F6EEDC] px-4 py-3">
-			<p class="text-[10px] font-semibold tracking-wider text-neutral-500 uppercase">
+		<div class="border-b border-black/10 bg-[#2B4B1F] px-4 py-3">
+			<p class="text-[10px] font-semibold tracking-wider text-white/70 uppercase">
 				Signed in as
 			</p>
-			<p class="truncate text-sm font-medium text-neutral-900">{user.email}</p>
+			<p class="truncate text-sm font-medium text-white">{user.email}</p>
 		</div>
 
 		<div class="p-1.5">
@@ -91,7 +91,7 @@
 
 			<DropdownMenu.Item
 				onSelect={handleSignOut}
-				class="flex w-full cursor-pointer items-center gap-2.5 rounded-md px-3 py-2 text-sm !text-red-600 outline-none transition-colors focus:!bg-red-50 focus:!text-red-700"
+				class="flex w-full cursor-pointer items-center gap-2.5 rounded-md px-3 py-2 text-sm text-red-600! outline-none transition-colors focus:bg-[#353535]! focus:text-white! focus:[&_svg]:text-white!"
 			>
 				<LogOut class="size-4" /> Sign out
 			</DropdownMenu.Item>

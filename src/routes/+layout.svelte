@@ -8,10 +8,13 @@
 	import { BProgress } from '@bprogress/core';
 	import '@bprogress/core/css';
 	import { afterNavigate, beforeNavigate } from '$app/navigation';
+	import { page } from '$app/state';
 
 	BProgress.configure({ showSpinner: false });
 
 	let { data, children } = $props();
+
+	const isAdmin = $derived(page.url.pathname.startsWith('/admin'));
 
 	let loadingTimeout: ReturnType<typeof setTimeout>;
 
@@ -31,12 +34,16 @@
 
 <ModeWatcher />
 
-<div class="flex min-h-screen flex-col pb-16 md:pb-0">
-	<Header categories={data.categories} user={data.user} />
-	<main class="flex-1">
-		{@render children()}
-	</main>
-	<Footer />
-</div>
+{#if isAdmin}
+	{@render children()}
+{:else}
+	<div class="flex min-h-screen flex-col pb-16 md:pb-0">
+		<Header categories={data.categories} user={data.user} />
+		<main class="flex-1">
+			{@render children()}
+		</main>
+		<Footer />
+	</div>
 
-<MobileBottomNav categories={data.categories} />
+	<MobileBottomNav categories={data.categories} />
+{/if}

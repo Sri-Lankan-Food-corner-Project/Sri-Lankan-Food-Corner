@@ -12,3 +12,4 @@ export type WithElementRef<T, U extends HTMLElement = HTMLElement> = T & { ref?:
 
 export * from './formatPrice';
 export * from './validators';
+export * from './slugify';

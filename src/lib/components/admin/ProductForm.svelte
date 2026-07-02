@@ -14,6 +14,7 @@
 		slug?: string;
 		categoryId?: string | null;
 		price?: number;
+		compareAtPrice?: number | null;
 		unit?: string | null;
 		stockQuantity?: number;
 		description?: string | null;
@@ -85,9 +86,25 @@
 			/>
 		</div>
 		<div class="grid gap-2">
-			<Label for="unit">Unit</Label>
-			<Input id="unit" name="unit" value={product.unit ?? ''} placeholder="e.g. 500g, 1 pack" />
+			<Label for="compareAtPrice">Compare-at price (KRW)</Label>
+			<Input
+				id="compareAtPrice"
+				name="compareAtPrice"
+				type="number"
+				min="0"
+				step="1"
+				value={product.compareAtPrice ?? ''}
+				placeholder="Optional"
+			/>
+			<p class="text-muted-foreground text-xs">
+				Original price to show a discount (e.g. 3800 for a strikethrough).
+			</p>
 		</div>
+	</div>
+
+	<div class="grid gap-2">
+		<Label for="unit">Unit</Label>
+		<Input id="unit" name="unit" value={product.unit ?? ''} placeholder="e.g. 500g, 1 pack" />
 	</div>
 
 	<div class="grid gap-2">

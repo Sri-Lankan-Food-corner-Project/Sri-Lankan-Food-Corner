@@ -78,6 +78,7 @@ export const products = pgTable('products', {
 	slug: text('slug').notNull().unique(),
 	description: text('description'),
 	price: integer('price').notNull(),
+	compareAtPrice: integer('compare_at_price'),
 	unit: text('unit'),
 	stockQuantity: integer('stock_quantity').notNull().default(0),
 	isActive: boolean('is_active').default(true),

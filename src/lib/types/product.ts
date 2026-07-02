@@ -5,6 +5,7 @@ export type Product = {
 	slug: string;
 	description: string | null;
 	price: number;
+	compareAtPrice: number | null;
 	unit: string | null;
 	stockQuantity: number;
 	isActive: boolean;

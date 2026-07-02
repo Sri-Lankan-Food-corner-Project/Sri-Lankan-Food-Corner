@@ -22,6 +22,13 @@ function toInt(v: FormDataEntryValue | null): number {
 	return Number.isFinite(n) ? Math.trunc(n) : 0;
 }
 
+function toOptionalInt(v: FormDataEntryValue | null): number | null {
+	const s = String(v ?? '').trim();
+	if (!s) return null;
+	const n = Number(s);
+	return Number.isFinite(n) ? Math.trunc(n) : null;
+}
+
 export const actions: Actions = {
 	update: async ({ request, params }) => {
 		const form = await request.formData();
@@ -29,6 +36,7 @@ export const actions: Actions = {
 		const slugRaw = String(form.get('slug') ?? '').trim();
 		const categoryIdRaw = String(form.get('categoryId') ?? '');
 		const price = toInt(form.get('price'));
+		const compareAtPrice = toOptionalInt(form.get('compareAtPrice'));
 		const unit = String(form.get('unit') ?? '').trim() || null;
 		const stockQuantity = toInt(form.get('stockQuantity'));
 		const description = String(form.get('description') ?? '').trim() || null;
@@ -38,6 +46,8 @@ export const actions: Actions = {
 		const slug = slugRaw ? slugify(slugRaw) : slugify(name);
 		if (!slug) return fail(400, { error: 'Slug could not be generated from name' });
 		if (price < 0) return fail(400, { error: 'Price must be non-negative' });
+		if (compareAtPrice !== null && compareAtPrice < price)
+			return fail(400, { error: 'Compare-at price should be higher than the sale price' });
 
 		try {
 			await db
@@ -47,6 +57,7 @@ export const actions: Actions = {
 					slug,
 					categoryId: categoryIdRaw || null,
 					price,
+					compareAtPrice,
 					unit,
 					stockQuantity,
 					description,

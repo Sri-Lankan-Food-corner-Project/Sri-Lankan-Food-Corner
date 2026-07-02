@@ -8,6 +8,13 @@
 
 	let { product, imageUrl }: { product: Product; imageUrl?: string } = $props();
 
+	const soldOut = $derived(product.stockQuantity === 0);
+	const discountPercent = $derived(
+		product.compareAtPrice && product.compareAtPrice > product.price
+			? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
+			: 0
+	);
+
 	function add() {
 		cart.add({
 			productId: product.id,
@@ -20,14 +27,27 @@
 	}
 </script>
 
-<Card.Root class="overflow-hidden">
+<Card.Root class="relative overflow-hidden">
 	<a href="/products/{product.slug}" class="block">
-		<div class="bg-muted aspect-square">
+		<div class="bg-muted relative aspect-square">
 			{#if imageUrl}
 				<img src={imageUrl} alt={product.name} class="h-full w-full object-cover" />
 			{/if}
+
+			{#if soldOut}
+				<div class="absolute top-2 left-2">
+					<Badge class="bg-foreground text-background rounded-full px-3 py-1">SOLD OUT</Badge>
+				</div>
+			{:else if discountPercent > 0}
+				<div class="absolute top-2 left-2">
+					<Badge class="bg-destructive text-destructive-foreground rounded-full px-3 py-1">
+						-{discountPercent}%
+					</Badge>
+				</div>
+			{/if}
 		</div>
 	</a>
+
 	<Card.Content class="p-4">
 		<a href="/products/{product.slug}" class="hover:underline">
 			<h3 class="text-sm font-medium">{product.name}</h3>
@@ -35,14 +55,21 @@
 		{#if product.unit}
 			<p class="text-muted-foreground text-xs">{product.unit}</p>
 		{/if}
-		<div class="mt-2 flex items-center justify-between">
-			<span class="font-semibold">{formatPrice(product.price)}</span>
-			{#if product.stockQuantity === 0}
-				<Badge variant="destructive">Out of stock</Badge>
+		<div class="mt-2 flex items-baseline gap-2">
+			{#if discountPercent > 0}
+				<span class="text-muted-foreground text-sm line-through">
+					{formatPrice(product.compareAtPrice ?? 0)}
+				</span>
 			{/if}
+			<span class="font-semibold">{formatPrice(product.price)}</span>
 		</div>
 	</Card.Content>
+
 	<Card.Footer class="p-4 pt-0">
-		<Button class="w-full" onclick={add} disabled={product.stockQuantity === 0}>Add to Cart</Button>
+		{#if soldOut}
+			<Button class="w-full" variant="outline" disabled>Sold out</Button>
+		{:else}
+			<Button class="w-full" onclick={add}>Add to Cart</Button>
+		{/if}
 	</Card.Footer>
 </Card.Root>

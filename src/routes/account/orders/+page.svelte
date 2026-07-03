@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Pagination from '$lib/components/Pagination.svelte';
 	import { formatPrice } from '$lib/utils/formatPrice';
 	import { AlertCircle, ArrowRight, Package } from '@lucide/svelte';
 
@@ -114,4 +115,16 @@
 			{/each}
 		</ul>
 	</div>
+
+	{#if data.pagination.pageCount > 1}
+		<div class="mt-6 flex flex-col items-center gap-3">
+			<Pagination page={data.pagination.page} pageCount={data.pagination.pageCount} />
+			<p class="text-xs text-neutral-500">
+				Showing {(data.pagination.page - 1) * data.pagination.pageSize + 1}–{Math.min(
+					data.pagination.page * data.pagination.pageSize,
+					data.pagination.total
+				)} of {data.pagination.total} orders
+			</p>
+		</div>
+	{/if}
 {/if}

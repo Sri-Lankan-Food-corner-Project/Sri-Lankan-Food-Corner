@@ -60,7 +60,7 @@
 		{#if filters.q}
 			<a
 				href={removeHref((p) => p.delete('q'))}
-				class="bg-brand-cream inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium text-neutral-800 transition hover:bg-neutral-200"
+				class="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs font-medium text-neutral-800 transition hover:bg-neutral-50"
 			>
 				Search: "{filters.q}"
 				<X class="size-3" />
@@ -69,7 +69,7 @@
 		{#if showCategoryChip && filters.category}
 			<a
 				href={removeHref((p) => p.delete('category'))}
-				class="bg-brand-cream inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium text-neutral-800 transition hover:bg-neutral-200"
+				class="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs font-medium text-neutral-800 transition hover:bg-neutral-50"
 			>
 				{categoryName}
 				<X class="size-3" />
@@ -81,7 +81,7 @@
 					p.delete('min');
 					p.delete('max');
 				})}
-				class="bg-brand-cream inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium text-neutral-800 transition hover:bg-neutral-200"
+				class="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs font-medium text-neutral-800 transition hover:bg-neutral-50"
 			>
 				{priceLabel}
 				<X class="size-3" />
@@ -90,14 +90,14 @@
 		{#if filters.instock}
 			<a
 				href={removeHref((p) => p.delete('instock'))}
-				class="bg-brand-cream inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium text-neutral-800 transition hover:bg-neutral-200"
+				class="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs font-medium text-neutral-800 transition hover:bg-neutral-50"
 			>
 				In stock
 				<X class="size-3" />
 			</a>
 		{/if}
 
-		<a href={clearAllHref} class="text-brand-green ml-1 text-xs font-semibold hover:underline">
+		<a href={clearAllHref} class="ml-1 text-xs font-semibold text-neutral-600 hover:text-neutral-900 hover:underline">
 			Clear all
 		</a>
 	</div>

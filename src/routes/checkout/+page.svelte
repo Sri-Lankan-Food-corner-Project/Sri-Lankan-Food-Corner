@@ -8,6 +8,7 @@
 
 	let shippingMethod = $state<'weight' | 'pickup'>('weight');
 	let paymentMethod = $state<'bank' | 'toss'>('bank');
+	let billingDifferent = $state(false);
 	let submitting = $state(false);
 
 	const shippingFee = $derived(shippingMethod === 'pickup' ? 0 : site.shipping.weightBasedFee);
@@ -231,6 +232,133 @@
 							></textarea>
 						</div>
 					</div>
+				</section>
+
+				<!-- Billing Address -->
+				<section
+					class="bg-brand-cream ring-brand-charcoal/10 rounded-2xl p-5 ring-1 sm:p-6"
+				>
+					<label class="flex cursor-pointer items-start gap-3">
+						<input
+							type="checkbox"
+							name="billingDifferent"
+							bind:checked={billingDifferent}
+							class="text-brand-green focus:ring-brand-green mt-0.5 size-4 rounded border-neutral-300"
+						/>
+						<div class="flex-1">
+							<p class="text-sm font-semibold text-neutral-900">
+								Ship to a different billing address?
+							</p>
+							<p class="mt-0.5 text-xs text-neutral-500">
+								청구지 주소가 배송지와 다른 경우 · Uncheck to bill to the shipping address
+							</p>
+						</div>
+					</label>
+
+					{#if billingDifferent}
+						<div class="border-brand-charcoal/10 mt-5 grid gap-4 border-t pt-5 sm:grid-cols-2">
+							<div class="sm:col-span-2">
+								<label
+									for="billingFullName"
+									class="mb-1.5 block text-xs font-medium text-neutral-700"
+								>
+									전체 이름 / Full Name <span class="text-red-500">*</span>
+								</label>
+								<input
+									id="billingFullName"
+									name="billingFullName"
+									type="text"
+									required
+									placeholder="홍길동 / Hong Gildong"
+									class="focus:ring-brand-green/30 focus:border-brand-green w-full rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:ring-2 focus:outline-none"
+								/>
+							</div>
+
+							<div class="sm:col-span-2">
+								<label
+									for="billingStreet"
+									class="mb-1.5 block text-xs font-medium text-neutral-700"
+								>
+									도로명 주소 / Street Address <span class="text-red-500">*</span>
+								</label>
+								<input
+									id="billingStreet"
+									name="billingStreet"
+									type="text"
+									required
+									placeholder="예: 서대구로 123"
+									class="focus:ring-brand-green/30 focus:border-brand-green w-full rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:ring-2 focus:outline-none"
+								/>
+							</div>
+
+							<div>
+								<label
+									for="billingHouseNumber"
+									class="mb-1.5 block text-xs font-medium text-neutral-700"
+								>
+									번지 / House Number
+								</label>
+								<input
+									id="billingHouseNumber"
+									name="billingHouseNumber"
+									type="text"
+									placeholder="123-4"
+									class="focus:ring-brand-green/30 focus:border-brand-green w-full rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:ring-2 focus:outline-none"
+								/>
+							</div>
+
+							<div>
+								<label
+									for="billingRoomNumber"
+									class="mb-1.5 block text-xs font-medium text-neutral-700"
+								>
+									동·호수 / Room / Unit
+								</label>
+								<input
+									id="billingRoomNumber"
+									name="billingRoomNumber"
+									type="text"
+									placeholder="101동 1203호"
+									class="focus:ring-brand-green/30 focus:border-brand-green w-full rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:ring-2 focus:outline-none"
+								/>
+							</div>
+
+							<div>
+								<label
+									for="billingCity"
+									class="mb-1.5 block text-xs font-medium text-neutral-700"
+								>
+									시 / 군 / 구 · Town / City <span class="text-red-500">*</span>
+								</label>
+								<input
+									id="billingCity"
+									name="billingCity"
+									type="text"
+									required
+									placeholder="서울특별시 강남구"
+									class="focus:ring-brand-green/30 focus:border-brand-green w-full rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:ring-2 focus:outline-none"
+								/>
+							</div>
+
+							<div>
+								<label
+									for="billingPostcode"
+									class="mb-1.5 block text-xs font-medium text-neutral-700"
+								>
+									우편번호 / Postcode <span class="text-red-500">*</span>
+								</label>
+								<input
+									id="billingPostcode"
+									name="billingPostcode"
+									type="text"
+									required
+									inputmode="numeric"
+									placeholder="12345"
+									class="focus:ring-brand-green/30 focus:border-brand-green w-full rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:ring-2 focus:outline-none"
+								/>
+							</div>
+						</div>
+					{/if}
 				</section>
 
 				<!-- Shipping Method -->

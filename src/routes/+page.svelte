@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { ArrowRight, Carrot, Wheat } from '@lucide/svelte';
 	import { fade } from 'svelte/transition';
+	import banner1 from '$lib/assets/home/banner1.webp';
+	import banner2 from '$lib/assets/home/banner2.webp';
 
 	const slides = [
 		{
@@ -41,7 +43,7 @@
 	<div class="grid gap-4 lg:grid-cols-4">
 		<!-- Slider card (left, spans 2 cols on desktop) -->
 		<div
-			class="bg-brand-charcoal relative flex min-h-85 flex-col justify-between overflow-hidden rounded-2xl p-8 sm:min-h-100 sm:p-10 lg:col-span-2"
+			class="bg-brand-charcoal group relative flex min-h-85 flex-col justify-between overflow-hidden rounded-2xl p-8 sm:min-h-100 sm:p-10 lg:col-span-2"
 		>
 			<div
 				aria-hidden="true"
@@ -51,6 +53,13 @@
 				aria-hidden="true"
 				class="bg-brand-green/25 absolute top-6 right-6 size-40 rounded-full blur-3xl"
 			></div>
+
+			<img
+				src={banner1}
+				alt=""
+				aria-hidden="true"
+				class="pointer-events-none absolute -right-8 -bottom-8 z-0 hidden h-72 w-72 origin-bottom-right object-contain drop-shadow-2xl transition-transform duration-500 ease-out group-hover:scale-110 sm:block sm:h-96 sm:w-96 lg:h-100 lg:w-md"
+			/>
 
 			{#key index}
 				<div
@@ -103,30 +112,35 @@
 		>
 			<div
 				aria-hidden="true"
+				style="background-image: url({banner2});"
+				class="absolute inset-0 z-0 bg-cover bg-center transition-transform duration-500 ease-out group-hover:scale-110"
+			></div>
+			<div
+				aria-hidden="true"
+				class="absolute inset-0 z-0 bg-black/30"
+			></div>
+			<div
+				aria-hidden="true"
 				class="absolute -top-8 -right-8 size-40 rounded-full bg-white/25 blur-2xl"
 			></div>
 
 			<div class="relative z-10">
-				<p
-					class="text-xs font-semibold tracking-widest text-neutral-900/70 uppercase"
-				>
+				<p class="text-brand-amber text-xs font-semibold tracking-widest uppercase">
 					Fresh Weekly
 				</p>
-				<h3
-					class="mt-3 text-2xl leading-tight font-bold text-neutral-900 sm:text-3xl"
-				>
+				<h3 class="mt-3 text-2xl leading-tight font-bold text-white sm:text-3xl">
 					Vegetables, Meat &amp; Fish
 				</h3>
-				<p class="mt-2 text-sm text-neutral-900/70">එළවලු · මස් · මාලු</p>
+				<p class="mt-2 text-sm text-white/80">එළවලු · මස් · මාලු</p>
 			</div>
 
 			<div class="relative z-10 flex items-end justify-between">
 				<span
-					class="inline-flex items-center gap-2 text-sm font-semibold text-neutral-900 underline underline-offset-4 group-hover:no-underline"
+					class="inline-flex items-center gap-2 text-sm font-semibold text-white underline underline-offset-4 group-hover:no-underline"
 				>
 					Shop Fresh <ArrowRight class="size-4" />
 				</span>
-				<Carrot class="size-16 text-neutral-900/25" strokeWidth={1.25} />
+				<Carrot class="size-16 text-white/40" strokeWidth={1.25} />
 			</div>
 		</a>
 

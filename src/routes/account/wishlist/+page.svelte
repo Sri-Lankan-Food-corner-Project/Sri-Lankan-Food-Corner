@@ -2,6 +2,7 @@
 	import { invalidateAll } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
 	import AddToCartButton from '$lib/components/AddToCartButton.svelte';
+	import Pagination from '$lib/components/Pagination.svelte';
 	import { cart } from '$lib/stores/cart';
 	import { cartOpen } from '$lib/stores/cartUi';
 	import { toggleWishlist } from '$lib/stores/wishlist';
@@ -57,7 +58,9 @@
 	{:else}
 		<div class="flex items-center justify-between">
 			<h2 class="text-lg font-bold text-neutral-900">Saved items</h2>
-			<p class="text-xs text-neutral-500">{data.items.length} item{data.items.length === 1 ? '' : 's'}</p>
+			<p class="text-xs text-neutral-500">
+				{data.pagination.total} item{data.pagination.total === 1 ? '' : 's'}
+			</p>
 		</div>
 
 		<div class="grid gap-4 sm:grid-cols-2">
@@ -122,5 +125,17 @@
 				</div>
 			{/each}
 		</div>
+
+		{#if data.pagination.pageCount > 1}
+			<div class="mt-6 flex flex-col items-center gap-3">
+				<Pagination page={data.pagination.page} pageCount={data.pagination.pageCount} />
+				<p class="text-xs text-neutral-500">
+					Showing {(data.pagination.page - 1) * data.pagination.pageSize + 1}–{Math.min(
+						data.pagination.page * data.pagination.pageSize,
+						data.pagination.total
+					)} of {data.pagination.total} saved items
+				</p>
+			</div>
+		{/if}
 	{/if}
 </div>

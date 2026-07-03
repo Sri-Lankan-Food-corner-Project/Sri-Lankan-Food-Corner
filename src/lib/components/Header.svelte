@@ -5,7 +5,7 @@
 	import { showAuth } from '$lib/stores/authUi';
 	import { MapPin, Phone, Heart, User, Search, ShoppingBag } from '@lucide/svelte';
 	import { goto } from '$app/navigation';
-	import logo from '$lib/assets/logo.webp';
+	import logo from '$lib/assets/logo2.webp';
 	import { site, telHref } from '$lib/config/site';
 	import AccountMenu from '$lib/components/header/AccountMenu.svelte';
 	import CategoriesMenu from '$lib/components/header/CategoriesMenu.svelte';

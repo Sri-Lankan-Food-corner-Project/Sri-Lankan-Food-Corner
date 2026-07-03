@@ -196,6 +196,40 @@ export const orderItems = pgTable('order_items', {
 	lineTotal: integer('line_total').notNull()
 });
 
+// Homepage sliders — admin-managed rows on the storefront home page.
+// `type` picks how products are resolved at render time:
+//   'manual'      → explicit list from home_section_products
+//   'category'    → newest products in categoryId
+//   'newest'      → newest active products
+//   'discounted'  → active products where compare_at_price > price
+export const homeSections = pgTable('home_sections', {
+	id: uuid('id').primaryKey().defaultRandom(),
+	title: text('title').notNull(),
+	subtitle: text('subtitle'),
+	type: text('type').notNull(),
+	categoryId: uuid('category_id').references(() => categories.id, { onDelete: 'set null' }),
+	limit: integer('limit').notNull().default(12),
+	sortOrder: integer('sort_order').notNull().default(0),
+	isActive: boolean('is_active').notNull().default(true),
+	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
+});
+
+export const homeSectionProducts = pgTable(
+	'home_section_products',
+	{
+		id: uuid('id').primaryKey().defaultRandom(),
+		sectionId: uuid('section_id')
+			.notNull()
+			.references(() => homeSections.id, { onDelete: 'cascade' }),
+		productId: uuid('product_id')
+			.notNull()
+			.references(() => products.id, { onDelete: 'cascade' }),
+		sortOrder: integer('sort_order').notNull().default(0)
+	},
+	(t) => ({ uniqSectionProduct: unique().on(t.sectionId, t.productId) })
+);
+
 export const payments = pgTable('payments', {
 	id: uuid('id').primaryKey().defaultRandom(),
 	orderId: uuid('order_id').references(() => orders.id, { onDelete: 'cascade' }),

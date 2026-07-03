@@ -24,6 +24,19 @@
 		const q = searchQuery.trim();
 		if (q) goto(`/products?q=${encodeURIComponent(q)}`);
 	}
+
+	async function handleWishlistClick() {
+		if (user) {
+			goto('/account/wishlist');
+			return;
+		}
+		const ok = await showAuth({
+			mode: 'login',
+			title: 'Sign in to see your wishlist',
+			message: 'Save products for later — sign in or create an account.'
+		});
+		if (ok) goto('/account/wishlist');
+	}
 </script>
 
 <header class="sticky top-0 z-40 w-full shadow-sm">
@@ -54,12 +67,13 @@
 				>
 					<Phone class="size-3.5" /> {site.phone.primary}
 				</a>
-				<a
-					href="/account/wishlist"
-					class="flex items-center gap-1.5 transition-colors hover:text-white"
+				<button
+					type="button"
+					onclick={handleWishlistClick}
+					class="flex cursor-pointer items-center gap-1.5 transition-colors hover:text-white"
 				>
 					<Heart class="size-3.5" /> Wishlist
-				</a>
+				</button>
 
 				{#if user}
 					<AccountMenu {user} />

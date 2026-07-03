@@ -116,7 +116,7 @@
 					type="button"
 					onclick={() => resolveAuth(false)}
 					aria-label="Close"
-					class="absolute top-4 right-4 inline-flex size-8 items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/25"
+					class="absolute top-4 right-4 inline-flex size-8 cursor-pointer items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/25"
 				>
 					<X class="size-4" />
 				</button>
@@ -136,7 +136,7 @@
 					<button
 						type="button"
 						onclick={() => switchTo('login')}
-						class="flex-1 rounded-full px-4 py-1.5 text-xs font-semibold transition sm:text-sm {$authState.mode ===
+						class="flex-1 cursor-pointer rounded-full px-4 py-1.5 text-xs font-semibold transition sm:text-sm {$authState.mode ===
 						'login'
 							? 'bg-brand-charcoal text-white shadow-sm'
 							: 'text-neutral-700 hover:text-neutral-900'}"
@@ -146,7 +146,7 @@
 					<button
 						type="button"
 						onclick={() => switchTo('signup')}
-						class="flex-1 rounded-full px-4 py-1.5 text-xs font-semibold transition sm:text-sm {$authState.mode ===
+						class="flex-1 cursor-pointer rounded-full px-4 py-1.5 text-xs font-semibold transition sm:text-sm {$authState.mode ===
 						'signup'
 							? 'bg-brand-charcoal text-white shadow-sm'
 							: 'text-neutral-700 hover:text-neutral-900'}"
@@ -200,7 +200,7 @@
 						<button
 							type="submit"
 							disabled={submitting}
-							class="bg-brand-charcoal hover:bg-brand-charcoal-hover inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-white transition disabled:opacity-70"
+							class="bg-brand-charcoal hover:bg-brand-charcoal-hover inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-70"
 						>
 							{#if submitting}
 								<Loader2 class="size-4 animate-spin" />
@@ -214,7 +214,7 @@
 							<button
 								type="button"
 								onclick={() => switchTo('signup')}
-								class="text-brand-green font-semibold underline hover:no-underline"
+								class="text-brand-green cursor-pointer font-semibold underline hover:no-underline"
 							>
 								Create an account
 							</button>
@@ -309,7 +309,7 @@
 						<button
 							type="submit"
 							disabled={submitting || !signupAgreed}
-							class="bg-brand-charcoal hover:bg-brand-charcoal-hover inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-white transition disabled:opacity-70"
+							class="bg-brand-charcoal hover:bg-brand-charcoal-hover inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-70"
 						>
 							{#if submitting}
 								<Loader2 class="size-4 animate-spin" />
@@ -323,7 +323,7 @@
 							<button
 								type="button"
 								onclick={() => switchTo('login')}
-								class="text-brand-green font-semibold underline hover:no-underline"
+								class="text-brand-green cursor-pointer font-semibold underline hover:no-underline"
 							>
 								Sign in
 							</button>

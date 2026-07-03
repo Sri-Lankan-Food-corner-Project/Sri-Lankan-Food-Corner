@@ -9,6 +9,7 @@
 	import AuthDialog from '$lib/components/AuthDialog.svelte';
 	import { Toaster } from 'svelte-sonner';
 	import { wishlist } from '$lib/stores/wishlist';
+	import { showAuth, type AuthMode } from '$lib/stores/authUi';
 	import { ModeWatcher } from 'mode-watcher';
 	import { BProgress } from '@bprogress/core';
 	import '@bprogress/core/css';
@@ -25,6 +26,18 @@
 	// (after login/logout, invalidateAll, navigation).
 	$effect(() => {
 		wishlist.hydrate(data.wishlistIds ?? []);
+	});
+
+	// Open the auth modal when the URL carries `?auth=login|signup` — this is how
+	// protected route redirects surface the sign-in prompt without a full page.
+	$effect(() => {
+		const auth = page.url.searchParams.get('auth');
+		if (auth !== 'login' && auth !== 'signup') return;
+		showAuth({ mode: auth as AuthMode });
+		// Strip the flag from the URL without re-navigating.
+		const url = new URL(window.location.href);
+		url.searchParams.delete('auth');
+		history.replaceState(null, '', url.pathname + url.search);
 	});
 
 	let loadingTimeout: ReturnType<typeof setTimeout>;
@@ -56,7 +69,7 @@
 		<Footer categories={data.categories} />
 	</div>
 
-	<MobileBottomNav categories={data.categories} />
+	<MobileBottomNav categories={data.categories} user={data.user} />
 	<CartSheet />
 {/if}
 

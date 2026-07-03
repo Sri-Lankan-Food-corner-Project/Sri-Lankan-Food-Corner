@@ -1,5 +1,8 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
 	import { cart, cartSubtotal } from '$lib/stores/cart';
+	import { showAuth } from '$lib/stores/authUi';
 	import { formatPrice } from '$lib/utils/formatPrice';
 	import {
 		ArrowRight,
@@ -11,6 +14,19 @@
 		ShoppingBag,
 		X
 	} from '@lucide/svelte';
+
+	async function goToCheckout() {
+		if (page.data.user) {
+			goto('/checkout');
+			return;
+		}
+		const ok = await showAuth({
+			mode: 'signup',
+			title: 'Create an account to check out',
+			message: 'Sign in or create your account so we can track your order.'
+		});
+		if (ok) goto('/checkout');
+	}
 </script>
 
 <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
@@ -212,12 +228,13 @@
 					</span>
 				</div>
 
-				<a
-					href="/checkout"
-					class="bg-brand-charcoal hover:bg-brand-charcoal-hover mt-6 inline-flex w-full items-center justify-center rounded-full px-6 py-3 text-sm font-semibold text-white transition"
+				<button
+					type="button"
+					onclick={goToCheckout}
+					class="bg-brand-charcoal hover:bg-brand-charcoal-hover mt-6 inline-flex w-full cursor-pointer items-center justify-center rounded-full px-6 py-3 text-sm font-semibold text-white transition"
 				>
 					Proceed To Checkout
-				</a>
+				</button>
 			</aside>
 		</div>
 	{/if}

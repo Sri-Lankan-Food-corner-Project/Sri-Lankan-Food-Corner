@@ -1,9 +1,26 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
 	import * as Sheet from '$lib/components/ui/sheet';
 	import { cart, cartSubtotal } from '$lib/stores/cart';
 	import { cartOpen } from '$lib/stores/cartUi';
+	import { showAuth } from '$lib/stores/authUi';
 	import { formatPrice } from '$lib/utils/formatPrice';
 	import { Minus, Plus, ShoppingBag, X } from '@lucide/svelte';
+
+	async function goToCheckout() {
+		cartOpen.set(false);
+		if (page.data.user) {
+			goto('/checkout');
+			return;
+		}
+		const ok = await showAuth({
+			mode: 'signup',
+			title: 'Create an account to check out',
+			message: 'Sign in or create your account so we can track your order.'
+		});
+		if (ok) goto('/checkout');
+	}
 </script>
 
 <Sheet.Root bind:open={$cartOpen}>
@@ -114,13 +131,13 @@
 				>
 					View Cart
 				</a>
-				<a
-					href="/checkout"
-					onclick={() => cartOpen.set(false)}
-					class="bg-brand-charcoal hover:bg-brand-charcoal-hover inline-flex w-full items-center justify-center rounded-full px-4 py-2.5 text-sm font-semibold text-white transition"
+				<button
+					type="button"
+					onclick={goToCheckout}
+					class="bg-brand-charcoal hover:bg-brand-charcoal-hover inline-flex w-full cursor-pointer items-center justify-center rounded-full px-4 py-2.5 text-sm font-semibold text-white transition"
 				>
 					Checkout
-				</a>
+				</button>
 			</div>
 		{/if}
 	</Sheet.Content>

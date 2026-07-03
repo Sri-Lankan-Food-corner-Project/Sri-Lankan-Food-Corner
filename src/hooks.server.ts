@@ -7,7 +7,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	event.locals.session = authSession?.session ?? null;
 
 	if (event.url.pathname.startsWith('/admin')) {
-		if (!event.locals.user) throw redirect(302, '/account/login');
+		if (!event.locals.user) throw redirect(302, '/?auth=login');
 		if (event.locals.user.role !== 'admin') throw error(403, 'Forbidden');
 	}
 

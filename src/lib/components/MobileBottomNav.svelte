@@ -1,18 +1,32 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import * as Sheet from '$lib/components/ui/sheet';
 	import { Badge } from '$lib/components/ui/badge';
 	import { cartCount } from '$lib/stores/cart';
 	import { cartOpen } from '$lib/stores/cartUi';
+	import { showAuth } from '$lib/stores/authUi';
 	import { cn } from '$lib/utils';
 	import { Menu, Heart, Home, ShoppingCart, User } from '@lucide/svelte';
 
 	type Category = { slug: string; name: string };
+	type NavUser = { email: string; role?: string | null | undefined };
 	let {
-		categories = []
+		categories = [],
+		user = null
 	}: {
 		categories?: Category[];
+		user?: NavUser | null;
 	} = $props();
+
+	async function guarded(href: string) {
+		if (user) {
+			goto(href);
+			return;
+		}
+		const ok = await showAuth({ mode: 'login' });
+		if (ok) goto(href);
+	}
 
 	let menuOpen = $state(false);
 
@@ -75,10 +89,14 @@
 			</Sheet.Content>
 		</Sheet.Root>
 
-		<a href="/account/wishlist" class={itemClass(isActive('/account/wishlist'))}>
+		<button
+			type="button"
+			onclick={() => guarded('/account/wishlist')}
+			class={itemClass(isActive('/account/wishlist'))}
+		>
 			<Heart class="size-5" />
 			<span>Wishlist</span>
-		</a>
+		</button>
 
 		<a href="/" class={itemClass(isActive('/'))}>
 			<Home class="size-5" />
@@ -99,9 +117,13 @@
 			<span>Cart</span>
 		</button>
 
-		<a href="/account" class={itemClass(page.url.pathname.startsWith('/account'))}>
+		<button
+			type="button"
+			onclick={() => guarded('/account')}
+			class={itemClass(page.url.pathname.startsWith('/account'))}
+		>
 			<User class="size-5" />
 			<span>Account</span>
-		</a>
+		</button>
 	</div>
 </nav>

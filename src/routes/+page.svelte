@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { ArrowRight, Wheat } from '@lucide/svelte';
+	import { ArrowRight } from '@lucide/svelte';
 	import { fade } from 'svelte/transition';
 	import banner1 from '$lib/assets/home/banner1.webp';
 	import banner2 from '$lib/assets/home/banner2.webp';
+	import banner3 from '$lib/assets/home/banner33.webp';
 
 	const slides = [
 		{
@@ -144,35 +145,39 @@
 			</div>
 		</a>
 
-		<!-- Right card: Spices, rice & staples (dark) -->
+		<!-- Right card: Spices, rice & staples (warm amber/brown) -->
 		<a
 			href="/products"
-			class="bg-brand-charcoal group relative flex min-h-85 flex-col justify-between overflow-hidden rounded-2xl p-8 shadow-sm sm:min-h-100"
+			class="bg-brand-amber group relative flex min-h-85 flex-col justify-between overflow-hidden rounded-2xl p-8 shadow-sm sm:min-h-100"
 		>
 			<div
 				aria-hidden="true"
-				class="bg-brand-green/30 absolute -top-8 -right-8 size-40 rounded-full blur-2xl"
+				class="bg-brand-charcoal/15 absolute -top-8 -right-8 size-40 rounded-full blur-2xl"
 			></div>
 
+			<img
+				src={banner3}
+				alt=""
+				aria-hidden="true"
+				class="pointer-events-none absolute -right-4 -bottom-4 z-0 h-48 w-48 origin-bottom-right object-contain drop-shadow-2xl transition-transform duration-500 ease-out group-hover:scale-110 sm:h-56 sm:w-56"
+			/>
+
 			<div class="relative z-10">
-				<p
-					class="text-brand-amber text-xs font-semibold tracking-widest uppercase"
-				>
+				<p class="text-xs font-semibold tracking-widest text-neutral-900/70 uppercase">
 					Pantry Essentials
 				</p>
-				<h3 class="mt-3 text-2xl leading-tight font-bold text-white sm:text-3xl">
+				<h3 class="mt-3 text-2xl leading-tight font-bold text-neutral-900 sm:text-3xl">
 					Spices, Rice &amp; Staples
 				</h3>
-				<p class="mt-2 text-sm text-white/70">කුළුබඩු · සහල් · අනිකුත් සියල්ල</p>
+				<p class="mt-2 text-sm text-neutral-900/70">කුළුබඩු · සහල් · අනිකුත් සියල්ල</p>
 			</div>
 
 			<div class="relative z-10 flex items-end justify-between">
 				<span
-					class="text-brand-amber inline-flex items-center gap-2 text-sm font-semibold underline underline-offset-4 group-hover:no-underline"
+					class="inline-flex items-center gap-2 text-sm font-semibold text-neutral-900 underline underline-offset-4 group-hover:no-underline"
 				>
 					Buy Now <ArrowRight class="size-4" />
 				</span>
-				<Wheat class="size-16 text-white/15" strokeWidth={1.25} />
 			</div>
 		</a>
 	</div>

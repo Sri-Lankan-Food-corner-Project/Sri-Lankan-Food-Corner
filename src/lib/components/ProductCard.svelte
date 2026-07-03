@@ -1,9 +1,13 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { toast } from 'svelte-sonner';
 	import AddToCartButton from '$lib/components/AddToCartButton.svelte';
 	import { formatPrice } from '$lib/utils/formatPrice';
 	import { cart } from '$lib/stores/cart';
 	import { cartOpen } from '$lib/stores/cartUi';
+	import { wishlist, toggleWishlist } from '$lib/stores/wishlist';
 	import type { Product } from '$lib/types/product';
+	import { Heart } from '@lucide/svelte';
 
 	type Props = {
 		product: Product;
@@ -14,6 +18,7 @@
 	let { product, imageUrl, hoverImageUrl }: Props = $props();
 
 	let adding = $state(false);
+	let togglingWishlist = $state(false);
 
 	const soldOut = $derived(product.stockQuantity === 0);
 	const discountPercent = $derived(
@@ -24,6 +29,7 @@
 			: 0
 	);
 	const hasHoverImage = $derived(!!hoverImageUrl && hoverImageUrl !== imageUrl);
+	const inWishlist = $derived($wishlist.has(product.id));
 
 	async function add() {
 		if (adding) return;
@@ -39,6 +45,26 @@
 		await new Promise((r) => setTimeout(r, 400));
 		adding = false;
 		cartOpen.set(true);
+	}
+
+	async function onHeartClick(e: MouseEvent) {
+		e.preventDefault();
+		e.stopPropagation();
+		if (togglingWishlist) return;
+		togglingWishlist = true;
+		try {
+			const added = await toggleWishlist(product.id);
+			toast.success(added ? 'Added to wishlist' : 'Removed from wishlist');
+		} catch (err) {
+			if ((err as { needsAuth?: boolean })?.needsAuth) {
+				toast.error('Please sign in to save to your wishlist.');
+				goto('/account/login');
+			} else {
+				toast.error('Could not update wishlist. Please try again.');
+			}
+		} finally {
+			togglingWishlist = false;
+		}
 	}
 </script>
 
@@ -73,6 +99,19 @@
 						-{discountPercent}%
 					</span>
 				{/if}
+
+				<button
+					type="button"
+					onclick={onHeartClick}
+					disabled={togglingWishlist}
+					aria-label={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+					aria-pressed={inWishlist}
+					class="absolute top-3 right-3 z-10 inline-flex size-9 items-center justify-center rounded-full bg-white/90 text-neutral-700 shadow-sm ring-1 ring-black/5 transition hover:bg-white hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-70"
+				>
+					<Heart
+						class="size-4 transition {inWishlist ? 'fill-red-500 text-red-500' : ''}"
+					/>
+				</button>
 
 				{#if soldOut}
 					<div

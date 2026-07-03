@@ -1,9 +1,16 @@
 <script lang="ts">
 	import { cart, cartSubtotal } from '$lib/stores/cart';
 	import { formatPrice } from '$lib/utils/formatPrice';
-	import { ArrowRight, Minus, Plus, ShoppingBag, X } from '@lucide/svelte';
-
-	let couponCode = $state('');
+	import {
+		ArrowRight,
+		CircleCheck,
+		CreditCard,
+		Minus,
+		Plus,
+		ShoppingCart,
+		ShoppingBag,
+		X
+	} from '@lucide/svelte';
 </script>
 
 <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
@@ -11,13 +18,22 @@
 		aria-label="Checkout progress"
 		class="mb-8 flex flex-wrap items-center justify-center gap-2 text-sm sm:gap-5 sm:text-base"
 	>
-		<span class="font-bold text-neutral-900 underline underline-offset-4 decoration-2">
+		<span
+			class="decoration-2 inline-flex items-center gap-2 font-bold text-neutral-900 underline underline-offset-4"
+		>
+			<ShoppingCart class="size-4 sm:size-5" />
 			Shopping Cart
 		</span>
 		<ArrowRight class="size-4 text-neutral-400 sm:size-5" />
-		<span class="font-medium text-neutral-400">Checkout</span>
+		<span class="inline-flex items-center gap-2 font-medium text-neutral-400">
+			<CreditCard class="size-4 sm:size-5" />
+			Checkout
+		</span>
 		<ArrowRight class="size-4 text-neutral-400 sm:size-5" />
-		<span class="font-medium text-neutral-400">Order Complete</span>
+		<span class="inline-flex items-center gap-2 font-medium text-neutral-400">
+			<CircleCheck class="size-4 sm:size-5" />
+			Order Complete
+		</span>
 	</nav>
 
 	{#if $cart.length === 0}
@@ -172,20 +188,6 @@
 					{/each}
 				</ul>
 
-				<div class="mt-6 flex flex-col gap-2 border-t border-brand-charcoal/10 pt-6 sm:flex-row sm:items-center">
-					<input
-						type="text"
-						bind:value={couponCode}
-						placeholder="Coupon code"
-						class="flex-1 rounded-full border border-neutral-300 bg-white px-5 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 focus:ring-2 focus:ring-neutral-900/10 focus:outline-none"
-					/>
-					<button
-						type="button"
-						class="bg-brand-charcoal hover:bg-brand-charcoal-hover rounded-full px-6 py-2.5 text-sm font-semibold text-white transition"
-					>
-						Apply Coupon
-					</button>
-				</div>
 			</div>
 
 			<aside class="bg-brand-cream ring-brand-charcoal/10 rounded-2xl p-6 ring-1 lg:sticky lg:top-24 lg:self-start">

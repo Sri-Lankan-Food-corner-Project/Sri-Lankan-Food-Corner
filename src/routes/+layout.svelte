@@ -7,6 +7,7 @@
 	import CartSheet from '$lib/components/CartSheet.svelte';
 	import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
 	import { Toaster } from 'svelte-sonner';
+	import { wishlist } from '$lib/stores/wishlist';
 	import { ModeWatcher } from 'mode-watcher';
 	import { BProgress } from '@bprogress/core';
 	import '@bprogress/core/css';
@@ -18,6 +19,12 @@
 	let { data, children } = $props();
 
 	const isAdmin = $derived(page.url.pathname.startsWith('/admin'));
+
+	// Sync the client wishlist store whenever the server's list changes
+	// (after login/logout, invalidateAll, navigation).
+	$effect(() => {
+		wishlist.hydrate(data.wishlistIds ?? []);
+	});
 
 	let loadingTimeout: ReturnType<typeof setTimeout>;
 

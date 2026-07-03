@@ -10,11 +10,13 @@
 	import {
 		ArrowRight,
 		Building2,
+		CircleCheck,
 		CreditCard,
 		Pencil,
 		Plus,
 		ShieldCheck,
 		ShoppingBag,
+		ShoppingCart,
 		Star,
 		Trash2
 	} from '@lucide/svelte';
@@ -195,15 +197,25 @@
 		aria-label="Checkout progress"
 		class="mb-8 flex flex-wrap items-center justify-center gap-2 text-sm sm:gap-5 sm:text-base"
 	>
-		<a href="/cart" class="hover:text-brand-green font-medium text-neutral-400 transition-colors">
+		<a
+			href="/cart"
+			class="hover:text-brand-green inline-flex items-center gap-2 font-medium text-neutral-400 transition-colors"
+		>
+			<ShoppingCart class="size-4 sm:size-5" />
 			Shopping Cart
 		</a>
 		<ArrowRight class="size-4 text-neutral-400 sm:size-5" />
-		<span class="decoration-2 font-bold text-neutral-900 underline underline-offset-4">
+		<span
+			class="decoration-2 inline-flex items-center gap-2 font-bold text-neutral-900 underline underline-offset-4"
+		>
+			<CreditCard class="size-4 sm:size-5" />
 			Checkout
 		</span>
 		<ArrowRight class="size-4 text-neutral-400 sm:size-5" />
-		<span class="font-medium text-neutral-400">Order Complete</span>
+		<span class="inline-flex items-center gap-2 font-medium text-neutral-400">
+			<CircleCheck class="size-4 sm:size-5" />
+			Order Complete
+		</span>
 	</nav>
 
 	{#if $cart.length === 0}

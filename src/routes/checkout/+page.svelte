@@ -25,14 +25,41 @@
 	let submitting = $state(false);
 
 	// Address book state
-	let addresses = $state<UserAddress[]>(data.addresses);
-	let selectedAddressId = $state<string | 'new'>(
+	let selectedAddressId = $state<string>(
 		data.addresses.find((a) => a.isDefault)?.id ?? data.addresses[0]?.id ?? 'new'
 	);
-	let editingId = $state<string | null>(null); // address id being edited, or 'new-form'
+	let editingId = $state<string | null>(null);
 	let saveNewAddress = $state(false);
+	let savingAddress = $state(false);
+	let addressError = $state<string | null>(null);
 
-	// Form fields — bound to the current shipping address inputs
+	// Edit form state — populated when the user clicks Edit on a saved address.
+	type EditForm = {
+		label: string;
+		fullName: string;
+		phone: string;
+		street: string;
+		houseNumber: string;
+		roomNumber: string;
+		accessCode: string;
+		city: string;
+		postcode: string;
+		isDefault: boolean;
+	};
+	let editForm = $state<EditForm>({
+		label: '',
+		fullName: '',
+		phone: '',
+		street: '',
+		houseNumber: '',
+		roomNumber: '',
+		accessCode: '',
+		city: '',
+		postcode: '',
+		isDefault: false
+	});
+
+	// Main form fields — bound to shipping inputs
 	let email = $state(data.userEmail ?? '');
 	let phone = $state('');
 	let fullName = $state(data.userName ?? '');
@@ -44,7 +71,28 @@
 	let postcode = $state('');
 	let notes = $state('');
 
-	function fillFromAddress(a: UserAddress) {
+	// If the currently-selected address gets deleted server-side, fall back.
+	$effect(() => {
+		if (selectedAddressId !== 'new' && !data.addresses.find((a) => a.id === selectedAddressId)) {
+			selectedAddressId = data.addresses[0]?.id ?? 'new';
+		}
+	});
+
+	// Sync visible form fields to whichever address is selected.
+	$effect(() => {
+		if (selectedAddressId === 'new') {
+			fullName = data.userName ?? '';
+			phone = '';
+			street = '';
+			houseNumber = '';
+			roomNumber = '';
+			accessCode = '';
+			city = '';
+			postcode = '';
+			return;
+		}
+		const a = data.addresses.find((x) => x.id === selectedAddressId);
+		if (!a) return;
 		fullName = a.fullName;
 		phone = a.phone;
 		street = a.street;
@@ -53,70 +101,71 @@
 		accessCode = a.accessCode ?? '';
 		city = a.city;
 		postcode = a.postcode;
-	}
-
-	function clearAddressFields() {
-		fullName = data.userName ?? '';
-		phone = '';
-		street = '';
-		houseNumber = '';
-		roomNumber = '';
-		accessCode = '';
-		city = '';
-		postcode = '';
-	}
-
-	function pickAddress(a: UserAddress | 'new') {
-		editingId = null;
-		if (a === 'new') {
-			selectedAddressId = 'new';
-			clearAddressFields();
-		} else {
-			selectedAddressId = a.id;
-			fillFromAddress(a);
-		}
-	}
-
-	// Initial autofill from default address (if any)
-	$effect(() => {
-		const initial = data.addresses.find((a) => a.id === selectedAddressId);
-		if (initial) fillFromAddress(initial);
 	});
 
-	// Keep local address list in sync with server data after invalidations.
-	$effect(() => {
-		addresses = data.addresses;
-		if (selectedAddressId !== 'new' && !addresses.find((a) => a.id === selectedAddressId)) {
-			pickAddress(addresses[0] ?? 'new');
-		}
-	});
+	function startEdit(a: UserAddress) {
+		editForm = {
+			label: a.label ?? '',
+			fullName: a.fullName,
+			phone: a.phone,
+			street: a.street,
+			houseNumber: a.houseNumber ?? '',
+			roomNumber: a.roomNumber ?? '',
+			accessCode: a.accessCode ?? '',
+			city: a.city,
+			postcode: a.postcode,
+			isDefault: a.isDefault
+		};
+		editingId = a.id;
+		addressError = null;
+	}
 
-	async function saveAddressFields(container: HTMLElement) {
-		const fd = new FormData();
-		for (const el of container.querySelectorAll<HTMLInputElement>('[data-addr-field]')) {
-			if (el.type === 'checkbox') {
-				if (el.checked) fd.set(el.name, 'on');
-			} else {
-				fd.set(el.name, el.value);
+	async function saveEdit() {
+		if (!editingId || savingAddress) return;
+		savingAddress = true;
+		addressError = null;
+		try {
+			const fd = new FormData();
+			fd.set('addressId', editingId);
+			fd.set('label', editForm.label);
+			fd.set('fullName', editForm.fullName);
+			fd.set('phone', editForm.phone);
+			fd.set('street', editForm.street);
+			fd.set('houseNumber', editForm.houseNumber);
+			fd.set('roomNumber', editForm.roomNumber);
+			fd.set('accessCode', editForm.accessCode);
+			fd.set('city', editForm.city);
+			fd.set('postcode', editForm.postcode);
+			if (editForm.isDefault) fd.set('isDefault', 'on');
+
+			const res = await fetch('?/saveAddress', { method: 'POST', body: fd });
+			const raw = await res.json();
+			const parsed = raw?.data ? JSON.parse(raw.data) : null;
+			if (parsed?.addressError) {
+				addressError = parsed.addressError;
+				return;
 			}
+			editingId = null;
+			await invalidateAll();
+		} catch (err) {
+			console.error(err);
+			addressError = 'Could not save. Please try again.';
+		} finally {
+			savingAddress = false;
 		}
-		const res = await fetch('?/saveAddress', { method: 'POST', body: fd });
-		const raw = await res.json();
-		const parsed = raw?.data ? JSON.parse(raw.data) : null;
-		if (parsed?.addressError) {
-			alert(parsed.addressError);
-			return;
-		}
-		editingId = null;
-		await invalidateAll();
 	}
 
 	async function deleteAddress(id: string) {
 		if (!confirm('Delete this address?')) return;
-		const fd = new FormData();
-		fd.set('addressId', id);
-		await fetch('?/deleteAddress', { method: 'POST', body: fd });
-		await invalidateAll();
+		try {
+			const fd = new FormData();
+			fd.set('addressId', id);
+			await fetch('?/deleteAddress', { method: 'POST', body: fd });
+			await invalidateAll();
+		} catch (err) {
+			console.error(err);
+			addressError = 'Could not delete. Please try again.';
+		}
 	}
 
 	const shippingFee = $derived(shippingMethod === 'pickup' ? 0 : site.shipping.weightBasedFee);
@@ -241,51 +290,62 @@
 						</span>
 					</div>
 
-					{#if addresses.length > 0}
+					{#if data.addresses.length > 0}
 						<div class="mt-5 space-y-3">
 							<p class="text-xs font-semibold tracking-wider text-neutral-500 uppercase">
 								Saved Addresses
 							</p>
 
-							{#each addresses as a (a.id)}
+							{#if addressError}
 								<div
-									class="rounded-xl border bg-white p-4 transition {selectedAddressId === a.id
+									class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800"
+									role="alert"
+								>
+									{addressError}
+								</div>
+							{/if}
+
+							{#each data.addresses as a (a.id)}
+								<div
+									class="rounded-xl border bg-white transition {selectedAddressId === a.id
 										? 'border-brand-green ring-brand-green/20 ring-2'
 										: 'border-neutral-200 hover:border-neutral-300'}"
 								>
-									<label class="flex cursor-pointer items-start gap-3">
-										<input
-											type="radio"
-											name="_addressPicker"
-											checked={selectedAddressId === a.id}
-											onchange={() => pickAddress(a)}
-											class="text-brand-green focus:ring-brand-green mt-1 size-4 border-neutral-300"
-										/>
-										<div class="min-w-0 flex-1">
-											<div class="flex items-center gap-2">
-												<p class="text-sm font-semibold text-neutral-900">
-													{a.label ?? a.fullName}
+									<div class="flex items-start gap-3 p-4">
+										<label class="flex flex-1 cursor-pointer items-start gap-3">
+											<input
+												type="radio"
+												name="_addressPicker"
+												value={a.id}
+												bind:group={selectedAddressId}
+												class="text-brand-green focus:ring-brand-green mt-1 size-4 border-neutral-300"
+											/>
+											<div class="min-w-0 flex-1">
+												<div class="flex flex-wrap items-center gap-2">
+													<p class="text-sm font-semibold text-neutral-900">
+														{a.label ?? a.fullName}
+													</p>
+													{#if a.isDefault}
+														<span
+															class="bg-brand-green/10 text-brand-green inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+														>
+															<Star class="size-3 fill-current" /> Default
+														</span>
+													{/if}
+												</div>
+												<p class="mt-1 text-xs text-neutral-600">{a.fullName} · {a.phone}</p>
+												<p class="mt-0.5 text-xs text-neutral-600">
+													{a.street}{a.houseNumber ? `, ${a.houseNumber}` : ''}{a.roomNumber
+														? `, ${a.roomNumber}`
+														: ''}
 												</p>
-												{#if a.isDefault}
-													<span
-														class="bg-brand-green/10 text-brand-green inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
-													>
-														<Star class="size-3 fill-current" /> Default
-													</span>
-												{/if}
+												<p class="text-xs text-neutral-600">{a.city} {a.postcode}</p>
 											</div>
-											<p class="mt-1 text-xs text-neutral-600">{a.fullName} · {a.phone}</p>
-											<p class="mt-0.5 text-xs text-neutral-600">
-												{a.street}{a.houseNumber ? `, ${a.houseNumber}` : ''}{a.roomNumber
-													? `, ${a.roomNumber}`
-													: ''}
-											</p>
-											<p class="text-xs text-neutral-600">{a.city} {a.postcode}</p>
-										</div>
+										</label>
 										<div class="flex shrink-0 gap-1">
 											<button
 												type="button"
-												onclick={() => (editingId = editingId === a.id ? null : a.id)}
+												onclick={() => (editingId === a.id ? (editingId = null) : startEdit(a))}
 												class="rounded-lg p-1.5 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900"
 												aria-label="Edit address"
 											>
@@ -300,103 +360,89 @@
 												<Trash2 class="size-3.5" />
 											</button>
 										</div>
-									</label>
+									</div>
 
 									{#if editingId === a.id}
-										{@const editRef = { current: null as HTMLDivElement | null }}
 										<div
-											bind:this={editRef.current}
-											class="border-brand-charcoal/10 mt-4 grid gap-3 border-t pt-4 sm:grid-cols-2"
+											class="border-brand-charcoal/10 grid gap-3 border-t bg-neutral-50/50 p-4 sm:grid-cols-2"
 										>
-											<input data-addr-field type="hidden" name="addressId" value={a.id} />
 											<div class="sm:col-span-2">
 												<label class="mb-1 block text-xs font-medium text-neutral-700">
 													Label <span class="text-neutral-400">(optional)</span>
 												</label>
 												<input
-													data-addr-field
-													name="label"
 													type="text"
-													value={a.label ?? ''}
+													autocomplete="off"
+													bind:value={editForm.label}
 													placeholder="Home / Office"
-													class="focus:border-brand-green w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm focus:outline-none"
+													class="focus:border-brand-green w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
 												/>
 											</div>
 											<input
-												data-addr-field
-												name="fullName"
 												type="text"
 												required
-												value={a.fullName}
+												autocomplete="off"
+												bind:value={editForm.fullName}
 												placeholder="Full Name"
-												class="focus:border-brand-green rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm focus:outline-none"
+												class="focus:border-brand-green rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
 											/>
 											<input
-												data-addr-field
-												name="phone"
 												type="tel"
 												required
-												value={a.phone}
+												autocomplete="off"
+												bind:value={editForm.phone}
 												placeholder="Phone"
-												class="focus:border-brand-green rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm focus:outline-none"
+												class="focus:border-brand-green rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
 											/>
 											<input
-												data-addr-field
-												name="street"
 												type="text"
 												required
-												value={a.street}
+												autocomplete="off"
+												bind:value={editForm.street}
 												placeholder="Street"
-												class="focus:border-brand-green rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm focus:outline-none sm:col-span-2"
+												class="focus:border-brand-green rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none sm:col-span-2"
 											/>
 											<input
-												data-addr-field
-												name="houseNumber"
 												type="text"
-												value={a.houseNumber ?? ''}
+												autocomplete="off"
+												bind:value={editForm.houseNumber}
 												placeholder="House number"
-												class="focus:border-brand-green rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm focus:outline-none"
+												class="focus:border-brand-green rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
 											/>
 											<input
-												data-addr-field
-												name="roomNumber"
 												type="text"
-												value={a.roomNumber ?? ''}
+												autocomplete="off"
+												bind:value={editForm.roomNumber}
 												placeholder="Room / Unit"
-												class="focus:border-brand-green rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm focus:outline-none"
+												class="focus:border-brand-green rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
 											/>
 											<input
-												data-addr-field
-												name="city"
 												type="text"
 												required
-												value={a.city}
+												autocomplete="off"
+												bind:value={editForm.city}
 												placeholder="City"
-												class="focus:border-brand-green rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm focus:outline-none"
+												class="focus:border-brand-green rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
 											/>
 											<input
-												data-addr-field
-												name="postcode"
 												type="text"
 												required
-												value={a.postcode}
+												autocomplete="off"
+												bind:value={editForm.postcode}
 												placeholder="Postcode"
-												class="focus:border-brand-green rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm focus:outline-none"
+												class="focus:border-brand-green rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
 											/>
 											<input
-												data-addr-field
-												name="accessCode"
 												type="text"
-												value={a.accessCode ?? ''}
+												autocomplete="off"
+												bind:value={editForm.accessCode}
 												placeholder="Access code"
-												class="focus:border-brand-green rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm focus:outline-none sm:col-span-2"
+												class="focus:border-brand-green rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none sm:col-span-2"
 											/>
 											<label class="flex items-center gap-2 text-xs text-neutral-700 sm:col-span-2">
 												<input
-													data-addr-field
 													type="checkbox"
-													name="isDefault"
-													checked={a.isDefault}
+													bind:checked={editForm.isDefault}
 													class="text-brand-green focus:ring-brand-green size-4 rounded border-neutral-300"
 												/>
 												Set as default address
@@ -411,10 +457,11 @@
 												</button>
 												<button
 													type="button"
-													onclick={() => editRef.current && saveAddressFields(editRef.current)}
-													class="bg-brand-charcoal hover:bg-brand-charcoal-hover rounded-full px-4 py-2 text-xs font-semibold text-white transition"
+													onclick={saveEdit}
+													disabled={savingAddress}
+													class="bg-brand-charcoal hover:bg-brand-charcoal-hover rounded-full px-4 py-2 text-xs font-semibold text-white transition disabled:opacity-70"
 												>
-													Save Changes
+													{savingAddress ? 'Saving…' : 'Save Changes'}
 												</button>
 											</div>
 										</div>
@@ -431,8 +478,8 @@
 								<input
 									type="radio"
 									name="_addressPicker"
-									checked={selectedAddressId === 'new'}
-									onchange={() => pickAddress('new')}
+									value="new"
+									bind:group={selectedAddressId}
 									class="text-brand-green focus:ring-brand-green size-4 border-neutral-300"
 								/>
 								<Plus class="text-brand-green size-4" />
@@ -441,7 +488,7 @@
 						</div>
 					{/if}
 
-					{#if selectedAddressId === 'new' || addresses.length === 0}
+					{#if selectedAddressId === 'new' || data.addresses.length === 0}
 						<div class="mt-5 grid gap-4 sm:grid-cols-2">
 							<div class="sm:col-span-2">
 								<label

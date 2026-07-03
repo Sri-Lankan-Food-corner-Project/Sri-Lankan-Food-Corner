@@ -61,7 +61,7 @@
 {#if isAdmin}
 	{@render children()}
 {:else}
-	<div class="flex min-h-screen flex-col pb-16 md:pb-0">
+	<div class="flex min-h-dvh flex-col pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0">
 		<Header categories={data.categories} user={data.user} />
 		<main class="flex-1">
 			{@render children()}

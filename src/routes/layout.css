@@ -137,6 +137,20 @@
 		@apply font-sans text-foreground antialiased;
 		background-color: #f3f1ea;
 	}
+
+}
+
+/* iOS Safari / iOS Chrome auto-zoom the viewport whenever a focused input's
+   computed font-size is < 16px. Force 16px on phones so tapping into search /
+   filter / checkout fields never zooms. `!important` is required to beat
+   Tailwind utility classes like `text-sm` that individual inputs use.
+   Desktop layouts keep their smaller 14px look via the min-width breakpoint. */
+@media (max-width: 767px) {
+	input:not([type='checkbox']):not([type='radio']):not([type='range']),
+	select,
+	textarea {
+		font-size: 16px !important;
+	}
 }
 
 .bprogress .bar {

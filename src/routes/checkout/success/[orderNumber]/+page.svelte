@@ -5,7 +5,7 @@
 	import { cart } from '$lib/stores/cart';
 	import { formatPrice } from '$lib/utils/formatPrice';
 	import { site } from '$lib/config/site';
-	import { ArrowRight, CheckCircle2, Clock } from '@lucide/svelte';
+	import { ArrowRight, CircleCheck, Clock, CreditCard, ShoppingCart } from '@lucide/svelte';
 
 	let { data } = $props();
 	const { order, items } = $derived(data);
@@ -26,11 +26,20 @@
 		aria-label="Checkout progress"
 		class="mb-8 flex flex-wrap items-center justify-center gap-2 text-sm sm:gap-5 sm:text-base"
 	>
-		<span class="font-medium text-neutral-400">Shopping Cart</span>
+		<span class="inline-flex items-center gap-2 font-medium text-neutral-400">
+			<ShoppingCart class="size-4 sm:size-5" />
+			Shopping Cart
+		</span>
 		<ArrowRight class="size-4 text-neutral-400 sm:size-5" />
-		<span class="font-medium text-neutral-400">Checkout</span>
+		<span class="inline-flex items-center gap-2 font-medium text-neutral-400">
+			<CreditCard class="size-4 sm:size-5" />
+			Checkout
+		</span>
 		<ArrowRight class="size-4 text-neutral-400 sm:size-5" />
-		<span class="decoration-2 font-bold text-neutral-900 underline underline-offset-4">
+		<span
+			class="decoration-2 inline-flex items-center gap-2 font-bold text-neutral-900 underline underline-offset-4"
+		>
+			<CircleCheck class="size-4 sm:size-5" />
 			Order Complete
 		</span>
 	</nav>
@@ -46,7 +55,7 @@
 					Complete the payment on the next screen to confirm your order.
 				</p>
 			{:else}
-				<CheckCircle2 class="text-brand-green mx-auto size-14" />
+				<CircleCheck class="text-brand-green mx-auto size-14" />
 				<h1 class="mt-4 text-2xl font-extrabold text-neutral-900">
 					Thank you for your order!
 				</h1>
@@ -62,7 +71,7 @@
 		>
 			<div>
 				<p class="text-xs text-neutral-500">Order</p>
-				<p class="mt-1 font-semibold text-neutral-900 break-all">{order.orderNumber}</p>
+				<p class="mt-1 font-semibold text-neutral-900">{order.orderNumber}</p>
 			</div>
 			<div>
 				<p class="text-xs text-neutral-500">Date</p>

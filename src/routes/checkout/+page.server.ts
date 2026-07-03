@@ -247,7 +247,7 @@ export const actions: Actions = {
 			const shippingFee = shippingMethod === 'pickup' ? 0 : site.shipping.weightBasedFee;
 			const totalAmount = subtotal + shippingFee;
 
-			const orderNumber = generateOrderNumber();
+			const orderNumber = await generateOrderNumber();
 			const saveToBook = bool(fd, 'saveAddress') && !!locals.user?.id;
 
 			// --- Insert order, order_items, decrement stock (all atomic) ---

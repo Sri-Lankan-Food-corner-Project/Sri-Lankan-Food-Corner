@@ -15,8 +15,6 @@
 	subtitle={data.category.description}
 	{breadcrumb}
 	categories={data.categories}
-	activeCategorySlug={data.category.slug}
-	useCategoryLinks={true}
 	showCategoryChip={false}
 	filters={data.filters}
 	products={data.products}

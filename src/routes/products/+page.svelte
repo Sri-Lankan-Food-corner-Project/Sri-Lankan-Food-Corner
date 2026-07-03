@@ -7,8 +7,6 @@
 <ProductListingLayout
 	title="All Products"
 	categories={data.categories}
-	activeCategorySlug={data.filters.category}
-	useCategoryLinks={false}
 	showCategoryChip={true}
 	filters={data.filters}
 	products={data.products}

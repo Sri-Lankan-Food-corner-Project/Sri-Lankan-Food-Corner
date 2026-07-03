@@ -15,7 +15,7 @@
 		{
 			eyebrow: '택배 · Home Delivery',
 			title: 'Delivered to Your Doorstep',
-			subtitle: '택배 මගින් ඔබේ නිවසටම — across South Korea.',
+			subtitle: '택배 මගින් ඔබේ නිවසටම',
 			cta: 'Start Shopping',
 			href: '/products'
 		},
@@ -62,34 +62,36 @@
 			/>
 		
 
-			{#key index}
-				<div
-					in:fade={{ duration: 350 }}
-					class="relative z-10 flex max-w-md flex-1 flex-col sm:max-w-sm lg:max-w-xs"
-				>
-					<p
-						class="text-brand-amber text-xs font-semibold tracking-widest uppercase"
+			<div class="relative z-10 flex-1">
+				{#key index}
+					<div
+						in:fade={{ duration: 350 }}
+						class="absolute inset-0 flex max-w-md flex-col sm:max-w-sm lg:max-w-xs"
 					>
-						{current.eyebrow}
-					</p>
-					<h2
-						class="text-brand-amber mt-3 text-2xl leading-tight font-bold sm:text-3xl lg:text-4xl"
-					>
-						{current.title}
-					</h2>
-					<p class="mt-4 max-w-md text-sm text-white/75 sm:text-base">
-						{current.subtitle}
-					</p>
-					<div class="mt-auto pt-6">
-						<a
-							href={current.href}
-							class="hover:bg-brand-cream inline-flex items-center gap-2 rounded-full bg-white px-6 py-2.5 text-sm font-medium text-neutral-900 shadow-sm transition-colors"
+						<p
+							class="text-brand-amber text-xs font-semibold tracking-widest uppercase"
 						>
-							{current.cta} <ArrowRight class="size-4" />
-						</a>
+							{current.eyebrow}
+						</p>
+						<h2
+							class="text-brand-amber mt-3 text-2xl leading-tight font-bold sm:text-3xl lg:text-4xl"
+						>
+							{current.title}
+						</h2>
+						<p class="mt-4 text-sm text-white/75 sm:text-base">
+							{current.subtitle}
+						</p>
+						<div class="mt-auto pt-6">
+							<a
+								href={current.href}
+								class="hover:bg-brand-cream inline-flex items-center gap-2 rounded-full bg-white px-6 py-2.5 text-sm font-medium text-neutral-900 shadow-sm transition-colors"
+							>
+								{current.cta} <ArrowRight class="size-4" />
+							</a>
+						</div>
 					</div>
-				</div>
-			{/key}
+				{/key}
+			</div>
 
 			<div class="relative z-10 mt-6 flex items-center gap-2">
 				{#each slides as _, i (i)}

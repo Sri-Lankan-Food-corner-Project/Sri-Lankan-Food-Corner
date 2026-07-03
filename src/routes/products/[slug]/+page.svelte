@@ -2,12 +2,14 @@
 	import AddToCartButton from '$lib/components/AddToCartButton.svelte';
 	import { formatPrice } from '$lib/utils/formatPrice';
 	import { cart } from '$lib/stores/cart';
+	import { cartOpen } from '$lib/stores/cartUi';
 	import { ArrowLeft, Minus, Plus } from '@lucide/svelte';
 
 	let { data } = $props();
 
 	let quantity = $state(1);
 	let activeImage = $state(0);
+	let adding = $state(false);
 
 	const p = $derived(data.product);
 	const soldOut = $derived(p.stockQuantity === 0);
@@ -24,7 +26,9 @@
 		if (quantity > 1) quantity -= 1;
 	}
 
-	function addToCart() {
+	async function addToCart() {
+		if (adding) return;
+		adding = true;
 		cart.add({
 			productId: p.id,
 			slug: p.slug,
@@ -33,6 +37,9 @@
 			quantity,
 			imageUrl: data.images[0]
 		});
+		await new Promise((r) => setTimeout(r, 400));
+		adding = false;
+		cartOpen.set(true);
 	}
 </script>
 
@@ -154,6 +161,7 @@
 					<AddToCartButton
 						onclick={addToCart}
 						disabled={soldOut}
+						loading={adding}
 						label={soldOut ? 'Sold Out' : 'Add to Cart'}
 					/>
 				</div>

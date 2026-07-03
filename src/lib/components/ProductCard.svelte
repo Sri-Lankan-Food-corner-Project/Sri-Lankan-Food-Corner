@@ -2,6 +2,7 @@
 	import AddToCartButton from '$lib/components/AddToCartButton.svelte';
 	import { formatPrice } from '$lib/utils/formatPrice';
 	import { cart } from '$lib/stores/cart';
+	import { cartOpen } from '$lib/stores/cartUi';
 	import type { Product } from '$lib/types/product';
 
 	type Props = {
@@ -11,6 +12,8 @@
 	};
 
 	let { product, imageUrl, hoverImageUrl }: Props = $props();
+
+	let adding = $state(false);
 
 	const soldOut = $derived(product.stockQuantity === 0);
 	const discountPercent = $derived(
@@ -22,7 +25,9 @@
 	);
 	const hasHoverImage = $derived(!!hoverImageUrl && hoverImageUrl !== imageUrl);
 
-	function add() {
+	async function add() {
+		if (adding) return;
+		adding = true;
 		cart.add({
 			productId: product.id,
 			slug: product.slug,
@@ -31,6 +36,9 @@
 			quantity: 1,
 			imageUrl
 		});
+		await new Promise((r) => setTimeout(r, 400));
+		adding = false;
+		cartOpen.set(true);
 	}
 </script>
 
@@ -80,7 +88,7 @@
 			<div
 				class="pointer-events-none absolute inset-x-3 bottom-3 hidden translate-y-2 opacity-0 transition-all duration-300 ease-out group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 lg:block"
 			>
-				<AddToCartButton onclick={add} />
+				<AddToCartButton onclick={add} loading={adding} />
 			</div>
 		{/if}
 	</div>
@@ -110,7 +118,7 @@
 
 		{#if !soldOut}
 			<div class="mt-4 lg:hidden">
-				<AddToCartButton onclick={add} />
+				<AddToCartButton onclick={add} loading={adding} />
 			</div>
 		{/if}
 	</div>

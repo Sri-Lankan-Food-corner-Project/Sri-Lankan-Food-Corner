@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
 	import AddToCartButton from '$lib/components/AddToCartButton.svelte';
 	import { formatPrice } from '$lib/utils/formatPrice';
 	import { cart } from '$lib/stores/cart';
 	import { cartOpen } from '$lib/stores/cartUi';
 	import { wishlist, toggleWishlist } from '$lib/stores/wishlist';
+	import { showAuth } from '$lib/stores/authUi';
 	import type { Product } from '$lib/types/product';
 	import { Heart } from '@lucide/svelte';
 
@@ -47,21 +47,34 @@
 		cartOpen.set(true);
 	}
 
+	async function attemptWishlist() {
+		try {
+			const added = await toggleWishlist(product.id);
+			toast.success(added ? 'Added to wishlist' : 'Removed from wishlist');
+			return true;
+		} catch (err) {
+			if ((err as { needsAuth?: boolean })?.needsAuth) return false;
+			toast.error('Could not update wishlist. Please try again.');
+			return true; // handled — don't reprompt
+		}
+	}
+
 	async function onHeartClick(e: MouseEvent) {
 		e.preventDefault();
 		e.stopPropagation();
 		if (togglingWishlist) return;
 		togglingWishlist = true;
 		try {
-			const added = await toggleWishlist(product.id);
-			toast.success(added ? 'Added to wishlist' : 'Removed from wishlist');
-		} catch (err) {
-			if ((err as { needsAuth?: boolean })?.needsAuth) {
-				toast.error('Please sign in to save to your wishlist.');
-				goto('/account/login');
-			} else {
-				toast.error('Could not update wishlist. Please try again.');
-			}
+			const handled = await attemptWishlist();
+			if (handled) return;
+
+			// User isn't signed in — open the auth modal, then retry after success
+			const authed = await showAuth({
+				mode: 'signup',
+				title: 'Save this to your wishlist',
+				message: 'Sign in or create an account to save products for later.'
+			});
+			if (authed) await attemptWishlist();
 		} finally {
 			togglingWishlist = false;
 		}

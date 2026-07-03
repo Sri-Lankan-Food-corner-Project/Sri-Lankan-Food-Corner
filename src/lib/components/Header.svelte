@@ -2,6 +2,7 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import { cartCount } from '$lib/stores/cart';
 	import { cartOpen } from '$lib/stores/cartUi';
+	import { showAuth } from '$lib/stores/authUi';
 	import { MapPin, Phone, Heart, User, Search, ShoppingBag } from '@lucide/svelte';
 	import { goto } from '$app/navigation';
 	import logo from '$lib/assets/logo.webp';
@@ -63,12 +64,13 @@
 				{#if user}
 					<AccountMenu {user} />
 				{:else}
-					<a
-						href="/account/login"
-						class="flex items-center gap-1.5 transition-colors hover:text-white"
+					<button
+						type="button"
+						onclick={() => showAuth({ mode: 'login' })}
+						class="flex cursor-pointer items-center gap-1.5 transition-colors hover:text-white"
 					>
 						<User class="size-3.5" /> Login / Register
-					</a>
+					</button>
 				{/if}
 			</div>
 		</div>

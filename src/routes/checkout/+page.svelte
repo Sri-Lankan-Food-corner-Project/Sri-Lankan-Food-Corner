@@ -1,10 +1,11 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
 	import { cart, cartSubtotal } from '$lib/stores/cart';
 	import { formatPrice } from '$lib/utils/formatPrice';
 	import { site } from '$lib/config/site';
-	import { ArrowRight, Building2, CreditCard, ShieldCheck, ShoppingBag, X } from '@lucide/svelte';
+	import { ArrowRight, Building2, CreditCard, ShieldCheck, ShoppingBag } from '@lucide/svelte';
 
-	let { data } = $props();
+	let { data, form } = $props();
 
 	let shippingMethod = $state<'weight' | 'pickup'>('weight');
 	let paymentMethod = $state<'bank' | 'toss'>('bank');
@@ -13,15 +14,9 @@
 
 	const shippingFee = $derived(shippingMethod === 'pickup' ? 0 : site.shipping.weightBasedFee);
 	const total = $derived($cartSubtotal + shippingFee);
-
-	async function placeOrder(e: SubmitEvent) {
-		e.preventDefault();
-		if (submitting) return;
-		submitting = true;
-		// TODO: wire up to /api/checkout — collect form data, send cart + address + payment method
-		await new Promise((r) => setTimeout(r, 800));
-		submitting = false;
-	}
+	const cartPayload = $derived(
+		JSON.stringify($cart.map((l) => ({ productId: l.productId, quantity: l.quantity })))
+	);
 </script>
 
 <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
@@ -55,8 +50,32 @@
 			</a>
 		</div>
 	{:else}
-		<form onsubmit={placeOrder} class="grid gap-6 lg:grid-cols-[1fr_400px]">
+		<form
+			method="POST"
+			use:enhance={() => {
+				submitting = true;
+				return async ({ result, update }) => {
+					if (result.type === 'redirect') {
+						cart.clear();
+					}
+					await update();
+					submitting = false;
+				};
+			}}
+			class="grid gap-6 lg:grid-cols-[1fr_400px]"
+		>
+			<input type="hidden" name="cart" value={cartPayload} />
+
 			<div class="space-y-6">
+				{#if form?.error}
+					<div
+						class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+						role="alert"
+					>
+						{form.error}
+					</div>
+				{/if}
+
 				<!-- Contact -->
 				<section
 					class="bg-brand-cream ring-brand-charcoal/10 rounded-2xl p-5 ring-1 sm:p-6"

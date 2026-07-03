@@ -109,17 +109,44 @@ export const orders = pgTable('orders', {
 	id: uuid('id').primaryKey().defaultRandom(),
 	orderNumber: text('order_number').notNull().unique(),
 	customerId: text('customer_id').references(() => user.id),
-	customerName: text('customer_name').notNull(),
+
+	// Contact snapshot
+	customerEmail: text('customer_email').notNull(),
 	customerPhone: text('customer_phone').notNull(),
-	addressLine1: text('address_line1').notNull(),
-	addressLine2: text('address_line2'),
-	zipcode: text('zipcode').notNull(),
+
+	// Shipping address snapshot (Korean address structure)
+	shippingFullName: text('shipping_full_name').notNull(),
+	shippingStreet: text('shipping_street').notNull(),
+	shippingHouseNumber: text('shipping_house_number'),
+	shippingRoomNumber: text('shipping_room_number'),
+	shippingAccessCode: text('shipping_access_code'),
+	shippingCity: text('shipping_city').notNull(),
+	shippingPostcode: text('shipping_postcode').notNull(),
+	shippingCountry: text('shipping_country').notNull().default('KR'),
+	deliveryNotes: text('delivery_notes'),
+
+	// Billing address snapshot (all null = same as shipping)
+	billingFullName: text('billing_full_name'),
+	billingStreet: text('billing_street'),
+	billingHouseNumber: text('billing_house_number'),
+	billingRoomNumber: text('billing_room_number'),
+	billingCity: text('billing_city'),
+	billingPostcode: text('billing_postcode'),
+	billingCountry: text('billing_country'),
+
+	// Fulfillment
+	shippingMethod: text('shipping_method').notNull(), // 'weight' | 'pickup'
 	status: text('status').notNull().default('pending'),
+
+	// Money — KRW integers
 	subtotal: integer('subtotal').notNull(),
 	shippingFee: integer('shipping_fee').notNull().default(0),
 	totalAmount: integer('total_amount').notNull(),
-	paymentMethod: text('payment_method'),
-	paymentStatus: text('payment_status').default('unpaid'),
+
+	// Payment
+	paymentMethod: text('payment_method').notNull(), // 'bank' | 'toss'
+	paymentStatus: text('payment_status').notNull().default('unpaid'),
+
 	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
 	updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow()
 });

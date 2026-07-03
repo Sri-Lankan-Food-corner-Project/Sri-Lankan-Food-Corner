@@ -26,6 +26,7 @@ export type ListingResult = {
 	page: number;
 	pageSize: number;
 	totalPages: number;
+	priceBounds: { min: number; max: number };
 };
 
 type Options = {
@@ -84,6 +85,28 @@ export async function loadProductListing({
 				return [desc(products.createdAt)];
 		}
 	})();
+
+	// Overall price bounds for the (unfiltered) catalog constrained by category
+	// only — used by the slider so its range doesn't jump when other filters
+	// tighten.
+	const boundsConditions: SQL[] = [eq(products.isActive, true)];
+	if (pinnedCategoryId) {
+		boundsConditions.push(eq(products.categoryId, pinnedCategoryId));
+	} else if (filters.category) {
+		const [cat] = await db
+			.select({ id: categories.id })
+			.from(categories)
+			.where(eq(categories.slug, filters.category))
+			.limit(1);
+		if (cat) boundsConditions.push(eq(products.categoryId, cat.id));
+	}
+	const [bounds] = await db
+		.select({
+			min: sql<number>`COALESCE(MIN(${products.price}), 0)::int`,
+			max: sql<number>`COALESCE(MAX(${products.price}), 0)::int`
+		})
+		.from(products)
+		.where(and(...boundsConditions));
 
 	const [{ total }] = await db
 		.select({ total: count() })
@@ -145,6 +168,7 @@ export async function loadProductListing({
 		total,
 		page: currentPage,
 		pageSize: PAGE_SIZE,
-		totalPages
+		totalPages,
+		priceBounds: { min: Number(bounds?.min ?? 0), max: Number(bounds?.max ?? 0) }
 	};
 }

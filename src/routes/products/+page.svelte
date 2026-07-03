@@ -15,4 +15,5 @@
 	total={data.total}
 	page={data.page}
 	totalPages={data.totalPages}
+	priceBounds={data.priceBounds}
 />

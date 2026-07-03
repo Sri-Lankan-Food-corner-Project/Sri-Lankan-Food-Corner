@@ -23,6 +23,7 @@
 		total: number;
 		page: number;
 		totalPages: number;
+		priceBounds: { min: number; max: number };
 	};
 
 	let {
@@ -37,7 +38,8 @@
 		products,
 		total,
 		page,
-		totalPages
+		totalPages,
+		priceBounds
 	}: Props = $props();
 </script>
 
@@ -70,7 +72,7 @@
 	</div>
 
 	<div class="mt-4">
-		<FilterBar {filters} />
+		<FilterBar {filters} {priceBounds} />
 	</div>
 
 	<div class="mt-3">

@@ -8,9 +8,10 @@
 
 	type Props = {
 		filters: ListingFilters;
+		priceBounds: { min: number; max: number };
 	};
 
-	let { filters }: Props = $props();
+	let { filters, priceBounds }: Props = $props();
 
 	let searchValue = $state(filters.q);
 	let searchTimer: ReturnType<typeof setTimeout> | null = null;
@@ -102,4 +103,4 @@
 	</div>
 </div>
 
-<FilterSheet open={sheetOpen} onOpenChange={(v) => (sheetOpen = v)} {filters} />
+<FilterSheet open={sheetOpen} onOpenChange={(v) => (sheetOpen = v)} {filters} {priceBounds} />

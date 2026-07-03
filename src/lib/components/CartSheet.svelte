@@ -10,7 +10,7 @@
 	<Sheet.Content
 		side="right"
 		showCloseButton={false}
-		class="bg-white! flex w-full flex-col gap-0 p-0 text-neutral-900 duration-500! sm:max-w-md!"
+		class="bg-white! flex w-full flex-col gap-0 p-0 text-neutral-900 sm:max-w-md!"
 	>
 		<Sheet.Header class="flex flex-row items-center justify-between border-b border-black/5 p-5">
 			<Sheet.Title class="text-lg font-bold text-neutral-900">Shopping cart</Sheet.Title>
@@ -125,3 +125,51 @@
 		{/if}
 	</Sheet.Content>
 </Sheet.Root>
+
+<style>
+	:global([data-slot='sheet-content'][data-side='right'][data-state='open']) {
+		animation: sheet-slide-in-right 450ms cubic-bezier(0.32, 0.72, 0, 1);
+	}
+	:global([data-slot='sheet-content'][data-side='right'][data-state='closed']) {
+		animation: sheet-slide-out-right 300ms cubic-bezier(0.32, 0.72, 0, 1);
+	}
+	:global([data-slot='sheet-overlay'][data-state='open']) {
+		animation: sheet-fade-in 400ms ease-out;
+	}
+	:global([data-slot='sheet-overlay'][data-state='closed']) {
+		animation: sheet-fade-out 250ms ease-in;
+	}
+
+	@keyframes -global-sheet-slide-in-right {
+		from {
+			transform: translateX(100%);
+		}
+		to {
+			transform: translateX(0);
+		}
+	}
+	@keyframes -global-sheet-slide-out-right {
+		from {
+			transform: translateX(0);
+		}
+		to {
+			transform: translateX(100%);
+		}
+	}
+	@keyframes -global-sheet-fade-in {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+	@keyframes -global-sheet-fade-out {
+		from {
+			opacity: 1;
+		}
+		to {
+			opacity: 0;
+		}
+	}
+</style>

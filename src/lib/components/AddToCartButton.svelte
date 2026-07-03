@@ -20,7 +20,7 @@
 	type="button"
 	{onclick}
 	{disabled}
-	class="bg-brand-green hover:bg-brand-green-hover group/btn inline-flex w-full items-center justify-center rounded-full px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60 {className}"
+	class="bg-brand-charcoal hover:bg-brand-charcoal-hover group/btn inline-flex w-full cursor-pointer items-center justify-center rounded-full px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60 {className}"
 >
 	<ShoppingCart
 		class="size-4 -ml-6 scale-0 opacity-0 transition-all duration-200 ease-out group-hover/btn:mr-2 group-hover/btn:ml-0 group-hover/btn:scale-100 group-hover/btn:opacity-100"

@@ -102,14 +102,10 @@
 				<span class="text-xs text-neutral-400 line-through">
 					{formatPrice(product.compareAtPrice ?? 0)}
 				</span>
-				<span class="text-base font-extrabold text-red-600">
-					{formatPrice(product.price)}
-				</span>
-			{:else}
-				<span class="text-brand-green text-base font-extrabold">
-					{formatPrice(product.price)}
-				</span>
 			{/if}
+			<span class="text-base font-extrabold text-neutral-900">
+				{formatPrice(product.price)}
+			</span>
 		</div>
 	</div>
 </div>

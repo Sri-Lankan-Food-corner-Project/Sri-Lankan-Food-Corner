@@ -78,7 +78,7 @@
 
 		{#if !soldOut}
 			<div
-				class="pointer-events-none absolute inset-x-3 bottom-3 translate-y-2 opacity-0 transition-all duration-300 ease-out group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100"
+				class="pointer-events-none absolute inset-x-3 bottom-3 hidden translate-y-2 opacity-0 transition-all duration-300 ease-out group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 lg:block"
 			>
 				<AddToCartButton onclick={add} />
 			</div>
@@ -107,5 +107,11 @@
 				{formatPrice(product.price)}
 			</span>
 		</div>
+
+		{#if !soldOut}
+			<div class="mt-4 lg:hidden">
+				<AddToCartButton onclick={add} />
+			</div>
+		{/if}
 	</div>
 </div>

@@ -5,6 +5,8 @@
 	import Footer from '$lib/components/Footer.svelte';
 	import MobileBottomNav from '$lib/components/MobileBottomNav.svelte';
 	import CartSheet from '$lib/components/CartSheet.svelte';
+	import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
+	import { Toaster } from 'svelte-sonner';
 	import { ModeWatcher } from 'mode-watcher';
 	import { BProgress } from '@bprogress/core';
 	import '@bprogress/core/css';
@@ -49,3 +51,6 @@
 	<MobileBottomNav categories={data.categories} />
 	<CartSheet />
 {/if}
+
+<ConfirmDialog />
+<Toaster position="top-right" richColors closeButton />

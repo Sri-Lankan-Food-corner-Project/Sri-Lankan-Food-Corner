@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
+	import { toast } from 'svelte-sonner';
 	import { cart, cartSubtotal } from '$lib/stores/cart';
+	import { showConfirm } from '$lib/stores/confirm';
 	import { formatPrice } from '$lib/utils/formatPrice';
 	import { site } from '$lib/config/site';
 	import type { UserAddress } from '$lib/types/order';
@@ -25,6 +27,7 @@
 	let submitting = $state(false);
 
 	// Address book state
+	// svelte-ignore state_referenced_locally
 	let selectedAddressId = $state<string>(
 		data.addresses.find((a) => a.isDefault)?.id ?? data.addresses[0]?.id ?? 'new'
 	);
@@ -60,8 +63,10 @@
 	});
 
 	// Main form fields — bound to shipping inputs
+	// svelte-ignore state_referenced_locally
 	let email = $state(data.userEmail ?? '');
 	let phone = $state('');
+	// svelte-ignore state_referenced_locally
 	let fullName = $state(data.userName ?? '');
 	let street = $state('');
 	let houseNumber = $state('');
@@ -143,28 +148,38 @@
 			const parsed = raw?.data ? JSON.parse(raw.data) : null;
 			if (parsed?.addressError) {
 				addressError = parsed.addressError;
+				toast.error(parsed.addressError);
 				return;
 			}
 			editingId = null;
 			await invalidateAll();
+			toast.success('Address updated');
 		} catch (err) {
 			console.error(err);
 			addressError = 'Could not save. Please try again.';
+			toast.error('Could not save. Please try again.');
 		} finally {
 			savingAddress = false;
 		}
 	}
 
 	async function deleteAddress(id: string) {
-		if (!confirm('Delete this address?')) return;
+		const ok = await showConfirm({
+			title: 'Delete this address?',
+			description: 'This will remove the address from your address book. This cannot be undone.',
+			confirmLabel: 'Delete',
+			destructive: true
+		});
+		if (!ok) return;
 		try {
 			const fd = new FormData();
 			fd.set('addressId', id);
 			await fetch('?/deleteAddress', { method: 'POST', body: fd });
 			await invalidateAll();
+			toast.success('Address deleted');
 		} catch (err) {
 			console.error(err);
-			addressError = 'Could not delete. Please try again.';
+			toast.error('Could not delete. Please try again.');
 		}
 	}
 
@@ -212,10 +227,12 @@
 			use:enhance={() => {
 				submitting = true;
 				return async ({ result, update }) => {
-					if (result.type === 'redirect') {
-						cart.clear();
-					}
+					// Redirect first, then let the success page clear the cart.
+					// Clearing before update() causes an empty-cart flash on this page.
 					await update();
+					if (result.type === 'failure') {
+						toast.error(String(result.data?.error ?? 'Could not place your order.'));
+					}
 					submitting = false;
 				};
 			}}
@@ -366,10 +383,10 @@
 										<div
 											class="border-brand-charcoal/10 grid gap-3 border-t bg-neutral-50/50 p-4 sm:grid-cols-2"
 										>
-											<div class="sm:col-span-2">
-												<label class="mb-1 block text-xs font-medium text-neutral-700">
+											<label class="block sm:col-span-2">
+												<span class="mb-1 block text-xs font-medium text-neutral-700">
 													Label <span class="text-neutral-400">(optional)</span>
-												</label>
+												</span>
 												<input
 													type="text"
 													autocomplete="off"
@@ -377,7 +394,7 @@
 													placeholder="Home / Office"
 													class="focus:border-brand-green w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
 												/>
-											</div>
+											</label>
 											<input
 												type="text"
 												required

@@ -14,5 +14,6 @@
 		title={section.title}
 		subtitle={section.subtitle}
 		products={section.products}
+		viewAllHref={section.viewAllHref}
 	/>
 {/each}

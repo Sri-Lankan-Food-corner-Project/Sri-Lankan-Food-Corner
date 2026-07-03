@@ -23,55 +23,56 @@
 	}
 </script>
 
-<section class="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-	<div class="flex items-end justify-between gap-4">
+<section class="mx-auto w-full max-w-350 py-6">
+	<div class="flex items-end justify-between gap-4 px-4 sm:px-6 lg:px-8">
 		<div class="min-w-0">
 			<h2 class="text-xl font-extrabold text-neutral-900 sm:text-2xl">{title}</h2>
 			{#if subtitle}
 				<p class="mt-1 text-sm text-neutral-500">{subtitle}</p>
 			{/if}
 		</div>
-		<div class="flex items-center gap-2">
-			{#if viewAllHref}
-				<a
-					href={viewAllHref}
-					class="text-brand-green hover:text-brand-green-hover hidden text-sm font-semibold underline-offset-4 hover:underline sm:inline"
-				>
-					View all
-				</a>
-			{/if}
-			<button
-				type="button"
-				onclick={() => scrollBy(-1)}
-				aria-label="Scroll left"
-				class="hover:bg-brand-cream hidden size-9 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-700 shadow-sm transition sm:inline-flex"
+		{#if viewAllHref}
+			<a
+				href={viewAllHref}
+				class="hover:text-brand-green shrink-0 text-sm font-semibold text-neutral-900 underline underline-offset-4"
 			>
-				<ChevronLeft class="size-4" />
-			</button>
-			<button
-				type="button"
-				onclick={() => scrollBy(1)}
-				aria-label="Scroll right"
-				class="hover:bg-brand-cream hidden size-9 items-center justify-center rounded-full border border-neutral-200 bg-white text-neutral-700 shadow-sm transition sm:inline-flex"
-			>
-				<ChevronRight class="size-4" />
-			</button>
-		</div>
+				All Products
+			</a>
+		{/if}
 	</div>
 
-	<div
-		bind:this={track}
-		class="slider-track mt-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-2"
-	>
-		{#each products as p (p.id)}
-			<div class="w-[45%] shrink-0 snap-start sm:w-[32%] md:w-[24%] lg:w-[19%]">
-				<ProductCard
-					product={p}
-					imageUrl={p.imageUrl ?? undefined}
-					hoverImageUrl={p.hoverImageUrl ?? undefined}
-				/>
-			</div>
-		{/each}
+	<div class="group/slider relative mt-4">
+		<button
+			type="button"
+			onclick={() => scrollBy(-1)}
+			aria-label="Scroll left"
+			class="pointer-events-none absolute top-1/2 left-1 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-neutral-200 bg-white/95 text-neutral-700 opacity-0 shadow-md backdrop-blur transition-opacity duration-200 group-hover/slider:pointer-events-auto group-hover/slider:opacity-100 hover:text-neutral-900 sm:flex"
+		>
+			<ChevronLeft class="size-5" />
+		</button>
+		<button
+			type="button"
+			onclick={() => scrollBy(1)}
+			aria-label="Scroll right"
+			class="pointer-events-none absolute top-1/2 right-1 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-neutral-200 bg-white/95 text-neutral-700 opacity-0 shadow-md backdrop-blur transition-opacity duration-200 group-hover/slider:pointer-events-auto group-hover/slider:opacity-100 hover:text-neutral-900 sm:flex"
+		>
+			<ChevronRight class="size-5" />
+		</button>
+
+		<div
+			bind:this={track}
+			class="slider-track flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-4 sm:gap-4 sm:px-6 lg:px-8"
+		>
+			{#each products as p (p.id)}
+				<div class="w-[45%] shrink-0 snap-start sm:w-[32%] md:w-[24%] lg:w-[19%]">
+					<ProductCard
+						product={p}
+						imageUrl={p.imageUrl ?? undefined}
+						hoverImageUrl={p.hoverImageUrl ?? undefined}
+					/>
+				</div>
+			{/each}
+		</div>
 	</div>
 </section>
 

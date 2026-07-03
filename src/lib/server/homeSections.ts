@@ -1,6 +1,7 @@
 import { and, asc, desc, eq, gt, inArray, sql } from 'drizzle-orm';
 import { db } from '$lib/server/db';
 import {
+	categories,
 	homeSectionProducts,
 	homeSections,
 	productImages,
@@ -12,6 +13,7 @@ export type ResolvedHomeSection = {
 	id: string;
 	title: string;
 	subtitle: string | null;
+	viewAllHref: string;
 	products: (Product & { imageUrl: string | null; hoverImageUrl: string | null })[];
 };
 
@@ -58,8 +60,20 @@ async function attachImages<T extends { id: string }>(rows: T[]) {
 
 export async function loadHomeSections(): Promise<ResolvedHomeSection[]> {
 	const sections = await db
-		.select()
+		.select({
+			id: homeSections.id,
+			title: homeSections.title,
+			subtitle: homeSections.subtitle,
+			type: homeSections.type,
+			categoryId: homeSections.categoryId,
+			categorySlug: categories.slug,
+			limit: homeSections.limit,
+			sortOrder: homeSections.sortOrder,
+			isActive: homeSections.isActive,
+			createdAt: homeSections.createdAt
+		})
 		.from(homeSections)
+		.leftJoin(categories, eq(homeSections.categoryId, categories.id))
 		.where(eq(homeSections.isActive, true))
 		.orderBy(asc(homeSections.sortOrder), asc(homeSections.createdAt));
 
@@ -109,10 +123,13 @@ export async function loadHomeSections(): Promise<ResolvedHomeSection[]> {
 
 		if (rows.length === 0) continue;
 		const withImages = await attachImages(rows);
+		const viewAllHref =
+			s.type === 'category' && s.categorySlug ? `/category/${s.categorySlug}` : '/products';
 		resolved.push({
 			id: s.id,
 			title: s.title,
 			subtitle: s.subtitle,
+			viewAllHref,
 			products: withImages
 		});
 	}

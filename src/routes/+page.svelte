@@ -65,7 +65,7 @@
 			{#key index}
 				<div
 					in:fade={{ duration: 350 }}
-					class="relative z-10 flex max-w-xl flex-1 flex-col"
+					class="relative z-10 flex max-w-md flex-1 flex-col sm:max-w-sm lg:max-w-xs"
 				>
 					<p
 						class="text-brand-amber text-xs font-semibold tracking-widest uppercase"

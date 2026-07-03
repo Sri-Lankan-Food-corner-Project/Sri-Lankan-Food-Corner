@@ -77,6 +77,11 @@ src/
 │   │   └── payment/toss.ts   # Toss Payments helper functions
 │   ├── auth-client.ts        # Better Auth browser client (login/signup calls)
 │   ├── components/
+│   │   ├── home/             # section components for the homepage (HeroBanner, FeatureMarquee, …)
+│   │   ├── header/           # header sub-components
+│   │   ├── admin/            # admin panel-only components
+│   │   ├── ui/               # shadcn-svelte primitives (button, input, dialog, …)
+│   │   └── *.svelte          # shared app-wide components (Header, Footer, ProductCard, …)
 │   ├── stores/cart.ts
 │   ├── utils/
 │   └── types/
@@ -227,6 +232,36 @@ utility that works for `bg-primary` also works for `bg-brand-green`.
   serve directly from the R2 public bucket URL.
 - Retention window for the scheduled `pg_dump` backups (how many days to keep before
   overwriting).
+
+## Components & Page Structure
+
+- **Keep `+page.svelte` thin.** A route file should mostly be a list of `<SectionComponent />`
+  tags with its own `load` data plumbed in as props. Don't inline hero sliders, marquees,
+  product grids, etc. — extract them into components under `src/lib/components/<area>/`.
+- **Folder layout for components**:
+  - `src/lib/components/home/` — homepage sections (`HeroBanner`, `HeroSlider`,
+    `HeroCategoryCard`, `FeatureMarquee`, …).
+  - `src/lib/components/header/`, `src/lib/components/admin/` — area-specific.
+  - `src/lib/components/ui/` — shadcn-svelte primitives (buttons, inputs, dialogs).
+  - `src/lib/components/*.svelte` (top level) — shared across areas (`Header`,
+    `Footer`, `ProductCard`, `CartItem`, `MobileBottomNav`).
+- **One responsibility per component.** If a section has a reusable pattern (e.g. the
+  two "category cards" on the homepage), turn it into a props-driven component
+  (`HeroCategoryCard`) rather than copy-pasting the markup. Variants (light-on-dark vs
+  dark-on-light text) should be a `tone` prop with a lookup table, not two components.
+- **Props are typed with `$props()` + a `type Props = { ... }`.** Skip the type only for
+  trivial one-off components. Always accept Tailwind class props (`bgClass`, `blobClass`)
+  as strings rather than baking hex colors into the component — this keeps color choices
+  in the palette tokens.
+- **Data belongs with the component that renders it.** The slide list lives in
+  `HeroSlider.svelte`, the marquee items live in `FeatureMarquee.svelte`. Don't hoist
+  static content into the route file just because that's where it started.
+- **Scoped styles for animations, Tailwind for everything else.** The marquee's
+  `@keyframes` live in the component's `<style>` block; layout/color use utility classes.
+  Don't create parallel CSS files for component styles.
+- **Naming**: `PascalCase.svelte` for component files, singular nouns (`ProductCard`,
+  not `ProductCards`). Match the folder to the section (`home/HeroBanner.svelte`, not
+  `HomeHeroBanner.svelte`).
 
 ## General Working Style
 

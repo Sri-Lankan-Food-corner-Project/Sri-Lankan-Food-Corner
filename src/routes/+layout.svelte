@@ -4,6 +4,7 @@
 	import Header from '$lib/components/Header.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import MobileBottomNav from '$lib/components/MobileBottomNav.svelte';
+	import CartSheet from '$lib/components/CartSheet.svelte';
 	import { ModeWatcher } from 'mode-watcher';
 	import { BProgress } from '@bprogress/core';
 	import '@bprogress/core/css';
@@ -46,4 +47,5 @@
 	</div>
 
 	<MobileBottomNav categories={data.categories} />
+	<CartSheet />
 {/if}

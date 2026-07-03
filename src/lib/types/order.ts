@@ -8,22 +8,45 @@ export type OrderStatus =
 	| 'refunded';
 
 export type PaymentStatus = 'unpaid' | 'paid' | 'failed' | 'refunded';
+export type PaymentMethod = 'bank' | 'toss';
+export type ShippingMethod = 'weight' | 'pickup';
 
 export type Order = {
 	id: string;
 	orderNumber: string;
 	customerId: string | null;
-	customerName: string;
+
+	customerEmail: string;
 	customerPhone: string;
-	addressLine1: string;
-	addressLine2: string | null;
-	zipcode: string;
+
+	shippingFullName: string;
+	shippingStreet: string;
+	shippingHouseNumber: string | null;
+	shippingRoomNumber: string | null;
+	shippingAccessCode: string | null;
+	shippingCity: string;
+	shippingPostcode: string;
+	shippingCountry: string;
+	deliveryNotes: string | null;
+
+	billingFullName: string | null;
+	billingStreet: string | null;
+	billingHouseNumber: string | null;
+	billingRoomNumber: string | null;
+	billingCity: string | null;
+	billingPostcode: string | null;
+	billingCountry: string | null;
+
+	shippingMethod: ShippingMethod;
 	status: OrderStatus;
+
 	subtotal: number;
 	shippingFee: number;
 	totalAmount: number;
-	paymentMethod: string | null;
+
+	paymentMethod: PaymentMethod;
 	paymentStatus: PaymentStatus;
+
 	createdAt: Date;
 	updatedAt: Date;
 };
@@ -36,4 +59,22 @@ export type OrderItem = {
 	unitPrice: number;
 	quantity: number;
 	lineTotal: number;
+};
+
+export type UserAddress = {
+	id: string;
+	userId: string;
+	label: string | null;
+	fullName: string;
+	phone: string;
+	street: string;
+	houseNumber: string | null;
+	roomNumber: string | null;
+	accessCode: string | null;
+	city: string;
+	postcode: string;
+	country: string;
+	isDefault: boolean;
+	createdAt: Date;
+	updatedAt: Date;
 };

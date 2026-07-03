@@ -3,6 +3,7 @@
 	import * as Sheet from '$lib/components/ui/sheet';
 	import { Badge } from '$lib/components/ui/badge';
 	import { cartCount } from '$lib/stores/cart';
+	import { cartOpen } from '$lib/stores/cartUi';
 	import { cn } from '$lib/utils';
 	import { Menu, Heart, Home, ShoppingCart, User } from '@lucide/svelte';
 
@@ -84,7 +85,7 @@
 			<span>Home</span>
 		</a>
 
-		<a href="/cart" class={itemClass(isActive('/cart'))}>
+		<button type="button" onclick={() => cartOpen.set(true)} class={itemClass(false)}>
 			<span class="relative">
 				<ShoppingCart class="size-5" />
 				{#if $cartCount > 0}
@@ -96,7 +97,7 @@
 				{/if}
 			</span>
 			<span>Cart</span>
-		</a>
+		</button>
 
 		<a href="/account" class={itemClass(page.url.pathname.startsWith('/account'))}>
 			<User class="size-5" />

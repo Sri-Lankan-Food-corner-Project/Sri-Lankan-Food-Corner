@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Badge } from '$lib/components/ui/badge';
 	import { cartCount } from '$lib/stores/cart';
+	import { cartOpen } from '$lib/stores/cartUi';
 	import { MapPin, Phone, Heart, User, Search, ShoppingBag } from '@lucide/svelte';
 	import { goto } from '$app/navigation';
 	import logo from '$lib/assets/logo.webp';
@@ -101,9 +102,10 @@
 				</form>
 			</div>
 
-			<a
-				href="/cart"
-				class="relative shrink-0"
+			<button
+				type="button"
+				onclick={() => cartOpen.set(true)}
+				class="relative shrink-0 cursor-pointer"
 				aria-label="Cart ({$cartCount} items)"
 			>
 				<span
@@ -116,7 +118,7 @@
 				>
 					{$cartCount}
 				</Badge>
-			</a>
+			</button>
 		</div>
 	</div>
 </header>

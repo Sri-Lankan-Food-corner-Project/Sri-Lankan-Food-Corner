@@ -69,7 +69,12 @@
 		{#if soldOut}
 			<Button class="w-full" variant="outline" disabled>Sold out</Button>
 		{:else}
-			<Button class="w-full" onclick={add}>Add to Cart</Button>
+			<Button
+				class="bg-brand-green hover:bg-brand-green-hover w-full rounded-full text-white"
+				onclick={add}
+			>
+				Add to Cart
+			</Button>
 		{/if}
 	</Card.Footer>
 </Card.Root>

@@ -37,7 +37,7 @@
 	}
 </script>
 
-<section class="mx-auto grid max-w-6xl gap-8 px-4 py-8 md:grid-cols-2">
+<section class="mx-auto grid max-w-350 gap-8 px-4 py-8 sm:px-6 md:grid-cols-2 lg:px-8">
 	<div>
 		<div class="bg-muted relative aspect-square overflow-hidden rounded-lg">
 			{#if data.images.length > 0}

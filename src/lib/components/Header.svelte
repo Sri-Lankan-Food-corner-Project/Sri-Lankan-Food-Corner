@@ -1,96 +1,122 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { cartCount } from '$lib/stores/cart';
-	import { ShoppingCart, User, LogOut, Package } from '@lucide/svelte';
-	import { signOut } from '$lib/auth-client';
-	import { goto, invalidateAll } from '$app/navigation';
+	import { MapPin, Phone, Heart, User, Search, ShoppingBag } from '@lucide/svelte';
+	import { goto } from '$app/navigation';
+	import logo from '$lib/assets/logo.webp';
+	import { site, telHref } from '$lib/config/site';
+	import AccountMenu from '$lib/components/header/AccountMenu.svelte';
+	import CategoriesMenu from '$lib/components/header/CategoriesMenu.svelte';
 
 	type Category = { slug: string; name: string };
 	type HeaderUser = { email: string; role?: string | null | undefined };
-	let { categories = [], user = null }: { categories?: Category[]; user?: HeaderUser | null } = $props();
+	let {
+		categories = [],
+		user = null
+	}: { categories?: Category[]; user?: HeaderUser | null } = $props();
 
-	async function handleSignOut() {
-		await signOut();
-		await invalidateAll();
-		await goto('/');
+	let searchQuery = $state('');
+
+	function handleSearch(e: SubmitEvent) {
+		e.preventDefault();
+		const q = searchQuery.trim();
+		if (q) goto(`/products?q=${encodeURIComponent(q)}`);
 	}
 </script>
 
-<header class="bg-background sticky top-0 z-40 w-full border-b">
-	<div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
-		<div class="flex items-center gap-4">
-			<a href="/" class="text-lg font-bold tracking-tight">
-				Sri Lankan Food Corner
+<header class="sticky top-0 z-40 w-full shadow-sm">
+	<!-- Top thin bar: dark brown, desktop only -->
+	<div class="hidden bg-brand-green text-white/80 md:block">
+		<div
+			class="mx-auto flex h-9 max-w-350 items-center justify-between px-4 text-xs sm:px-6 lg:px-8"
+		>
+			<nav class="flex items-center gap-5" aria-label="Top">
+				<a href="/about" class="transition-colors hover:text-white">About Us</a>
+				<span class="text-white/25">|</span>
+				<a href="/contact" class="transition-colors hover:text-white">Contact Us</a>
+				<span class="text-white/25">|</span>
+				<a href="/blog" class="transition-colors hover:text-white">Blog</a>
+			</nav>
+			<div class="flex items-center gap-5">
+				<a
+					href={site.mapUrl}
+					target="_blank"
+					rel="noopener"
+					class="flex items-center gap-1.5 transition-colors hover:text-white"
+				>
+					<MapPin class="size-3.5" /> Store Location
+				</a>
+				<a
+					href={telHref(site.phone.primary)}
+					class="flex items-center gap-1.5 transition-colors hover:text-white"
+				>
+					<Phone class="size-3.5" /> {site.phone.primary}
+				</a>
+				<a
+					href="/account/wishlist"
+					class="flex items-center gap-1.5 transition-colors hover:text-white"
+				>
+					<Heart class="size-3.5" /> Wishlist
+				</a>
+
+				{#if user}
+					<AccountMenu {user} />
+				{:else}
+					<a
+						href="/account/login"
+						class="flex items-center gap-1.5 transition-colors hover:text-white"
+					>
+						<User class="size-3.5" /> Login / Register
+					</a>
+				{/if}
+			</div>
+		</div>
+	</div>
+
+	<!-- Main bar: 86px, cream -->
+	<div class="bg-brand-cream">
+		<div
+			class="mx-auto flex h-21.5 max-w-350 items-center gap-3 px-4 sm:gap-4 sm:px-6 lg:gap-6 lg:px-8"
+		>
+			<a href="/" class="flex shrink-0 items-center" aria-label="Home">
+				<img src={logo} alt={site.name} class="h-11 w-auto sm:h-12 md:h-14" />
 			</a>
 
-			<nav class="ml-6 hidden items-center gap-4 md:flex">
-				<a href="/products" class="text-muted-foreground hover:text-foreground text-sm">Products</a>
-				{#each categories.slice(0, 5) as c (c.slug)}
-					<a href="/category/{c.slug}" class="text-muted-foreground hover:text-foreground text-sm">
-						{c.name}
-					</a>
-				{/each}
-			</nav>
-		</div>
+			<div class="flex flex-1 items-center gap-3">
+				<CategoriesMenu {categories} />
 
-		<div class="flex items-center gap-2">
-			<Button href="/cart" variant="ghost" size="icon" class="relative hidden md:inline-flex">
-				<ShoppingCart class="size-5" />
-				{#if $cartCount > 0}
-					<Badge class="absolute -top-1 -right-1 h-5 min-w-5 rounded-full px-1 text-xs">
-						{$cartCount}
-					</Badge>
-				{/if}
-				<span class="sr-only">Cart</span>
-			</Button>
+				<form onsubmit={handleSearch} class="flex-1" role="search">
+					<div
+						class="focus-within:border-neutral-400 focus-within:ring-2 focus-within:ring-neutral-900/10 flex items-center gap-2 rounded-full border border-neutral-300 bg-white px-4 py-2.5 transition"
+					>
+						<Search class="size-4 shrink-0 text-neutral-400" />
+						<input
+							bind:value={searchQuery}
+							type="text"
+							placeholder="Search for products"
+							aria-label="Search for products"
+							class="w-full border-0 bg-transparent p-0 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-0 focus:outline-none focus:ring-0"
+						/>
+					</div>
+				</form>
+			</div>
 
-			{#if user}
-				<DropdownMenu.Root>
-					<DropdownMenu.Trigger>
-						{#snippet child({ props })}
-							<Button {...props} variant="ghost" size="icon">
-								<User class="size-5" />
-								<span class="sr-only">Account</span>
-							</Button>
-						{/snippet}
-					</DropdownMenu.Trigger>
-					<DropdownMenu.Content align="end">
-						<DropdownMenu.Label>{user.email}</DropdownMenu.Label>
-						<DropdownMenu.Separator />
-						<DropdownMenu.Item>
-							{#snippet child({ props })}
-								<a href="/account" {...props}>
-									<User class="mr-2 size-4" /> Profile
-								</a>
-							{/snippet}
-						</DropdownMenu.Item>
-						<DropdownMenu.Item>
-							{#snippet child({ props })}
-								<a href="/account/orders" {...props}>
-									<Package class="mr-2 size-4" /> Orders
-								</a>
-							{/snippet}
-						</DropdownMenu.Item>
-						{#if user.role === 'admin'}
-							<DropdownMenu.Separator />
-							<DropdownMenu.Item>
-								{#snippet child({ props })}
-									<a href="/admin" {...props}>Admin Panel</a>
-								{/snippet}
-							</DropdownMenu.Item>
-						{/if}
-						<DropdownMenu.Separator />
-						<DropdownMenu.Item onSelect={handleSignOut}>
-							<LogOut class="mr-2 size-4" /> Sign out
-						</DropdownMenu.Item>
-					</DropdownMenu.Content>
-				</DropdownMenu.Root>
-			{:else}
-				<Button href="/account/login" variant="ghost" size="sm">Login</Button>
-				<Button href="/account/signup" size="sm">Sign up</Button>
-			{/if}
+			<a
+				href="/cart"
+				class="relative shrink-0"
+				aria-label="Cart ({$cartCount} items)"
+			>
+				<span
+					class="flex size-11 items-center justify-center rounded-full bg-brand-amber text-neutral-900 shadow-sm transition-colors hover:bg-brand-amber-hover"
+				>
+					<ShoppingBag class="size-5" />
+				</span>
+				<Badge
+					class="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-neutral-900 px-1 text-[10px] font-medium text-white"
+				>
+					{$cartCount}
+				</Badge>
+			</a>
 		</div>
 	</div>
 </header>

@@ -42,7 +42,7 @@
 		<main class="flex-1">
 			{@render children()}
 		</main>
-		<Footer />
+		<Footer categories={data.categories} />
 	</div>
 
 	<MobileBottomNav categories={data.categories} />

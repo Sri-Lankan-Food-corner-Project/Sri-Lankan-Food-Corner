@@ -4,7 +4,7 @@
 	let { data } = $props();
 </script>
 
-<section class="mx-auto max-w-7xl px-4 py-8">
+<section class="mx-auto max-w-350 px-4 py-8 sm:px-6 lg:px-8">
 	<div class="flex items-baseline justify-between">
 		<h1 class="text-2xl font-bold">All Products</h1>
 		<p class="text-muted-foreground text-sm">{data.products.length} items</p>

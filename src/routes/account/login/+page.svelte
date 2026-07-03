@@ -26,7 +26,7 @@
 	}
 </script>
 
-<div class="mx-auto max-w-md px-4 py-12">
+<div class="mx-auto max-w-md px-4 py-12 sm:px-6 lg:px-8">
 	<Card.Root>
 		<Card.Header>
 			<Card.Title>Log in</Card.Title>

@@ -4,7 +4,7 @@
 	let { data } = $props();
 </script>
 
-<section class="mx-auto max-w-7xl px-4 py-8">
+<section class="mx-auto max-w-350 px-4 py-8 sm:px-6 lg:px-8">
 	<div>
 		<a href="/products" class="text-muted-foreground text-sm hover:underline">← All products</a>
 		<h1 class="mt-2 text-2xl font-bold">{data.category.name}</h1>

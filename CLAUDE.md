@@ -35,8 +35,10 @@ free/low-cost at this traffic level by avoiding Supabase's egress-based pricing 
 - **Payments:** Toss Payments (Korea). Start in test/sandbox mode. Go-live requires the
   client's Korean business registration number and PG approval (3–4 week process) —
   do not assume production payment keys are available.
-- **Styling:** not finalized yet — Tailwind CSS is the working assumption unless told
-  otherwise.
+- **Styling:** Tailwind CSS v4 with `@tailwindcss/vite`. Brand palette is registered
+  as theme tokens (see "Design System / Color Palette" below) — use `bg-brand-green`,
+  `text-brand-amber`, etc. Fonts: Poppins (Latin) + Noto Sans KR (Korean), loaded via
+  `@import url(...)` in `src/routes/layout.css`.
 
 ### Why this stack (context for future decisions)
 
@@ -174,6 +176,45 @@ npx drizzle-kit generate  # generate SQL migration from schema.ts changes
 npx drizzle-kit push      # push schema directly to DB (early-stage dev)
 npx drizzle-kit studio    # visual DB browser
 ```
+
+## Design System / Color Palette
+
+The customer-facing storefront uses a warm, natural palette inspired by Sri Lankan
+food packaging (earthy greens, cream tones, warm amber accents). All colors are
+registered as Tailwind theme tokens in `src/routes/layout.css` → use them via
+utility classes (`bg-brand-green`, `text-brand-amber`, `border-brand-cream`, …).
+**Do not sprinkle raw hex codes across components** — reach for the tokens so the
+palette stays consistent and future rebrands are one-file changes.
+
+| Token                        | Hex        | Purpose                                                                        |
+|------------------------------|-----------|--------------------------------------------------------------------------------|
+| `brand-green`                | `#2B4B1F` | Primary brand — header top bar, primary CTAs, admin accents, focus rings       |
+| `brand-green-hover`          | `#22391A` | Hover state for green surfaces                                                 |
+| `brand-amber`                | `#E8B267` | Warm accent — cart button, sale badges, secondary CTAs, highlight strips       |
+| `brand-amber-hover`          | `#DFA755` | Hover state for amber surfaces                                                 |
+| `brand-cream`                | `#F6EEDC` | Header main-bar surface, soft callouts, empty states                           |
+| `brand-sand`                 | `#F3F1EA` | Page background (applied to `body`)                                            |
+| `brand-charcoal`             | `#353535` | Footer, dark-neutral buttons ("All Categories"), dropdown item hover           |
+| `brand-charcoal-hover`       | `#2A2A2A` | Hover state for charcoal surfaces                                              |
+| `white`                      | `#FFFFFF` | Cards, dropdown panels, search input surface                                   |
+
+### Usage rules
+
+- **Primary CTA** (Add to Cart, Checkout, Sign up): `bg-brand-green text-white hover:bg-brand-green-hover`.
+- **Warm accent CTA** (view cart, promotional badges): `bg-brand-amber text-neutral-900 hover:bg-brand-amber-hover`.
+- **Dark neutral button** (All Categories, secondary admin actions): `bg-brand-charcoal text-white hover:bg-brand-charcoal-hover`.
+- **Card / panel surface**: `bg-white` on a `bg-brand-sand` page.
+- **Callout / highlight strip inside a panel** (e.g. dropdown header): `bg-brand-green text-white` or `bg-brand-cream text-neutral-900`.
+- **Hover / focus state for dropdown menu items**: `focus:bg-brand-charcoal focus:text-white` — matches the footer's tone so the whole UI feels consistent instead of using pure black.
+- Text on `brand-green` / `brand-charcoal` / `brand-amber` should be `white` or `neutral-900` respectively — never rely on the default shadcn `text-primary-foreground` since those tokens are unrelated to the brand palette.
+- Do not use the shadcn `--primary` / `--accent` / `--muted` tokens for customer-facing marketing surfaces — those are neutral shadcn defaults and will drift away from the brand feel. They're fine inside the `/admin` panel, which is intentionally neutral.
+
+### Where the palette is defined
+
+`src/routes/layout.css` → `@theme inline { --color-brand-*: ...; }`. Tailwind v4
+auto-generates every `bg-`, `text-`, `border-`, `ring-`, `outline-`, `divide-`,
+`from-`, `via-`, `to-`, and `decoration-` variant from those tokens, so any color
+utility that works for `bg-primary` also works for `bg-brand-green`.
 
 ## Open / Not Yet Decided
 

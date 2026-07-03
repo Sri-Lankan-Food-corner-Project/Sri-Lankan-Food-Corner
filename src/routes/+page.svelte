@@ -58,8 +58,9 @@
 				src={banner1}
 				alt=""
 				aria-hidden="true"
-				class="pointer-events-none absolute -right-8 -bottom-8 z-0 hidden h-72 w-72 origin-bottom-right object-contain drop-shadow-2xl transition-transform duration-500 ease-out group-hover:scale-110 sm:block sm:h-96 sm:w-96 lg:h-100 lg:w-md"
+				class="pointer-events-none absolute -right-4 -bottom-6 z-0 hidden h-56 w-56 origin-bottom-right object-contain drop-shadow-2xl transition-transform duration-500 ease-out group-hover:scale-110 sm:block sm:h-64 sm:w-64 lg:h-80 lg:w-80"
 			/>
+		
 
 			{#key index}
 				<div

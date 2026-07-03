@@ -24,27 +24,27 @@ function bool(fd: FormData, key: string): boolean {
 }
 
 export const load: PageServerLoad = async ({ locals }) => {
-	const userId = locals.user?.id ?? null;
+	// Guests cannot check out — force sign-in via the root layout's auth modal.
+	if (!locals.user?.id) throw redirect(302, '/?auth=signup');
+	const userId = locals.user.id;
 
 	try {
-		const addresses = userId
-			? await db
-					.select()
-					.from(userAddresses)
-					.where(eq(userAddresses.userId, userId))
-					.orderBy(desc(userAddresses.isDefault), desc(userAddresses.updatedAt))
-			: [];
+		const addresses = await db
+			.select()
+			.from(userAddresses)
+			.where(eq(userAddresses.userId, userId))
+			.orderBy(desc(userAddresses.isDefault), desc(userAddresses.updatedAt));
 
 		return {
-			userEmail: locals.user?.email ?? null,
-			userName: locals.user?.name ?? null,
+			userEmail: locals.user.email,
+			userName: locals.user.name,
 			addresses
 		};
 	} catch (err) {
 		console.error('[checkout/load]', err);
 		return {
-			userEmail: locals.user?.email ?? null,
-			userName: locals.user?.name ?? null,
+			userEmail: locals.user.email,
+			userName: locals.user.name,
 			addresses: []
 		};
 	}

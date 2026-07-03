@@ -1,5 +1,5 @@
 <script lang="ts">
-	import logo from '$lib/assets/logo.webp';
+	import logo from '$lib/assets/logo2.webp';
 	import { site, telHref } from '$lib/config/site';
 	import { MapPin } from '@lucide/svelte';
 

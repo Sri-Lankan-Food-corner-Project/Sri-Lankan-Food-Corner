@@ -7,7 +7,8 @@
 		FolderTree,
 		ShoppingBag,
 		LogOut,
-		Store
+		Store,
+		LayoutGrid
 	} from '@lucide/svelte';
 	import { cn } from '$lib/utils';
 	import { signOut } from '$lib/auth-client';
@@ -23,6 +24,7 @@
 		{ href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
 		{ href: '/admin/products', label: 'Products', icon: Package },
 		{ href: '/admin/categories', label: 'Categories', icon: FolderTree },
+		{ href: '/admin/home-sections', label: 'Home sections', icon: LayoutGrid },
 		{ href: '/admin/orders', label: 'Orders', icon: ShoppingBag }
 	];
 

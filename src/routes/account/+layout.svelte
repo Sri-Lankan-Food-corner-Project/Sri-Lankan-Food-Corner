@@ -48,15 +48,12 @@
 	const currentPath = $derived(page.url.pathname);
 	const currentItem = $derived(nav.find((n) => n.match(currentPath)) ?? nav[0]);
 	const currentLabel = $derived(currentItem.label);
-	const isPublic = $derived(
-		currentPath.startsWith('/account/login') || currentPath.startsWith('/account/signup')
-	);
 
 	const menuItemClass =
 		'flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm text-neutral-700! cursor-pointer focus:bg-brand-charcoal! focus:text-white! focus:[&_svg]:text-white! outline-none transition-colors';
 </script>
 
-{#if isPublic || !data.user}
+{#if !data.user}
 	{@render children()}
 {:else}
 	<section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">

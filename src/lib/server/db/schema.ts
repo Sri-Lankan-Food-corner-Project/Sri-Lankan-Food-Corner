@@ -105,6 +105,21 @@ export const cartItems = pgTable(
 	(t) => ({ uniqCustomerProduct: unique().on(t.customerId, t.productId) })
 );
 
+export const wishlistItems = pgTable(
+	'wishlist_items',
+	{
+		id: uuid('id').primaryKey().defaultRandom(),
+		userId: text('user_id')
+			.notNull()
+			.references(() => user.id, { onDelete: 'cascade' }),
+		productId: uuid('product_id')
+			.notNull()
+			.references(() => products.id, { onDelete: 'cascade' }),
+		createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
+	},
+	(t) => ({ uniqUserProduct: unique().on(t.userId, t.productId) })
+);
+
 export const userAddresses = pgTable('user_addresses', {
 	id: uuid('id').primaryKey().defaultRandom(),
 	userId: text('user_id')

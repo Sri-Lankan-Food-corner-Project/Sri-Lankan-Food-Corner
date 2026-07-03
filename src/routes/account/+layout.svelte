@@ -1,7 +1,14 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
-	import { ChevronDown, LayoutDashboard, MapPin, Package, User } from '@lucide/svelte';
+	import {
+		ChevronDown,
+		Heart,
+		LayoutDashboard,
+		MapPin,
+		Package,
+		User
+	} from '@lucide/svelte';
 
 	let { data, children } = $props();
 
@@ -23,6 +30,12 @@
 			label: 'Addresses',
 			icon: MapPin,
 			match: (p: string) => p.startsWith('/account/addresses')
+		},
+		{
+			href: '/account/wishlist',
+			label: 'Wishlist',
+			icon: Heart,
+			match: (p: string) => p.startsWith('/account/wishlist')
 		},
 		{
 			href: '/account/details',

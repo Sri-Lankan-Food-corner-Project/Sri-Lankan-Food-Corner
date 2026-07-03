@@ -1,19 +1,26 @@
 <script lang="ts">
-	import * as Card from '$lib/components/ui/card';
-	import { Button } from '$lib/components/ui/button';
-	import { Badge } from '$lib/components/ui/badge';
+	import AddToCartButton from '$lib/components/AddToCartButton.svelte';
 	import { formatPrice } from '$lib/utils/formatPrice';
 	import { cart } from '$lib/stores/cart';
 	import type { Product } from '$lib/types/product';
 
-	let { product, imageUrl }: { product: Product; imageUrl?: string } = $props();
+	type Props = {
+		product: Product;
+		imageUrl?: string;
+		hoverImageUrl?: string;
+	};
+
+	let { product, imageUrl, hoverImageUrl }: Props = $props();
 
 	const soldOut = $derived(product.stockQuantity === 0);
 	const discountPercent = $derived(
 		product.compareAtPrice && product.compareAtPrice > product.price
-			? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
+			? Math.round(
+					((product.compareAtPrice - product.price) / product.compareAtPrice) * 100
+				)
 			: 0
 	);
+	const hasHoverImage = $derived(!!hoverImageUrl && hoverImageUrl !== imageUrl);
 
 	function add() {
 		cart.add({
@@ -27,54 +34,82 @@
 	}
 </script>
 
-<Card.Root class="relative overflow-hidden">
-	<a href="/products/{product.slug}" class="block">
-		<div class="bg-muted relative aspect-square">
-			{#if imageUrl}
-				<img src={imageUrl} alt={product.name} class="h-full w-full object-cover" />
-			{/if}
+<div
+	class="group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/5 transition-shadow duration-300 hover:shadow-lg"
+>
+	<div class="relative">
+		<a href="/products/{product.slug}" class="block">
+			<div class="bg-brand-sand relative aspect-square overflow-hidden">
+				{#if imageUrl}
+					<img
+						src={imageUrl}
+						alt={product.name}
+						class="absolute inset-0 h-full w-full object-cover transition-all duration-500 ease-out {hasHoverImage
+							? 'group-hover:opacity-0'
+							: 'group-hover:scale-110'} {soldOut ? 'opacity-70 grayscale' : ''}"
+					/>
+					{#if hasHoverImage}
+						<img
+							src={hoverImageUrl}
+							alt=""
+							aria-hidden="true"
+							class="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 ease-out group-hover:opacity-100"
+						/>
+					{/if}
+				{/if}
 
-			{#if soldOut}
-				<div class="absolute top-2 left-2">
-					<Badge class="bg-foreground text-background rounded-full px-3 py-1">SOLD OUT</Badge>
-				</div>
-			{:else if discountPercent > 0}
-				<div class="absolute top-2 left-2">
-					<Badge class="bg-destructive text-destructive-foreground rounded-full px-3 py-1">
+				{#if discountPercent > 0 && !soldOut}
+					<span
+						class="absolute top-3 left-3 rounded-full bg-red-500 px-3 py-1 text-xs font-bold text-white shadow-md"
+					>
 						-{discountPercent}%
-					</Badge>
-				</div>
-			{/if}
-		</div>
-	</a>
+					</span>
+				{/if}
 
-	<Card.Content class="p-4">
-		<a href="/products/{product.slug}" class="hover:underline">
-			<h3 class="text-sm font-medium">{product.name}</h3>
+				{#if soldOut}
+					<div
+						class="bg-brand-charcoal/85 absolute inset-x-0 top-1/2 -translate-y-1/2 py-2 text-center text-xs font-bold tracking-[0.2em] text-white uppercase"
+					>
+						Sold Out
+					</div>
+				{/if}
+			</div>
+		</a>
+
+		{#if !soldOut}
+			<div
+				class="pointer-events-none absolute inset-x-3 bottom-3 translate-y-2 opacity-0 transition-all duration-300 ease-out group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100"
+			>
+				<AddToCartButton onclick={add} />
+			</div>
+		{/if}
+	</div>
+
+	<div class="flex flex-1 flex-col p-4">
+		<a href="/products/{product.slug}" class="block">
+			<h3
+				class="group-hover:text-brand-green line-clamp-2 text-sm font-semibold text-neutral-900 transition-colors"
+			>
+				{product.name}
+			</h3>
 		</a>
 		{#if product.unit}
-			<p class="text-muted-foreground text-xs">{product.unit}</p>
+			<p class="mt-1 text-xs text-neutral-500">{product.unit}</p>
 		{/if}
-		<div class="mt-2 flex items-baseline gap-2">
+
+		<div class="mt-3 flex items-baseline gap-2">
 			{#if discountPercent > 0}
-				<span class="text-muted-foreground text-sm line-through">
+				<span class="text-xs text-neutral-400 line-through">
 					{formatPrice(product.compareAtPrice ?? 0)}
 				</span>
+				<span class="text-base font-extrabold text-red-600">
+					{formatPrice(product.price)}
+				</span>
+			{:else}
+				<span class="text-brand-green text-base font-extrabold">
+					{formatPrice(product.price)}
+				</span>
 			{/if}
-			<span class="font-semibold">{formatPrice(product.price)}</span>
 		</div>
-	</Card.Content>
-
-	<Card.Footer class="p-4 pt-0">
-		{#if soldOut}
-			<Button class="w-full" variant="outline" disabled>Sold out</Button>
-		{:else}
-			<Button
-				class="bg-brand-green hover:bg-brand-green-hover w-full rounded-full text-white"
-				onclick={add}
-			>
-				Add to Cart
-			</Button>
-		{/if}
-	</Card.Footer>
-</Card.Root>
+	</div>
+</div>

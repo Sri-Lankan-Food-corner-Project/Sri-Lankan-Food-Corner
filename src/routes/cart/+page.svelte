@@ -21,8 +21,8 @@
 	</nav>
 
 	{#if $cart.length === 0}
-		<div class="mx-auto max-w-md rounded-2xl bg-white p-10 text-center ring-1 ring-black/5">
-			<ShoppingBag class="mx-auto size-14 text-neutral-300" />
+		<div class="bg-brand-cream ring-brand-charcoal/10 mx-auto max-w-md rounded-2xl p-10 text-center ring-1">
+			<ShoppingBag class="text-brand-charcoal/30 mx-auto size-14" />
 			<h2 class="mt-4 text-xl font-bold text-neutral-900">Your cart is empty</h2>
 			<p class="mt-2 text-sm text-neutral-500">Add products to your cart to get started.</p>
 			<a
@@ -34,11 +34,11 @@
 		</div>
 	{:else}
 		<div class="grid gap-6 lg:grid-cols-[1fr_360px]">
-			<div class="rounded-2xl bg-white p-4 ring-1 ring-black/5 sm:p-6">
+			<div class="rounded-2xl bg-brand-cream p-4 ring-1 ring-brand-charcoal/10 sm:p-6">
 				<div class="hidden lg:block">
 					<table class="w-full">
 						<thead>
-							<tr class="border-b border-black/5 text-left text-sm font-bold text-neutral-900">
+							<tr class="border-b border-brand-charcoal/10 text-left text-sm font-bold text-neutral-900">
 								<th class="pb-4"></th>
 								<th class="pb-4">Product</th>
 								<th class="pb-4 text-center">Price</th>
@@ -46,7 +46,7 @@
 								<th class="pb-4 text-right">Subtotal</th>
 							</tr>
 						</thead>
-						<tbody class="divide-y divide-black/5">
+						<tbody class="divide-y divide-brand-charcoal/10">
 							{#each $cart as line (line.productId)}
 								<tr>
 									<td class="py-6">
@@ -81,11 +81,11 @@
 									</td>
 									<td class="py-6">
 										<div class="flex justify-center">
-											<div class="inline-flex items-center rounded-full bg-neutral-100 p-1">
+											<div class="inline-flex items-center rounded-full bg-brand-sand p-1">
 												<button
 													type="button"
 													onclick={() => cart.setQuantity(line.productId, line.quantity - 1)}
-													class="flex size-8 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white"
+													class="flex size-8 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/70"
 													aria-label="Decrease"
 												>
 													<Minus class="size-3.5" />
@@ -96,7 +96,7 @@
 												<button
 													type="button"
 													onclick={() => cart.setQuantity(line.productId, line.quantity + 1)}
-													class="flex size-8 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white"
+													class="flex size-8 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/70"
 													aria-label="Increase"
 												>
 													<Plus class="size-3.5" />
@@ -113,7 +113,7 @@
 					</table>
 				</div>
 
-				<ul class="divide-y divide-black/5 lg:hidden">
+				<ul class="divide-y divide-brand-charcoal/10 lg:hidden">
 					{#each $cart as line (line.productId)}
 						<li class="flex gap-3 py-4">
 							<div
@@ -142,11 +142,11 @@
 								</div>
 								<p class="mt-1 text-xs text-neutral-500">{formatPrice(line.unitPrice)}</p>
 								<div class="mt-auto flex items-center justify-between pt-3">
-									<div class="inline-flex items-center rounded-full bg-neutral-100 p-1">
+									<div class="inline-flex items-center rounded-full bg-brand-sand p-1">
 										<button
 											type="button"
 											onclick={() => cart.setQuantity(line.productId, line.quantity - 1)}
-											class="flex size-7 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white"
+											class="flex size-7 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/70"
 											aria-label="Decrease"
 										>
 											<Minus class="size-3" />
@@ -157,7 +157,7 @@
 										<button
 											type="button"
 											onclick={() => cart.setQuantity(line.productId, line.quantity + 1)}
-											class="flex size-7 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white"
+											class="flex size-7 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/70"
 											aria-label="Increase"
 										>
 											<Plus class="size-3" />
@@ -172,7 +172,7 @@
 					{/each}
 				</ul>
 
-				<div class="mt-6 flex flex-col gap-2 border-t border-black/5 pt-6 sm:flex-row sm:items-center">
+				<div class="mt-6 flex flex-col gap-2 border-t border-brand-charcoal/10 pt-6 sm:flex-row sm:items-center">
 					<input
 						type="text"
 						bind:value={couponCode}
@@ -188,22 +188,22 @@
 				</div>
 			</div>
 
-			<aside class="rounded-2xl bg-white p-6 ring-1 ring-black/5 lg:sticky lg:top-24 lg:self-start">
+			<aside class="bg-brand-cream ring-brand-charcoal/10 rounded-2xl p-6 ring-1 lg:sticky lg:top-24 lg:self-start">
 				<h2 class="text-xl font-bold text-neutral-900">Cart Totals</h2>
 
 				<div
-					class="mt-5 flex items-center justify-between border-t border-black/5 pt-5 text-sm"
+					class="mt-5 flex items-center justify-between border-t border-brand-charcoal/10 pt-5 text-sm"
 				>
 					<span class="text-neutral-600">Subtotal</span>
 					<span class="font-semibold text-neutral-900">{formatPrice($cartSubtotal)}</span>
 				</div>
 
-				<div class="mt-4 flex items-start justify-between border-t border-black/5 pt-4 text-sm">
+				<div class="mt-4 flex items-start justify-between border-t border-brand-charcoal/10 pt-4 text-sm">
 					<span class="text-neutral-600">Shipping</span>
 					<span class="text-right text-xs text-neutral-500">Calculated at checkout</span>
 				</div>
 
-				<div class="mt-4 flex items-center justify-between border-t border-black/5 pt-4">
+				<div class="mt-4 flex items-center justify-between border-t border-brand-charcoal/10 pt-4">
 					<span class="text-base font-bold text-neutral-900">Total</span>
 					<span class="text-lg font-extrabold text-neutral-900">
 						{formatPrice($cartSubtotal)}

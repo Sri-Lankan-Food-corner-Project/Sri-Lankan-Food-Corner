@@ -33,6 +33,18 @@ export const site = {
 		openedDate: '2023-07-29'
 	},
 
+	// TODO: replace with real bank details before going live
+	bank: {
+		name: 'Shinhan Bank',
+		accountHolder: 'GUNAWARDANA LIYANAGE LAL CHANDANA',
+		accountNumber: '000-000-000000'
+	},
+
+	shipping: {
+		weightBasedFee: 3500, // KRW
+		freeShippingThreshold: 50000 // KRW — optional, orders above this are free
+	},
+
 	// Fill in the real profile URLs when available.
 	social: {
 		facebook: 'https://www.facebook.com/',

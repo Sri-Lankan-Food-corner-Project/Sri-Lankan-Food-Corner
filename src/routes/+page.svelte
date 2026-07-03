@@ -9,7 +9,7 @@
 		{
 			eyebrow: 'Everything Under One Roof',
 			title: 'Vegetables, Meat, Fish, Spices & Rice',
-			subtitle: 'එළවලු, මස්, මාලු, කුළුබඩු, සහල් — all in one place.',
+			subtitle: 'එළවලු, මස්, මාලු, කුළුබඩු, සහල් - all in one place.',
 			cta: 'Shop All Products',
 			href: '/products'
 		},
@@ -59,7 +59,7 @@
 				src={banner1}
 				alt=""
 				aria-hidden="true"
-				class="pointer-events-none absolute -right-4 -bottom-6 z-0 hidden h-56 w-56 origin-bottom-right object-contain drop-shadow-2xl transition-transform duration-500 ease-out group-hover:scale-110 sm:block sm:h-64 sm:w-64 lg:h-80 lg:w-80"
+				class="pointer-events-none absolute -right-4 -bottom-6 z-0 h-40 w-40 origin-bottom-right object-contain drop-shadow-2xl transition-transform duration-500 ease-out group-hover:scale-110 sm:h-64 sm:w-64 lg:h-80 lg:w-80"
 			/>
 		
 

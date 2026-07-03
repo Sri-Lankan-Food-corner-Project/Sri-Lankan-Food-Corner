@@ -105,6 +105,26 @@ export const cartItems = pgTable(
 	(t) => ({ uniqCustomerProduct: unique().on(t.customerId, t.productId) })
 );
 
+export const userAddresses = pgTable('user_addresses', {
+	id: uuid('id').primaryKey().defaultRandom(),
+	userId: text('user_id')
+		.notNull()
+		.references(() => user.id, { onDelete: 'cascade' }),
+	label: text('label'), // optional — "Home", "Office", …
+	fullName: text('full_name').notNull(),
+	phone: text('phone').notNull(),
+	street: text('street').notNull(),
+	houseNumber: text('house_number'),
+	roomNumber: text('room_number'),
+	accessCode: text('access_code'),
+	city: text('city').notNull(),
+	postcode: text('postcode').notNull(),
+	country: text('country').notNull().default('KR'),
+	isDefault: boolean('is_default').notNull().default(false),
+	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
+});
+
 export const orders = pgTable('orders', {
 	id: uuid('id').primaryKey().defaultRandom(),
 	orderNumber: text('order_number').notNull().unique(),

@@ -60,3 +60,21 @@ export type OrderItem = {
 	quantity: number;
 	lineTotal: number;
 };
+
+export type UserAddress = {
+	id: string;
+	userId: string;
+	label: string | null;
+	fullName: string;
+	phone: string;
+	street: string;
+	houseNumber: string | null;
+	roomNumber: string | null;
+	accessCode: string | null;
+	city: string;
+	postcode: string;
+	country: string;
+	isDefault: boolean;
+	createdAt: Date;
+	updatedAt: Date;
+};

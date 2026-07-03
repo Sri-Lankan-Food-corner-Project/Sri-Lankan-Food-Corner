@@ -1,5 +1,8 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import { toast } from 'svelte-sonner';
 	import { page } from '$app/state';
+	import { cart } from '$lib/stores/cart';
 	import { formatPrice } from '$lib/utils/formatPrice';
 	import { site } from '$lib/config/site';
 	import { ArrowRight, CheckCircle2, Clock } from '@lucide/svelte';
@@ -7,6 +10,15 @@
 	let { data } = $props();
 	const { order, items } = $derived(data);
 	const pendingToss = $derived(page.url.searchParams.get('pending') === 'toss');
+
+	onMount(() => {
+		// Clear the cart now that the order is confirmed. Also runs if the user
+		// navigates back to this URL later — acceptable, since the order is done.
+		cart.clear();
+		if (!pendingToss) {
+			toast.success(`Order ${order.orderNumber} placed successfully!`);
+		}
+	});
 </script>
 
 <section class="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">

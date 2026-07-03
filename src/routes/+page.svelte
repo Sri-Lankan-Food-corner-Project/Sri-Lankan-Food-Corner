@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ArrowRight, Carrot, Wheat } from '@lucide/svelte';
+	import { ArrowRight, Wheat } from '@lucide/svelte';
 	import { fade } from 'svelte/transition';
 	import banner1 from '$lib/assets/home/banner1.webp';
 	import banner2 from '$lib/assets/home/banner2.webp';
@@ -108,24 +108,22 @@
 			</div>
 		</div>
 
-		<!-- Middle card: Fresh produce & meat (amber) -->
+		<!-- Middle card: Fresh produce & meat (green) -->
 		<a
 			href="/products"
-			class="bg-brand-amber group relative flex min-h-85 flex-col justify-between overflow-hidden rounded-2xl p-8 shadow-sm sm:min-h-100"
+			class="bg-brand-green group relative flex min-h-85 flex-col justify-between overflow-hidden rounded-2xl p-8 shadow-sm sm:min-h-100"
 		>
 			<div
 				aria-hidden="true"
-				style="background-image: url({banner2});"
-				class="absolute inset-0 z-0 bg-cover bg-center transition-transform duration-500 ease-out group-hover:scale-110"
+				class="bg-brand-amber/20 absolute -top-8 -right-8 size-40 rounded-full blur-2xl"
 			></div>
-			<div
+
+			<img
+				src={banner2}
+				alt=""
 				aria-hidden="true"
-				class="absolute inset-0 z-0 bg-black/30"
-			></div>
-			<div
-				aria-hidden="true"
-				class="absolute -top-8 -right-8 size-40 rounded-full bg-white/25 blur-2xl"
-			></div>
+				class="pointer-events-none absolute -right-4 -bottom-4 z-0 h-48 w-48 origin-bottom-right object-contain drop-shadow-2xl transition-transform duration-500 ease-out group-hover:scale-110 sm:h-56 sm:w-56"
+			/>
 
 			<div class="relative z-10">
 				<p class="text-brand-amber text-xs font-semibold tracking-widest uppercase">
@@ -139,11 +137,10 @@
 
 			<div class="relative z-10 flex items-end justify-between">
 				<span
-					class="inline-flex items-center gap-2 text-sm font-semibold text-white underline underline-offset-4 group-hover:no-underline"
+					class="text-brand-amber inline-flex items-center gap-2 text-sm font-semibold underline underline-offset-4 group-hover:no-underline"
 				>
 					Shop Fresh <ArrowRight class="size-4" />
 				</span>
-				<Carrot class="size-16 text-white/40" strokeWidth={1.25} />
 			</div>
 		</a>
 

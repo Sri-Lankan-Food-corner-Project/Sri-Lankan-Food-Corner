@@ -1,4 +1,5 @@
 import { writable, derived, type Readable } from 'svelte/store';
+import { browser } from '$app/environment';
 
 export type CartLine = {
 	productId: string;
@@ -9,8 +10,32 @@ export type CartLine = {
 	imageUrl?: string;
 };
 
+const STORAGE_KEY = 'cart';
+
+function loadFromStorage(): CartLine[] {
+	if (!browser) return [];
+	try {
+		const raw = localStorage.getItem(STORAGE_KEY);
+		if (!raw) return [];
+		const parsed = JSON.parse(raw);
+		return Array.isArray(parsed) ? parsed : [];
+	} catch {
+		return [];
+	}
+}
+
 function createCart() {
-	const { subscribe, update, set } = writable<CartLine[]>([]);
+	const { subscribe, update, set } = writable<CartLine[]>(loadFromStorage());
+
+	if (browser) {
+		subscribe((value) => {
+			try {
+				localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
+			} catch {
+				// storage full or blocked — silently ignore
+			}
+		});
+	}
 
 	return {
 		subscribe,

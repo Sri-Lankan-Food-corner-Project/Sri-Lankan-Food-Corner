@@ -41,7 +41,9 @@ export const load: PageServerLoad = async ({ params }) => {
 		db
 			.select({
 				totalOrders: sql<number>`COUNT(*)::int`,
-				totalSpent: sql<number>`COALESCE(SUM(${orders.totalAmount}), 0)::int`,
+				// Lifetime spend counts only orders where money actually cleared —
+				// cancelled or still-unpaid orders don't count as revenue.
+				totalSpent: sql<number>`COALESCE(SUM(${orders.totalAmount}) FILTER (WHERE ${orders.paymentStatus} = 'paid'), 0)::int`,
 				paidOrders: sql<number>`COUNT(*) FILTER (WHERE ${orders.paymentStatus} = 'paid')::int`
 			})
 			.from(orders)
@@ -52,8 +54,10 @@ export const load: PageServerLoad = async ({ params }) => {
 	if (!customer) throw error(404, 'Customer not found');
 
 	const stats = statsRow[0];
+	// Average is over paid orders too, so it reflects "what customers actually paid"
+	// rather than being dragged down by cancelled/unpaid line entries.
 	const avgOrderValue =
-		stats.totalOrders > 0 ? Math.round(stats.totalSpent / stats.totalOrders) : 0;
+		stats.paidOrders > 0 ? Math.round(stats.totalSpent / stats.paidOrders) : 0;
 
 	return {
 		customer,

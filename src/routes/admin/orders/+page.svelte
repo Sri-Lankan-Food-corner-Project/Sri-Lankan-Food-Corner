@@ -142,8 +142,20 @@
 					</Table.Cell>
 					<Table.Cell class="text-muted-foreground text-sm">{formatDate(o.createdAt)}</Table.Cell>
 					<Table.Cell>
-						<div class="font-medium">{o.customerName}</div>
-						<div class="text-muted-foreground text-xs">{o.customerEmail}</div>
+						{#if o.customerId}
+							<a href="/admin/customers/{o.customerId}" class="block hover:underline">
+								<div class="font-medium">{o.customerName}</div>
+								<div class="text-muted-foreground text-xs">{o.customerEmail}</div>
+							</a>
+						{:else}
+							<div class="font-medium">{o.customerName}</div>
+							<div class="text-muted-foreground text-xs">
+								{o.customerEmail}
+								<span class="ml-1 rounded-full bg-neutral-200 px-1.5 py-0.5 text-[10px] font-semibold text-neutral-700">
+									Guest
+								</span>
+							</div>
+						{/if}
 					</Table.Cell>
 					<Table.Cell class="text-right font-semibold">{formatPrice(o.totalAmount)}</Table.Cell>
 					<Table.Cell><OrderStatusBadge status={o.status} /></Table.Cell>

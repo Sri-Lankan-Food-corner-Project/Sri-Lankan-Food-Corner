@@ -37,7 +37,7 @@ export const load: PageServerLoad = async ({ url }) => {
 				role: user.role,
 				createdAt: user.createdAt,
 				orderCount: sql<number>`COUNT(${orders.id})::int`,
-				totalSpent: sql<number>`COALESCE(SUM(${orders.totalAmount}), 0)::int`
+				totalSpent: sql<number>`COALESCE(SUM(${orders.totalAmount}) FILTER (WHERE ${orders.paymentStatus} = 'paid'), 0)::int`
 			})
 			.from(user)
 			.leftJoin(orders, eq(orders.customerId, user.id))
@@ -64,7 +64,7 @@ export const load: PageServerLoad = async ({ url }) => {
 						role: user.role,
 						createdAt: user.createdAt,
 						orderCount: sql<number>`COUNT(${orders.id})::int`,
-						totalSpent: sql<number>`COALESCE(SUM(${orders.totalAmount}), 0)::int`
+						totalSpent: sql<number>`COALESCE(SUM(${orders.totalAmount}) FILTER (WHERE ${orders.paymentStatus} = 'paid'), 0)::int`
 					})
 					.from(user)
 					.leftJoin(orders, eq(orders.customerId, user.id))

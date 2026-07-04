@@ -218,17 +218,31 @@
 	<!-- RIGHT: customer + shipping -->
 	<div class="space-y-6">
 		<section class="bg-card rounded-md border">
-			<h2 class="flex items-center gap-2 border-b p-4 text-sm font-semibold">
-				<User class="size-4" /> Customer
-			</h2>
+			<div class="flex items-center justify-between border-b p-4">
+				<h2 class="flex items-center gap-2 text-sm font-semibold">
+					<User class="size-4" /> Customer
+				</h2>
+				{#if data.order.customerId}
+					<a
+						href="/admin/customers/{data.order.customerId}"
+						class="text-primary text-xs font-medium hover:underline"
+					>
+						View profile →
+					</a>
+				{:else}
+					<span class="rounded-full bg-neutral-200 px-2 py-0.5 text-[10px] font-semibold text-neutral-700">
+						Guest
+					</span>
+				{/if}
+			</div>
 			<div class="space-y-1 p-4 text-sm">
 				<p class="font-medium">{data.order.shippingFullName}</p>
-				<p class="text-neutral-600">
+				<p class="text-muted-foreground">
 					<a href="mailto:{data.order.customerEmail}" class="hover:underline">
 						{data.order.customerEmail}
 					</a>
 				</p>
-				<p class="text-neutral-600">
+				<p class="text-muted-foreground">
 					<a href="tel:{data.order.customerPhone}" class="hover:underline">
 						{data.order.customerPhone}
 					</a>

@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { invalidateAll } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
 	import { cart, cartSubtotal } from '$lib/stores/cart';
 	import { showConfirm } from '$lib/stores/confirm';
+	import { showAuth } from '$lib/stores/authUi';
 	import { formatPrice } from '$lib/utils/formatPrice';
 	import { site } from '$lib/config/site';
 	import type { UserAddress } from '$lib/types/order';
@@ -22,6 +23,27 @@
 	} from '@lucide/svelte';
 
 	let { data, form } = $props();
+
+	// If the server tells us the session expired between page-load and submit,
+	// re-open the auth modal so the customer can log back in without leaving
+	// the checkout page (their form state is preserved in the DOM).
+	$effect(() => {
+		if (!form || !('sessionExpired' in form) || !form.sessionExpired) return;
+		(async () => {
+			const ok = await showAuth({
+				mode: 'login',
+				title: 'Please sign in to place your order',
+				message: 'Your session expired. Sign back in to continue — your order details are safe.'
+			});
+			if (ok) {
+				// Fresh session — refresh the page so the load function reruns
+				// with the new session and any address-book data is up to date.
+				await invalidateAll();
+			} else {
+				await goto('/cart');
+			}
+		})();
+	});
 
 	let shippingMethod = $state<'weight' | 'pickup'>('weight');
 	let paymentMethod = $state<'bank' | 'toss'>('bank');

@@ -23,9 +23,14 @@ function bool(fd: FormData, key: string): boolean {
 	return v === 'on' || v === 'true';
 }
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, url }) => {
 	// Guests cannot check out — force sign-in via the root layout's auth modal.
-	if (!locals.user?.id) throw redirect(302, '/?auth=signup');
+	// Preserve the checkout URL so the customer lands right back on it after
+	// signing in and doesn't lose their spot in the flow.
+	if (!locals.user?.id) {
+		const returnTo = encodeURIComponent(url.pathname + url.search);
+		throw redirect(302, `/?auth=signup&returnTo=${returnTo}`);
+	}
 	const userId = locals.user.id;
 
 	try {
@@ -131,6 +136,19 @@ export const actions: Actions = {
 	},
 
 	placeOrder: async ({ request, locals }) => {
+		// Session may have expired between page load and form submit — the load
+		// function guards the initial GET, but the action runs later with a
+		// fresh request. Without this check, a signed-out submission would go
+		// through as a phantom guest order (customer_id = NULL) that the buyer
+		// never sees in their account history and we can't confidently follow
+		// up on. Force them to sign back in.
+		if (!locals.user?.id) {
+			return fail(401, {
+				error: 'Your session expired. Please sign in again to place your order.',
+				sessionExpired: true
+			});
+		}
+
 		try {
 			const fd = await request.formData();
 

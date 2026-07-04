@@ -4,6 +4,8 @@ import { env } from '$env/dynamic/private';
 import { building } from '$app/environment';
 import { db } from './db';
 import * as schema from './db/schema';
+import { sendMail } from './email/resend';
+import { renderPasswordResetEmail } from './email/templates/passwordReset';
 
 export const auth = betterAuth({
 	baseURL: building ? '' : env.BETTER_AUTH_URL,
@@ -21,7 +23,23 @@ export const auth = betterAuth({
 	emailAndPassword: {
 		enabled: true,
 		autoSignIn: true,
-		minPasswordLength: 8
+		minPasswordLength: 8,
+		// Called by Better Auth when the user requests a password reset.
+		// The `url` includes a signed token that the /reset-password page
+		// posts back to Better Auth to actually change the password.
+		sendResetPassword: async ({ user, url }) => {
+			const { html, text } = renderPasswordResetEmail({
+				name: user.name,
+				resetUrl: url,
+				validForMinutes: 60
+			});
+			await sendMail({
+				to: user.email,
+				subject: 'Reset your Food Corner password',
+				html,
+				text
+			});
+		}
 	},
 	user: {
 		additionalFields: {

@@ -1,0 +1,60 @@
+/**
+ * Central site configuration — business, contact, and social details.
+ * Update values here and they propagate to the header, footer, and anywhere else
+ * they're referenced. Keeps hard-coded business info out of components.
+ */
+export const site = {
+	name: 'Sri Lankan Food Corner',
+	shortName: 'Food Corner',
+	tagline: 'Asian Mart',
+	description:
+		'Sri Lankan groceries, fresh vegetables, and pantry staples — delivered across South Korea.',
+
+	// TODO: replace with the real customer-facing email once confirmed with the client
+	email: 'info@srilankanfoodcorner.kr',
+
+	phone: {
+		primary: '+82 10-6369-3340',
+		secondary: '+82 10-2738-6732'
+	},
+
+	address: {
+		en: '574 Deokpyeong-ro, Hapdeok-eup, Dangjin-si, Chungcheongnam-do, 31811 (1F)',
+		kr: '충청남도 당진시 합덕읍 덕평로 574, 1층',
+		postcode: '31811'
+	},
+
+	mapUrl: 'https://maps.app.goo.gl/sygmtcVijJSnEoH66',
+
+	business: {
+		registrationNumber: '413-42-01068',
+		representative: 'GUNAWARDANA LIYANAGE LAL CHANDANA',
+		liquorLicense: '311-5-35120',
+		openedDate: '2023-07-29'
+	},
+
+	// TODO: replace with real bank details before going live
+	bank: {
+		name: 'Shinhan Bank',
+		accountHolder: 'GUNAWARDANA LIYANAGE LAL CHANDANA',
+		accountNumber: '000-000-000000'
+	},
+
+	shipping: {
+		weightBasedFee: 3500, // KRW
+		freeShippingThreshold: 50000 // KRW — optional, orders above this are free
+	},
+
+	// Fill in the real profile URLs when available.
+	social: {
+		facebook: 'https://www.facebook.com/',
+		tiktok: 'https://www.tiktok.com/',
+		youtube: 'https://www.youtube.com/',
+		instagram: ''
+	}
+} as const;
+
+/** Strip spaces/dashes so a phone string can be used as a `tel:` href. */
+export function telHref(phone: string): string {
+	return `tel:${phone.replace(/[\s-]/g, '')}`;
+}

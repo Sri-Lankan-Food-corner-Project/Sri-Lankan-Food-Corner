@@ -9,19 +9,23 @@ import { uploadProductImage, deleteProductImageByUrl } from '$lib/server/storage
 import type { PageServerLoad, Actions } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {
-	const [product] = await db.select().from(products).where(eq(products.id, params.id));
+	// Product / categories / images are all independent — fire them together.
+	// Product row is checked for existence after the join lands.
+	const [productRows, cats, images] = await Promise.all([
+		db.select().from(products).where(eq(products.id, params.id)).limit(1),
+		db
+			.select({ id: categories.id, name: categories.name })
+			.from(categories)
+			.orderBy(asc(categories.sortOrder), asc(categories.name)),
+		db
+			.select({ id: productImages.id, imageUrl: productImages.imageUrl })
+			.from(productImages)
+			.where(eq(productImages.productId, params.id))
+			.orderBy(asc(productImages.sortOrder))
+	]);
+
+	const product = productRows[0];
 	if (!product) throw error(404, 'Product not found');
-
-	const cats = await db
-		.select({ id: categories.id, name: categories.name })
-		.from(categories)
-		.orderBy(asc(categories.sortOrder), asc(categories.name));
-
-	const images = await db
-		.select({ id: productImages.id, imageUrl: productImages.imageUrl })
-		.from(productImages)
-		.where(eq(productImages.productId, params.id))
-		.orderBy(asc(productImages.sortOrder));
 
 	const form = await superValidate(
 		{

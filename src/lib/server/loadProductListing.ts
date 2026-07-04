@@ -2,7 +2,6 @@ import { and, asc, count, desc, eq, gte, ilike, inArray, lte, sql, type SQL } fr
 import { db } from '$lib/server/db';
 import { categories, productImages, products } from '$lib/server/db/schema';
 import { PAGE_SIZE, type ListingFilters } from '$lib/utils/productFilters';
-import { timed } from './timing';
 
 export type ListingProduct = {
 	id: string;
@@ -98,8 +97,7 @@ export async function loadProductListing({
 	// We fire bounds + count + first page of rows all at once — they're
 	// independent queries, so serial execution wastes 2× the network round-trips.
 	const offsetGuess = (Math.max(1, filters.page) - 1) * PAGE_SIZE;
-	const [boundsRow, countRow, rowsRaw] = await timed('listing: bounds+count+rows', () =>
-		Promise.all([
+	const [boundsRow, countRow, rowsRaw] = await Promise.all([
 		db
 			.select({
 				min: sql<number>`COALESCE(MIN(${products.price}), 0)::int`,
@@ -128,8 +126,7 @@ export async function loadProductListing({
 			.orderBy(...orderBy)
 			.limit(PAGE_SIZE)
 			.offset(offsetGuess)
-		])
-	);
+	]);
 
 	const bounds = boundsRow[0];
 	const total = countRow[0].total;
@@ -164,17 +161,14 @@ export async function loadProductListing({
 
 	const ids = rows.map((r) => r.id);
 	const imgs = ids.length
-		? await timed(
-				'listing: images',
-				db
-					.select({
-						productId: productImages.productId,
-						imageUrl: productImages.imageUrl
-					})
-					.from(productImages)
-					.where(inArray(productImages.productId, ids))
-					.orderBy(asc(productImages.sortOrder))
-			)
+		? await db
+				.select({
+					productId: productImages.productId,
+					imageUrl: productImages.imageUrl
+				})
+				.from(productImages)
+				.where(inArray(productImages.productId, ids))
+				.orderBy(asc(productImages.sortOrder))
 		: [];
 
 	const imagesByProduct = new Map<string, string[]>();

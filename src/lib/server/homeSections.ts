@@ -7,7 +7,6 @@ import {
 	productImages,
 	products
 } from '$lib/server/db/schema';
-import { timed } from './timing';
 import type { Product } from '$lib/types/product';
 
 export type ResolvedHomeSection = {
@@ -34,10 +33,8 @@ const productCols = {
 } as const;
 
 export async function loadHomeSections(): Promise<ResolvedHomeSection[]> {
-	const sections = await timed(
-		'home: sections list',
-		db
-			.select({
+	const sections = await db
+		.select({
 			id: homeSections.id,
 			title: homeSections.title,
 			subtitle: homeSections.subtitle,
@@ -52,13 +49,11 @@ export async function loadHomeSections(): Promise<ResolvedHomeSection[]> {
 		.from(homeSections)
 		.leftJoin(categories, eq(homeSections.categoryId, categories.id))
 		.where(eq(homeSections.isActive, true))
-		.orderBy(asc(homeSections.sortOrder), asc(homeSections.createdAt))
-	);
+		.orderBy(asc(homeSections.sortOrder), asc(homeSections.createdAt));
 
 	// Fetch every section's product rows in parallel — the previous
 	// serial loop turned each section into another network round-trip.
-	const rowsPerSection = await timed('home: sections products (parallel)', () =>
-		Promise.all(
+	const rowsPerSection = await Promise.all(
 		sections.map(async (s): Promise<Product[]> => {
 			if (s.type === 'manual') {
 				return db
@@ -103,7 +98,6 @@ export async function loadHomeSections(): Promise<ResolvedHomeSection[]> {
 			}
 			return [];
 		})
-		)
 	);
 
 	// One image query for ALL sections combined instead of one per section.
@@ -111,17 +105,14 @@ export async function loadHomeSections(): Promise<ResolvedHomeSection[]> {
 		new Set(rowsPerSection.flatMap((rows) => rows.map((r) => r.id)))
 	);
 	const allImages = allProductIds.length
-		? await timed(
-				'home: images',
-				db
-					.select({
-						productId: productImages.productId,
-						imageUrl: productImages.imageUrl
-					})
-					.from(productImages)
-					.where(inArray(productImages.productId, allProductIds))
-					.orderBy(asc(productImages.sortOrder))
-			)
+		? await db
+				.select({
+					productId: productImages.productId,
+					imageUrl: productImages.imageUrl
+				})
+				.from(productImages)
+				.where(inArray(productImages.productId, allProductIds))
+				.orderBy(asc(productImages.sortOrder))
 		: [];
 	const imagesByProduct = new Map<string, string[]>();
 	for (const img of allImages) {

@@ -48,13 +48,27 @@ export const load: PageServerLoad = async () => {
 	]);
 
 	const productIds = allProducts.map((p) => p.id);
-	const productImgs = productIds.length
-		? await db
-				.select({ productId: productImages.productId, imageUrl: productImages.imageUrl })
-				.from(productImages)
-				.where(inArray(productImages.productId, productIds))
-				.orderBy(asc(productImages.sortOrder))
-		: [];
+	// Images (for the picker) and picks (for the section rows) are independent
+	// — run them in parallel instead of one after the other.
+	const [productImgs, picks] = await Promise.all([
+		productIds.length
+			? db
+					.select({ productId: productImages.productId, imageUrl: productImages.imageUrl })
+					.from(productImages)
+					.where(inArray(productImages.productId, productIds))
+					.orderBy(asc(productImages.sortOrder))
+			: Promise.resolve([] as { productId: string | null; imageUrl: string }[]),
+		db
+			.select({
+				sectionId: homeSectionProducts.sectionId,
+				productId: homeSectionProducts.productId,
+				sortOrder: homeSectionProducts.sortOrder,
+				productName: products.name
+			})
+			.from(homeSectionProducts)
+			.innerJoin(products, eq(homeSectionProducts.productId, products.id))
+			.orderBy(asc(homeSectionProducts.sortOrder))
+	]);
 	const imgByProduct = new Map<string, string>();
 	for (const img of productImgs) {
 		if (img.productId && !imgByProduct.has(img.productId)) {
@@ -65,17 +79,6 @@ export const load: PageServerLoad = async () => {
 		...p,
 		imageUrl: imgByProduct.get(p.id) ?? null
 	}));
-
-	const picks = await db
-		.select({
-			sectionId: homeSectionProducts.sectionId,
-			productId: homeSectionProducts.productId,
-			sortOrder: homeSectionProducts.sortOrder,
-			productName: products.name
-		})
-		.from(homeSectionProducts)
-		.innerJoin(products, eq(homeSectionProducts.productId, products.id))
-		.orderBy(asc(homeSectionProducts.sortOrder));
 
 	const picksBySection = new Map<
 		string,

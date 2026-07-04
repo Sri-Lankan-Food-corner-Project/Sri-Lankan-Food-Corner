@@ -22,34 +22,64 @@ export const load: PageServerLoad = async ({ url }) => {
 	}
 	const where = conditions.length ? and(...conditions) : undefined;
 
-	const [{ total }] = await db
-		.select({ total: count() })
-		.from(products)
-		.where(where);
+	// Fire count + first-page rows + category dropdown together — they're
+	// independent, so serial round-trips are pure waste.
+	const offsetGuess = (page - 1) * PAGE_SIZE;
+	const [countRow, rowsRaw, cats] = await Promise.all([
+		db.select({ total: count() }).from(products).where(where),
+		db
+			.select({
+				id: products.id,
+				name: products.name,
+				slug: products.slug,
+				price: products.price,
+				compareAtPrice: products.compareAtPrice,
+				unit: products.unit,
+				stockQuantity: products.stockQuantity,
+				isActive: products.isActive,
+				categoryId: products.categoryId,
+				categoryName: categories.name
+			})
+			.from(products)
+			.leftJoin(categories, eq(products.categoryId, categories.id))
+			.where(where)
+			.orderBy(desc(products.createdAt))
+			.limit(PAGE_SIZE)
+			.offset(offsetGuess),
+		db
+			.select({ id: categories.id, name: categories.name })
+			.from(categories)
+			.orderBy(asc(categories.sortOrder), asc(categories.name))
+	]);
 
+	const total = countRow[0].total;
 	const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 	const currentPage = Math.min(page, totalPages);
-	const offset = (currentPage - 1) * PAGE_SIZE;
 
-	const rows = await db
-		.select({
-			id: products.id,
-			name: products.name,
-			slug: products.slug,
-			price: products.price,
-			compareAtPrice: products.compareAtPrice,
-			unit: products.unit,
-			stockQuantity: products.stockQuantity,
-			isActive: products.isActive,
-			categoryId: products.categoryId,
-			categoryName: categories.name
-		})
-		.from(products)
-		.leftJoin(categories, eq(products.categoryId, categories.id))
-		.where(where)
-		.orderBy(desc(products.createdAt))
-		.limit(PAGE_SIZE)
-		.offset(offset);
+	// Rare edge case: requested page was past the last one — refetch. Costs
+	// one extra round-trip only when overshooting.
+	const rows =
+		currentPage === page
+			? rowsRaw
+			: await db
+					.select({
+						id: products.id,
+						name: products.name,
+						slug: products.slug,
+						price: products.price,
+						compareAtPrice: products.compareAtPrice,
+						unit: products.unit,
+						stockQuantity: products.stockQuantity,
+						isActive: products.isActive,
+						categoryId: products.categoryId,
+						categoryName: categories.name
+					})
+					.from(products)
+					.leftJoin(categories, eq(products.categoryId, categories.id))
+					.where(where)
+					.orderBy(desc(products.createdAt))
+					.limit(PAGE_SIZE)
+					.offset((currentPage - 1) * PAGE_SIZE);
 
 	const ids = rows.map((r) => r.id);
 	const imgs = ids.length
@@ -63,11 +93,6 @@ export const load: PageServerLoad = async ({ url }) => {
 	for (const img of imgs) {
 		if (img.productId && !firstImage.has(img.productId)) firstImage.set(img.productId, img.imageUrl);
 	}
-
-	const cats = await db
-		.select({ id: categories.id, name: categories.name })
-		.from(categories)
-		.orderBy(asc(categories.sortOrder), asc(categories.name));
 
 	return {
 		products: rows.map((r) => ({ ...r, imageUrl: firstImage.get(r.id) ?? null })),

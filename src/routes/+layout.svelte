@@ -7,6 +7,7 @@
 	import CartSheet from '$lib/components/CartSheet.svelte';
 	import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
 	import AuthDialog from '$lib/components/AuthDialog.svelte';
+	import NavigationProgress from '$lib/components/NavigationProgress.svelte';
 	import { Toaster } from 'svelte-sonner';
 	import { wishlist } from '$lib/stores/wishlist';
 	import { showAuth, type AuthMode } from '$lib/stores/authUi';
@@ -70,6 +71,7 @@
 	<CartSheet />
 {/if}
 
+<NavigationProgress />
 <ConfirmDialog />
 <AuthDialog />
 <Toaster position="top-right" richColors closeButton />

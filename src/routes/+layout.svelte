@@ -11,12 +11,7 @@
 	import { wishlist } from '$lib/stores/wishlist';
 	import { showAuth, type AuthMode } from '$lib/stores/authUi';
 	import { ModeWatcher } from 'mode-watcher';
-	import { BProgress } from '@bprogress/core';
-	import '@bprogress/core/css';
-	import { afterNavigate, beforeNavigate } from '$app/navigation';
 	import { page } from '$app/state';
-
-	BProgress.configure({ showSpinner: false });
 
 	let { data, children } = $props();
 
@@ -40,18 +35,6 @@
 		history.replaceState(null, '', url.pathname + url.search);
 	});
 
-	let loadingTimeout: ReturnType<typeof setTimeout>;
-
-	beforeNavigate(() => {
-		loadingTimeout = setTimeout(() => {
-			BProgress.start();
-		}, 300);
-	});
-
-	afterNavigate(() => {
-		clearTimeout(loadingTimeout);
-		BProgress.done();
-	});
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
@@ -61,7 +44,7 @@
 {#if isAdmin}
 	{@render children()}
 {:else}
-	<div class="flex min-h-screen flex-col pb-16 md:pb-0">
+	<div class="flex min-h-dvh flex-col pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0">
 		<Header categories={data.categories} user={data.user} />
 		<main class="flex-1">
 			{@render children()}

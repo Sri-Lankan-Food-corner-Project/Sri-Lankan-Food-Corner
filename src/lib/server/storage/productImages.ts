@@ -11,9 +11,15 @@ export type UploadedProductImage = {
 	key: string;
 };
 
-// Resize + convert to WebP, then upload under products/{productId}/{uuid}.webp.
+// Resize + convert to WebP, then upload under
+// products/{productId}/{slug}-{shortId}.webp — readable filename with the
+// product slug so anyone glancing at a URL can guess which product it is
+// (e.g. `.../products/8f4a…/dhal-a3f27f8c.webp`), but the folder is keyed
+// on the immutable product ID so renaming a product doesn't orphan the path.
+// Slug is Zod-validated to [a-z0-9-]+ so it's filesystem-safe as-is.
 export async function uploadProductImage(
 	productId: string,
+	slug: string,
 	file: File
 ): Promise<UploadedProductImage> {
 	if (!file.type.startsWith('image/')) {
@@ -30,7 +36,8 @@ export async function uploadProductImage(
 		.webp({ quality: WEBP_QUALITY })
 		.toBuffer();
 
-	const key = `products/${productId}/${randomUUID()}.webp`;
+	const shortId = randomUUID().replace(/-/g, '').slice(0, 8);
+	const key = `products/${productId}/${slug}-${shortId}.webp`;
 	await uploadImage(key, resized, 'image/webp');
 	return { imageUrl: publicUrl(key), key };
 }

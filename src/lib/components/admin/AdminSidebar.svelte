@@ -8,7 +8,8 @@
 		ShoppingBag,
 		LogOut,
 		Store,
-		LayoutGrid
+		LayoutGrid,
+		Users
 	} from '@lucide/svelte';
 	import { cn } from '$lib/utils';
 	import { signOut } from '$lib/auth-client';
@@ -25,7 +26,8 @@
 		{ href: '/admin/products', label: 'Products', icon: Package },
 		{ href: '/admin/categories', label: 'Categories', icon: FolderTree },
 		{ href: '/admin/home-sections', label: 'Home sections', icon: LayoutGrid },
-		{ href: '/admin/orders', label: 'Orders', icon: ShoppingBag }
+		{ href: '/admin/orders', label: 'Orders', icon: ShoppingBag },
+		{ href: '/admin/customers', label: 'Customers', icon: Users }
 	];
 
 	function initials(name?: string | null) {

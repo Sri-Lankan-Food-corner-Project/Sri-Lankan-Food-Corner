@@ -133,20 +133,31 @@
 	* {
 		@apply border-border outline-ring/50;
 	}
+	html {
+		/* iOS Safari disables its edge-swipe-back gesture the moment the page
+		   develops any horizontal overflow — even 1px. Lock the root so a
+		   horizontally-scrolling slider inside the page can't leak. */
+		overflow-x: hidden;
+	}
 	body {
 		@apply font-sans text-foreground antialiased;
 		background-color: #f3f1ea;
+		overflow-x: hidden;
 	}
+
 }
 
-.bprogress .bar {
-	background: var(--primary);
-	height: 3px;
-}
-.bprogress .peg {
-	box-shadow:
-		0 0 10px var(--primary),
-		0 0 5px var(--primary);
+/* iOS Safari / iOS Chrome auto-zoom the viewport whenever a focused input's
+   computed font-size is < 16px. Force 16px on phones so tapping into search /
+   filter / checkout fields never zooms. `!important` is required to beat
+   Tailwind utility classes like `text-sm` that individual inputs use.
+   Desktop layouts keep their smaller 14px look via the min-width breakpoint. */
+@media (max-width: 767px) {
+	input:not([type='checkbox']):not([type='radio']):not([type='range']),
+	select,
+	textarea {
+		font-size: 16px !important;
+	}
 }
 
 /* Kill Chrome/Safari autofill's built-in yellow/blue background and faded text

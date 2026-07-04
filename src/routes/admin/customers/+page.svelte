@@ -6,14 +6,6 @@
 	import { Input } from '$lib/components/ui/input';
 	import * as Table from '$lib/components/ui/table';
 	import { Search, ChevronLeft, ChevronRight, ArrowRight } from '@lucide/svelte';
-	import OrderStatusBadge from '$lib/components/admin/OrderStatusBadge.svelte';
-	import PaymentStatusBadge from '$lib/components/admin/PaymentStatusBadge.svelte';
-	import {
-		ORDER_STATUSES,
-		PAYMENT_STATUSES,
-		ORDER_STATUS_LABELS,
-		PAYMENT_STATUS_LABELS
-	} from '$lib/schemas/orderStatus';
 	import { formatPrice } from '$lib/utils/formatPrice';
 
 	let { data } = $props();
@@ -40,19 +32,11 @@
 		}, 300);
 	}
 
-	function handleStatus(e: Event) {
+	function handleRole(e: Event) {
 		const value = (e.target as HTMLSelectElement).value;
 		updateParams((params) => {
-			if (value) params.set('status', value);
-			else params.delete('status');
-		});
-	}
-
-	function handlePayment(e: Event) {
-		const value = (e.target as HTMLSelectElement).value;
-		updateParams((params) => {
-			if (value) params.set('payment', value);
-			else params.delete('payment');
+			if (value) params.set('role', value);
+			else params.delete('role');
 		});
 	}
 
@@ -66,12 +50,10 @@
 	function formatDate(d: Date | string | null) {
 		if (!d) return '—';
 		const date = typeof d === 'string' ? new Date(d) : d;
-		return date.toLocaleString('en-GB', {
+		return date.toLocaleDateString('en-GB', {
 			day: '2-digit',
 			month: 'short',
-			year: 'numeric',
-			hour: '2-digit',
-			minute: '2-digit'
+			year: 'numeric'
 		});
 	}
 
@@ -80,7 +62,7 @@
 </script>
 
 <div class="flex items-center justify-between">
-	<h1 class="text-2xl font-bold">Orders</h1>
+	<h1 class="text-2xl font-bold">Customers</h1>
 	<p class="text-muted-foreground text-sm">{data.total} total</p>
 </div>
 
@@ -91,31 +73,20 @@
 		/>
 		<Input
 			type="search"
-			placeholder="Search by order #, name, email, phone…"
+			placeholder="Search by name, email, phone…"
 			value={searchValue}
 			oninput={handleSearchInput}
 			class="w-full pl-9"
 		/>
 	</div>
 	<select
-		value={data.filters.status}
-		onchange={handleStatus}
+		value={data.filters.role}
+		onchange={handleRole}
 		class="border-input bg-background rounded-md border px-3 py-2 text-sm"
 	>
-		<option value="">All statuses</option>
-		{#each ORDER_STATUSES as s (s)}
-			<option value={s}>{ORDER_STATUS_LABELS[s]}</option>
-		{/each}
-	</select>
-	<select
-		value={data.filters.paymentStatus}
-		onchange={handlePayment}
-		class="border-input bg-background rounded-md border px-3 py-2 text-sm"
-	>
-		<option value="">All payments</option>
-		{#each PAYMENT_STATUSES as s (s)}
-			<option value={s}>{PAYMENT_STATUS_LABELS[s]}</option>
-		{/each}
+		<option value="">All roles</option>
+		<option value="customer">Customers</option>
+		<option value="admin">Admins</option>
 	</select>
 </div>
 
@@ -123,33 +94,41 @@
 	<Table.Root>
 		<Table.Header>
 			<Table.Row>
-				<Table.Head>Order #</Table.Head>
-				<Table.Head>Date</Table.Head>
 				<Table.Head>Customer</Table.Head>
-				<Table.Head class="text-right">Total</Table.Head>
-				<Table.Head>Status</Table.Head>
-				<Table.Head>Payment</Table.Head>
+				<Table.Head>Phone</Table.Head>
+				<Table.Head>Role</Table.Head>
+				<Table.Head class="text-right">Orders</Table.Head>
+				<Table.Head class="text-right">Total spent</Table.Head>
+				<Table.Head>Joined</Table.Head>
 				<Table.Head class="w-16 text-right"></Table.Head>
 			</Table.Row>
 		</Table.Header>
 		<Table.Body>
-			{#each data.orders as o (o.id)}
+			{#each data.customers as c (c.id)}
 				<Table.Row>
-					<Table.Cell class="font-medium">
-						<a href="/admin/orders/{o.id}" class="hover:underline">
-							{o.orderNumber}
+					<Table.Cell>
+						<a href="/admin/customers/{c.id}" class="hover:underline">
+							<div class="font-medium">{c.name}</div>
+							<div class="text-muted-foreground text-xs">{c.email}</div>
 						</a>
 					</Table.Cell>
-					<Table.Cell class="text-muted-foreground text-sm">{formatDate(o.createdAt)}</Table.Cell>
+					<Table.Cell class="text-sm">{c.phone ?? '—'}</Table.Cell>
 					<Table.Cell>
-						<div class="font-medium">{o.customerName}</div>
-						<div class="text-muted-foreground text-xs">{o.customerEmail}</div>
+						{#if c.role === 'admin'}
+							<span class="inline-flex items-center rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-semibold text-purple-800">
+								Admin
+							</span>
+						{:else}
+							<span class="inline-flex items-center rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-semibold text-neutral-700">
+								Customer
+							</span>
+						{/if}
 					</Table.Cell>
-					<Table.Cell class="text-right font-semibold">{formatPrice(o.totalAmount)}</Table.Cell>
-					<Table.Cell><OrderStatusBadge status={o.status} /></Table.Cell>
-					<Table.Cell><PaymentStatusBadge status={o.paymentStatus} /></Table.Cell>
+					<Table.Cell class="text-right font-medium">{c.orderCount}</Table.Cell>
+					<Table.Cell class="text-right font-semibold">{formatPrice(c.totalSpent)}</Table.Cell>
+					<Table.Cell class="text-muted-foreground text-sm">{formatDate(c.createdAt)}</Table.Cell>
 					<Table.Cell class="text-right">
-						<Button href="/admin/orders/{o.id}" variant="ghost" size="icon" aria-label="Open order">
+						<Button href="/admin/customers/{c.id}" variant="ghost" size="icon" aria-label="Open customer">
 							<ArrowRight class="size-4" />
 						</Button>
 					</Table.Cell>
@@ -157,7 +136,7 @@
 			{:else}
 				<Table.Row>
 					<Table.Cell colspan={7} class="text-muted-foreground py-8 text-center">
-						No orders match these filters.
+						No customers match this search.
 					</Table.Cell>
 				</Table.Row>
 			{/each}

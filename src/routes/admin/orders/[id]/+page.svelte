@@ -77,7 +77,7 @@
 			<ArrowLeft class="size-4" /> Back to orders
 		</a>
 		<div class="mt-2 flex flex-wrap items-center gap-2">
-			<h1 class="text-2xl font-bold">Order #{data.order.orderNumber}</h1>
+			<h1 class="text-2xl font-bold">Order {data.order.orderNumber}</h1>
 			<OrderStatusBadge status={data.order.status} />
 			<PaymentStatusBadge status={data.order.paymentStatus} />
 		</div>

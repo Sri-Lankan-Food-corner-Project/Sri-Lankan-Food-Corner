@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { untrack } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page as pageState } from '$app/state';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
@@ -13,7 +14,7 @@
 
 	let { filters, priceBounds }: Props = $props();
 
-	let searchValue = $state(filters.q);
+	let searchValue = $state(untrack(() => filters.q));
 	let searchTimer: ReturnType<typeof setTimeout> | null = null;
 	let sheetOpen = $state(false);
 

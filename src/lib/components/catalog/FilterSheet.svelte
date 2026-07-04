@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { untrack } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page as pageState } from '$app/state';
 	import { Slider } from 'bits-ui';
@@ -22,8 +23,8 @@
 		Math.max(sliderMin + step, Math.ceil(priceBounds.max / step) * step)
 	);
 
-	let range = $state<[number, number]>([sliderMin, sliderMax]);
-	let instock = $state<boolean>(filters.instock);
+	let range = $state<[number, number]>(untrack(() => [sliderMin, sliderMax]));
+	let instock = $state<boolean>(untrack(() => filters.instock));
 
 	$effect(() => {
 		if (open) {

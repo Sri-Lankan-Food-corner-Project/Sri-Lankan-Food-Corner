@@ -52,7 +52,7 @@ export const actions: Actions = {
 		let sortOrder = 0;
 		for (const file of files) {
 			try {
-				const { imageUrl } = await uploadProductImage(productId, file);
+				const { imageUrl } = await uploadProductImage(productId, form.data.slug, file);
 				await db
 					.insert(productImages)
 					.values({ productId, imageUrl, sortOrder: sortOrder++ });

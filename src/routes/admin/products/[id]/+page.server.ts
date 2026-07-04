@@ -99,7 +99,7 @@ export const actions: Actions = {
 		const uploadErrors: string[] = [];
 		for (const file of files) {
 			try {
-				const { imageUrl } = await uploadProductImage(params.id, file);
+				const { imageUrl } = await uploadProductImage(params.id, form.data.slug, file);
 				await db
 					.insert(productImages)
 					.values({ productId: params.id, imageUrl, sortOrder: sortOrder++ });

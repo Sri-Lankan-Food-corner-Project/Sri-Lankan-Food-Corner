@@ -138,6 +138,9 @@
 		   develops any horizontal overflow — even 1px. Lock the root so a
 		   horizontally-scrolling slider inside the page can't leak. */
 		overflow-x: hidden;
+		/* Match the body background so iOS's swipe-back gesture doesn't flash
+		   the white root canvas between page snapshots as it animates. */
+		background-color: #f3f1ea;
 	}
 	body {
 		@apply font-sans text-foreground antialiased;

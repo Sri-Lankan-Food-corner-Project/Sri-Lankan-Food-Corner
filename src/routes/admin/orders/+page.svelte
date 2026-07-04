@@ -5,7 +5,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import * as Table from '$lib/components/ui/table';
-	import { Search, ChevronLeft, ChevronRight, ArrowRight } from '@lucide/svelte';
+	import { Search, ChevronLeft, ChevronRight, ArrowRight, X, User } from '@lucide/svelte';
 	import OrderStatusBadge from '$lib/components/admin/OrderStatusBadge.svelte';
 	import PaymentStatusBadge from '$lib/components/admin/PaymentStatusBadge.svelte';
 	import {
@@ -83,6 +83,31 @@
 	<h1 class="text-2xl font-bold">Orders</h1>
 	<p class="text-muted-foreground text-sm">{data.total} total</p>
 </div>
+
+{#if data.filteredCustomer}
+	{@const url = new URL(page.url)}
+	{@const _ = url.searchParams.delete('customer')}
+	{@const href = url.pathname + (url.search ? url.search : '')}
+	<div class="mt-4 flex items-center gap-2 rounded-md border bg-neutral-50 p-3 dark:bg-neutral-900/50">
+		<User class="text-muted-foreground size-4 shrink-0" />
+		<div class="min-w-0 flex-1 text-sm">
+			<span class="text-muted-foreground">Showing orders for </span>
+			<a
+				href="/admin/customers/{data.filteredCustomer.id}"
+				class="font-semibold hover:underline"
+			>
+				{data.filteredCustomer.name}
+			</a>
+			<span class="text-muted-foreground"> · {data.filteredCustomer.email}</span>
+		</div>
+		<a
+			{href}
+			class="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-xs font-medium hover:underline"
+		>
+			Clear <X class="size-3" />
+		</a>
+	</div>
+{/if}
 
 <div class="mt-6 flex flex-col gap-3 md:flex-row md:items-center">
 	<div class="relative flex-1">

@@ -1,6 +1,6 @@
 import { and, count, desc, eq, ilike, or, type SQL } from 'drizzle-orm';
 import { db } from '$lib/server/db';
-import { orders } from '$lib/server/db/schema';
+import { orders, user } from '$lib/server/db/schema';
 import { ORDER_STATUSES, PAYMENT_STATUSES } from '$lib/schemas/orderStatus';
 import type { PageServerLoad } from './$types';
 
@@ -10,6 +10,7 @@ export const load: PageServerLoad = async ({ url }) => {
 	const status = url.searchParams.get('status') ?? '';
 	const paymentStatus = url.searchParams.get('payment') ?? '';
 	const q = url.searchParams.get('q')?.trim() ?? '';
+	const customerId = url.searchParams.get('customer') ?? '';
 	const rawPage = Number(url.searchParams.get('page') ?? 1);
 	const page = Number.isFinite(rawPage) && rawPage >= 1 ? Math.floor(rawPage) : 1;
 
@@ -19,6 +20,9 @@ export const load: PageServerLoad = async ({ url }) => {
 	}
 	if (paymentStatus && (PAYMENT_STATUSES as readonly string[]).includes(paymentStatus)) {
 		conditions.push(eq(orders.paymentStatus, paymentStatus));
+	}
+	if (customerId) {
+		conditions.push(eq(orders.customerId, customerId));
 	}
 	if (q) {
 		const like = `%${q}%`;
@@ -32,6 +36,18 @@ export const load: PageServerLoad = async ({ url }) => {
 		);
 	}
 	const where = conditions.length ? and(...conditions) : undefined;
+
+	// If we're filtering by a customer, look up their display name so the
+	// filter chip in the UI can show something more useful than a UUID.
+	const filteredCustomer = customerId
+		? (
+				await db
+					.select({ id: user.id, name: user.name, email: user.email })
+					.from(user)
+					.where(eq(user.id, customerId))
+					.limit(1)
+			)[0]
+		: null;
 
 	const offsetGuess = (page - 1) * PAGE_SIZE;
 	const [countRow, rowsRaw] = await Promise.all([
@@ -85,7 +101,8 @@ export const load: PageServerLoad = async ({ url }) => {
 
 	return {
 		orders: rows,
-		filters: { status, paymentStatus, q },
+		filters: { status, paymentStatus, q, customerId },
+		filteredCustomer,
 		page: currentPage,
 		pageSize: PAGE_SIZE,
 		total,

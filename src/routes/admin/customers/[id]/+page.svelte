@@ -115,51 +115,99 @@
 		<section class="bg-card rounded-md border">
 			<div class="flex items-center justify-between border-b p-4">
 				<h2 class="flex items-center gap-2 text-sm font-semibold">
-					<ShoppingBag class="size-4" /> Orders ({data.orders.length})
+					<ShoppingBag class="size-4" /> Orders ({data.stats.totalOrders})
 				</h2>
+				{#if data.stats.totalOrders > data.orders.length}
+					<a
+						href="/admin/orders?customer={data.customer.id}"
+						class="text-primary text-xs font-medium hover:underline"
+					>
+						View all {data.stats.totalOrders} →
+					</a>
+				{/if}
 			</div>
 			{#if data.orders.length === 0}
 				<p class="text-muted-foreground p-6 text-center text-sm">No orders yet.</p>
 			{:else}
-				<Table.Root>
-					<Table.Header>
-						<Table.Row>
-							<Table.Head>Order</Table.Head>
-							<Table.Head>Date</Table.Head>
-							<Table.Head class="text-right">Total</Table.Head>
-							<Table.Head>Status</Table.Head>
-							<Table.Head>Payment</Table.Head>
-							<Table.Head class="w-12"></Table.Head>
-						</Table.Row>
-					</Table.Header>
-					<Table.Body>
-						{#each data.orders as o (o.id)}
+				<!-- Desktop table (md and up) -->
+				<div class="hidden md:block">
+					<Table.Root>
+						<Table.Header>
 							<Table.Row>
-								<Table.Cell class="font-medium">
-									<a href="/admin/orders/{o.id}" class="hover:underline">{o.orderNumber}</a>
-								</Table.Cell>
-								<Table.Cell class="text-muted-foreground text-sm">
-									{formatDateTime(o.createdAt)}
-								</Table.Cell>
-								<Table.Cell class="text-right font-semibold">
-									{formatPrice(o.totalAmount)}
-								</Table.Cell>
-								<Table.Cell><OrderStatusBadge status={o.status} /></Table.Cell>
-								<Table.Cell><PaymentStatusBadge status={o.paymentStatus} /></Table.Cell>
-								<Table.Cell class="text-right">
-									<Button href="/admin/orders/{o.id}" variant="ghost" size="icon" aria-label="Open order">
-										<ArrowRight class="size-4" />
-									</Button>
-								</Table.Cell>
+								<Table.Head>Order</Table.Head>
+								<Table.Head>Date</Table.Head>
+								<Table.Head class="text-right">Total</Table.Head>
+								<Table.Head>Status</Table.Head>
+								<Table.Head>Payment</Table.Head>
+								<Table.Head class="w-12"></Table.Head>
 							</Table.Row>
-						{/each}
-					</Table.Body>
-				</Table.Root>
+						</Table.Header>
+						<Table.Body>
+							{#each data.orders as o (o.id)}
+								<Table.Row>
+									<Table.Cell class="font-medium">
+										<a href="/admin/orders/{o.id}" class="hover:underline">{o.orderNumber}</a>
+									</Table.Cell>
+									<Table.Cell class="text-muted-foreground text-sm">
+										{formatDateTime(o.createdAt)}
+									</Table.Cell>
+									<Table.Cell class="text-right font-semibold">
+										{formatPrice(o.totalAmount)}
+									</Table.Cell>
+									<Table.Cell><OrderStatusBadge status={o.status} /></Table.Cell>
+									<Table.Cell><PaymentStatusBadge status={o.paymentStatus} /></Table.Cell>
+									<Table.Cell class="text-right">
+										<Button
+											href="/admin/orders/{o.id}"
+											variant="ghost"
+											size="icon"
+											aria-label="Open order"
+										>
+											<ArrowRight class="size-4" />
+										</Button>
+									</Table.Cell>
+								</Table.Row>
+							{/each}
+						</Table.Body>
+					</Table.Root>
+				</div>
+
+				<!-- Mobile card list (below md) -->
+				<ul class="divide-y md:hidden">
+					{#each data.orders as o (o.id)}
+						<li>
+							<a
+								href="/admin/orders/{o.id}"
+								class="flex items-start gap-3 p-4 transition hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
+							>
+								<div class="min-w-0 flex-1">
+									<div class="flex items-center gap-2">
+										<span class="font-semibold">{o.orderNumber}</span>
+										<span class="text-muted-foreground text-xs">
+											{formatDateTime(o.createdAt)}
+										</span>
+									</div>
+									<div class="mt-2 flex flex-wrap items-center gap-1.5">
+										<OrderStatusBadge status={o.status} />
+										<PaymentStatusBadge status={o.paymentStatus} />
+									</div>
+								</div>
+								<div class="text-right">
+									<div class="font-semibold">{formatPrice(o.totalAmount)}</div>
+									<ArrowRight class="text-muted-foreground mt-2 ml-auto size-4" />
+								</div>
+							</a>
+						</li>
+					{/each}
+				</ul>
 			{/if}
-			{#if data.orders.length === 20}
-				<p class="text-muted-foreground border-t px-4 py-2 text-xs">
-					Showing the 20 most recent orders.
-				</p>
+			{#if data.stats.totalOrders > data.orders.length}
+				<a
+					href="/admin/orders?customer={data.customer.id}"
+					class="border-t block px-4 py-2 text-center text-xs font-medium text-primary hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
+				>
+					View all {data.stats.totalOrders} orders →
+				</a>
 			{/if}
 		</section>
 	</div>

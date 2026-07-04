@@ -9,10 +9,13 @@
 	let mobileOpen = $state(false);
 </script>
 
-<div class="bg-background text-foreground flex min-h-screen">
-	<!-- Desktop sidebar -->
+<div class="bg-background text-foreground min-h-screen">
+	<!-- Desktop sidebar — fixed to the viewport so it never scrolls with content.
+	     `sticky` doesn't work reliably here because the root <body> has
+	     `overflow-x: hidden` (added for iOS back-swipe), which creates a scroll
+	     context that breaks sticky positioning. -->
 	<aside
-		class="border-sidebar-border sticky top-0 hidden h-screen w-64 shrink-0 border-r md:block"
+		class="border-sidebar-border fixed inset-y-0 left-0 z-30 hidden w-64 border-r md:block"
 	>
 		<AdminSidebar user={data.user} />
 	</aside>
@@ -40,8 +43,8 @@
 		</Sheet.Content>
 	</Sheet.Root>
 
-	<!-- Main content -->
-	<main class="min-w-0 flex-1 px-4 pt-16 pb-6 md:px-8 md:pt-8">
+	<!-- Main content — `md:ml-64` reserves horizontal space for the fixed sidebar. -->
+	<main class="min-w-0 px-4 pt-16 pb-6 md:ml-64 md:px-8 md:pt-8">
 		{@render children()}
 	</main>
 </div>

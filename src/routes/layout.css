@@ -133,9 +133,16 @@
 	* {
 		@apply border-border outline-ring/50;
 	}
+	html {
+		/* iOS Safari disables its edge-swipe-back gesture the moment the page
+		   develops any horizontal overflow — even 1px. Lock the root so a
+		   horizontally-scrolling slider inside the page can't leak. */
+		overflow-x: hidden;
+	}
 	body {
 		@apply font-sans text-foreground antialiased;
 		background-color: #f3f1ea;
+		overflow-x: hidden;
 	}
 
 }
@@ -151,16 +158,6 @@
 	textarea {
 		font-size: 16px !important;
 	}
-}
-
-.bprogress .bar {
-	background: var(--primary);
-	height: 3px;
-}
-.bprogress .peg {
-	box-shadow:
-		0 0 10px var(--primary),
-		0 0 5px var(--primary);
 }
 
 /* Kill Chrome/Safari autofill's built-in yellow/blue background and faded text

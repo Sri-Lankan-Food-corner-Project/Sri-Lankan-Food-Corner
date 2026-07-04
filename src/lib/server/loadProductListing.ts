@@ -2,6 +2,7 @@ import { and, asc, count, desc, eq, gte, ilike, inArray, lte, sql, type SQL } fr
 import { db } from '$lib/server/db';
 import { categories, productImages, products } from '$lib/server/db/schema';
 import { PAGE_SIZE, type ListingFilters } from '$lib/utils/productFilters';
+import { timed } from './timing';
 
 export type ListingProduct = {
 	id: string;
@@ -41,18 +42,20 @@ export async function loadProductListing({
 }: Options): Promise<ListingResult> {
 	const conditions: SQL[] = [eq(products.isActive, true)];
 
+	// Resolve the category filter (if any) once and keep it separately so the
+	// bounds query can reuse it without a duplicate slug lookup.
+	let categoryCondition: SQL | null = null;
 	if (pinnedCategoryId) {
-		conditions.push(eq(products.categoryId, pinnedCategoryId));
+		categoryCondition = eq(products.categoryId, pinnedCategoryId);
 	} else if (filters.category) {
-		// Look up category id by slug — cheap single-row query
 		const [cat] = await db
 			.select({ id: categories.id })
 			.from(categories)
 			.where(eq(categories.slug, filters.category))
 			.limit(1);
-		if (cat) conditions.push(eq(products.categoryId, cat.id));
-		else conditions.push(sql`false`); // unknown slug → no results
+		categoryCondition = cat ? eq(products.categoryId, cat.id) : sql`false`;
 	}
+	if (categoryCondition) conditions.push(categoryCondition);
 
 	if (filters.q) {
 		conditions.push(ilike(products.name, `%${filters.q}%`));
@@ -86,68 +89,92 @@ export async function loadProductListing({
 		}
 	})();
 
-	// Overall price bounds for the (unfiltered) catalog constrained by category
-	// only — used by the slider so its range doesn't jump when other filters
-	// tighten.
+	// Bounds constraint (category only — slider range is stable across filters)
 	const boundsConditions: SQL[] = [eq(products.isActive, true)];
-	if (pinnedCategoryId) {
-		boundsConditions.push(eq(products.categoryId, pinnedCategoryId));
-	} else if (filters.category) {
-		const [cat] = await db
-			.select({ id: categories.id })
-			.from(categories)
-			.where(eq(categories.slug, filters.category))
-			.limit(1);
-		if (cat) boundsConditions.push(eq(products.categoryId, cat.id));
-	}
-	const [bounds] = await db
-		.select({
-			min: sql<number>`COALESCE(MIN(${products.price}), 0)::int`,
-			max: sql<number>`COALESCE(MAX(${products.price}), 0)::int`
-		})
-		.from(products)
-		.where(and(...boundsConditions));
+	if (categoryCondition) boundsConditions.push(categoryCondition);
 
-	const [{ total }] = await db
-		.select({ total: count() })
-		.from(products)
-		.where(where);
+	// Estimate the row count of pending offset up-front so we know when to skip
+	// the page-of-rows query entirely (offset > total).
+	// We fire bounds + count + first page of rows all at once — they're
+	// independent queries, so serial execution wastes 2× the network round-trips.
+	const offsetGuess = (Math.max(1, filters.page) - 1) * PAGE_SIZE;
+	const [boundsRow, countRow, rowsRaw] = await timed('listing: bounds+count+rows', () =>
+		Promise.all([
+		db
+			.select({
+				min: sql<number>`COALESCE(MIN(${products.price}), 0)::int`,
+				max: sql<number>`COALESCE(MAX(${products.price}), 0)::int`
+			})
+			.from(products)
+			.where(and(...boundsConditions)),
+		db.select({ total: count() }).from(products).where(where),
+		db
+			.select({
+				id: products.id,
+				categoryId: products.categoryId,
+				name: products.name,
+				slug: products.slug,
+				description: products.description,
+				price: products.price,
+				compareAtPrice: products.compareAtPrice,
+				unit: products.unit,
+				stockQuantity: products.stockQuantity,
+				isActive: products.isActive,
+				createdAt: products.createdAt,
+				updatedAt: products.updatedAt
+			})
+			.from(products)
+			.where(where)
+			.orderBy(...orderBy)
+			.limit(PAGE_SIZE)
+			.offset(offsetGuess)
+		])
+	);
 
+	const bounds = boundsRow[0];
+	const total = countRow[0].total;
 	const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 	const currentPage = Math.min(filters.page, totalPages);
-	const offset = (currentPage - 1) * PAGE_SIZE;
 
-	const rows = await db
-		.select({
-			id: products.id,
-			categoryId: products.categoryId,
-			name: products.name,
-			slug: products.slug,
-			description: products.description,
-			price: products.price,
-			compareAtPrice: products.compareAtPrice,
-			unit: products.unit,
-			stockQuantity: products.stockQuantity,
-			isActive: products.isActive,
-			createdAt: products.createdAt,
-			updatedAt: products.updatedAt
-		})
-		.from(products)
-		.where(where)
-		.orderBy(...orderBy)
-		.limit(PAGE_SIZE)
-		.offset(offset);
+	// If the requested page was past the last page, refetch the last page.
+	// Rare edge case; costs one extra round-trip but only when overshooting.
+	const rows =
+		currentPage === filters.page
+			? rowsRaw
+			: await db
+					.select({
+						id: products.id,
+						categoryId: products.categoryId,
+						name: products.name,
+						slug: products.slug,
+						description: products.description,
+						price: products.price,
+						compareAtPrice: products.compareAtPrice,
+						unit: products.unit,
+						stockQuantity: products.stockQuantity,
+						isActive: products.isActive,
+						createdAt: products.createdAt,
+						updatedAt: products.updatedAt
+					})
+					.from(products)
+					.where(where)
+					.orderBy(...orderBy)
+					.limit(PAGE_SIZE)
+					.offset((currentPage - 1) * PAGE_SIZE);
 
 	const ids = rows.map((r) => r.id);
 	const imgs = ids.length
-		? await db
-				.select({
-					productId: productImages.productId,
-					imageUrl: productImages.imageUrl
-				})
-				.from(productImages)
-				.where(inArray(productImages.productId, ids))
-				.orderBy(asc(productImages.sortOrder))
+		? await timed(
+				'listing: images',
+				db
+					.select({
+						productId: productImages.productId,
+						imageUrl: productImages.imageUrl
+					})
+					.from(productImages)
+					.where(inArray(productImages.productId, ids))
+					.orderBy(asc(productImages.sortOrder))
+			)
 		: [];
 
 	const imagesByProduct = new Map<string, string[]>();

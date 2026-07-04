@@ -1,4 +1,4 @@
-import { asc, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { error } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { categories } from '$lib/server/db/schema';
@@ -7,6 +7,8 @@ import { parseListingFilters } from '$lib/utils/productFilters';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params, url }) => {
+	const filters = parseListingFilters(url);
+
 	const [category] = await db
 		.select()
 		.from(categories)
@@ -15,20 +17,11 @@ export const load: PageServerLoad = async ({ params, url }) => {
 
 	if (!category) throw error(404, 'Category not found');
 
-	const filters = parseListingFilters(url);
-
-	const [listing, cats] = await Promise.all([
-		loadProductListing({ filters, pinnedCategoryId: category.id }),
-		db
-			.select({ slug: categories.slug, name: categories.name })
-			.from(categories)
-			.orderBy(asc(categories.sortOrder), asc(categories.name))
-	]);
+	const listing = await loadProductListing({ filters, pinnedCategoryId: category.id });
 
 	return {
 		category,
 		filters,
-		categories: cats,
 		...listing
 	};
 };

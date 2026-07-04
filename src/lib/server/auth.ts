@@ -41,7 +41,15 @@ export const auth = betterAuth({
 	},
 	session: {
 		expiresIn: 60 * 60 * 24 * 30, // 30 days
-		updateAge: 60 * 60 * 24 // refresh once per day
+		updateAge: 60 * 60 * 24, // refresh once per day
+		// Cache the resolved session in an encrypted cookie for 5 minutes so
+		// getSession() doesn't hit the DB on every navigation. Sign-out and
+		// role changes still invalidate immediately (the cookie is overwritten
+		// on those flows).
+		cookieCache: {
+			enabled: true,
+			maxAge: 60 * 5
+		}
 	},
 	advanced: {
 		useSecureCookies: env.BETTER_AUTH_URL?.startsWith('https://') ?? false

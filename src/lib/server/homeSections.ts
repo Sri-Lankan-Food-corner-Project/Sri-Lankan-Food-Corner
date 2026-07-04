@@ -7,6 +7,7 @@ import {
 	productImages,
 	products
 } from '$lib/server/db/schema';
+import { timed } from './timing';
 import type { Product } from '$lib/types/product';
 
 export type ResolvedHomeSection = {
@@ -32,35 +33,11 @@ const productCols = {
 	updatedAt: products.updatedAt
 } as const;
 
-async function attachImages<T extends { id: string }>(rows: T[]) {
-	if (rows.length === 0) return rows.map((r) => ({ ...r, imageUrl: null, hoverImageUrl: null }));
-	const ids = rows.map((r) => r.id);
-	const imgs = await db
-		.select({
-			productId: productImages.productId,
-			imageUrl: productImages.imageUrl,
-			sortOrder: productImages.sortOrder
-		})
-		.from(productImages)
-		.where(inArray(productImages.productId, ids))
-		.orderBy(asc(productImages.sortOrder));
-
-	const byProduct = new Map<string, string[]>();
-	for (const img of imgs) {
-		if (!img.productId) continue;
-		const list = byProduct.get(img.productId) ?? [];
-		list.push(img.imageUrl);
-		byProduct.set(img.productId, list);
-	}
-	return rows.map((r) => {
-		const list = byProduct.get(r.id) ?? [];
-		return { ...r, imageUrl: list[0] ?? null, hoverImageUrl: list[1] ?? null };
-	});
-}
-
 export async function loadHomeSections(): Promise<ResolvedHomeSection[]> {
-	const sections = await db
-		.select({
+	const sections = await timed(
+		'home: sections list',
+		db
+			.select({
 			id: homeSections.id,
 			title: homeSections.title,
 			subtitle: homeSections.subtitle,
@@ -75,54 +52,94 @@ export async function loadHomeSections(): Promise<ResolvedHomeSection[]> {
 		.from(homeSections)
 		.leftJoin(categories, eq(homeSections.categoryId, categories.id))
 		.where(eq(homeSections.isActive, true))
-		.orderBy(asc(homeSections.sortOrder), asc(homeSections.createdAt));
+		.orderBy(asc(homeSections.sortOrder), asc(homeSections.createdAt))
+	);
+
+	// Fetch every section's product rows in parallel — the previous
+	// serial loop turned each section into another network round-trip.
+	const rowsPerSection = await timed('home: sections products (parallel)', () =>
+		Promise.all(
+		sections.map(async (s): Promise<Product[]> => {
+			if (s.type === 'manual') {
+				return db
+					.select(productCols)
+					.from(homeSectionProducts)
+					.innerJoin(products, eq(homeSectionProducts.productId, products.id))
+					.where(
+						and(eq(homeSectionProducts.sectionId, s.id), eq(products.isActive, true))
+					)
+					.orderBy(asc(homeSectionProducts.sortOrder))
+					.limit(s.limit);
+			}
+			if (s.type === 'category' && s.categoryId) {
+				return db
+					.select(productCols)
+					.from(products)
+					.where(and(eq(products.categoryId, s.categoryId), eq(products.isActive, true)))
+					.orderBy(desc(products.createdAt))
+					.limit(s.limit);
+			}
+			if (s.type === 'newest') {
+				return db
+					.select(productCols)
+					.from(products)
+					.where(eq(products.isActive, true))
+					.orderBy(desc(products.createdAt))
+					.limit(s.limit);
+			}
+			if (s.type === 'discounted') {
+				return db
+					.select(productCols)
+					.from(products)
+					.where(
+						and(
+							eq(products.isActive, true),
+							sql`${products.compareAtPrice} IS NOT NULL`,
+							gt(products.compareAtPrice, products.price)
+						)
+					)
+					.orderBy(desc(products.createdAt))
+					.limit(s.limit);
+			}
+			return [];
+		})
+		)
+	);
+
+	// One image query for ALL sections combined instead of one per section.
+	const allProductIds = Array.from(
+		new Set(rowsPerSection.flatMap((rows) => rows.map((r) => r.id)))
+	);
+	const allImages = allProductIds.length
+		? await timed(
+				'home: images',
+				db
+					.select({
+						productId: productImages.productId,
+						imageUrl: productImages.imageUrl
+					})
+					.from(productImages)
+					.where(inArray(productImages.productId, allProductIds))
+					.orderBy(asc(productImages.sortOrder))
+			)
+		: [];
+	const imagesByProduct = new Map<string, string[]>();
+	for (const img of allImages) {
+		if (!img.productId) continue;
+		const list = imagesByProduct.get(img.productId) ?? [];
+		list.push(img.imageUrl);
+		imagesByProduct.set(img.productId, list);
+	}
 
 	const resolved: ResolvedHomeSection[] = [];
-
-	for (const s of sections) {
-		let rows: Product[] = [];
-
-		if (s.type === 'manual') {
-			rows = await db
-				.select(productCols)
-				.from(homeSectionProducts)
-				.innerJoin(products, eq(homeSectionProducts.productId, products.id))
-				.where(
-					and(eq(homeSectionProducts.sectionId, s.id), eq(products.isActive, true))
-				)
-				.orderBy(asc(homeSectionProducts.sortOrder))
-				.limit(s.limit);
-		} else if (s.type === 'category' && s.categoryId) {
-			rows = await db
-				.select(productCols)
-				.from(products)
-				.where(and(eq(products.categoryId, s.categoryId), eq(products.isActive, true)))
-				.orderBy(desc(products.createdAt))
-				.limit(s.limit);
-		} else if (s.type === 'newest') {
-			rows = await db
-				.select(productCols)
-				.from(products)
-				.where(eq(products.isActive, true))
-				.orderBy(desc(products.createdAt))
-				.limit(s.limit);
-		} else if (s.type === 'discounted') {
-			rows = await db
-				.select(productCols)
-				.from(products)
-				.where(
-					and(
-						eq(products.isActive, true),
-						sql`${products.compareAtPrice} IS NOT NULL`,
-						gt(products.compareAtPrice, products.price)
-					)
-				)
-				.orderBy(desc(products.createdAt))
-				.limit(s.limit);
-		}
-
+	for (let i = 0; i < sections.length; i++) {
+		const s = sections[i];
+		const rows = rowsPerSection[i];
 		if (rows.length === 0) continue;
-		const withImages = await attachImages(rows);
+		const withImages = rows.map((r) => {
+			const imgs = imagesByProduct.get(r.id) ?? [];
+			return { ...r, imageUrl: imgs[0] ?? null, hoverImageUrl: imgs[1] ?? null };
+		});
 		const viewAllHref =
 			s.type === 'category' && s.categorySlug ? `/category/${s.categorySlug}` : '/products';
 		resolved.push({

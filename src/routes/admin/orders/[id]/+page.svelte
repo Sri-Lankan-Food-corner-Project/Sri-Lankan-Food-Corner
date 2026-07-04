@@ -11,11 +11,21 @@
 		PAYMENT_STATUSES,
 		ORDER_STATUS_LABELS,
 		PAYMENT_STATUS_LABELS,
+		PAYMENT_METHOD_LABELS,
 		canTransitionStatus,
 		type OrderStatus
 	} from '$lib/schemas/orderStatus';
 	import { formatPrice } from '$lib/utils/formatPrice';
-	import { ArrowLeft, Package, User, MapPin, CreditCard, StickyNote } from '@lucide/svelte';
+	import { site } from '$lib/config/site';
+	import {
+		ArrowLeft,
+		Package,
+		User,
+		MapPin,
+		CreditCard,
+		StickyNote,
+		Landmark
+	} from '@lucide/svelte';
 
 	let { data } = $props();
 
@@ -148,11 +158,52 @@
 					<span>Total</span>
 					<span>{formatPrice(data.order.totalAmount)}</span>
 				</div>
-				<div class="text-muted-foreground pt-2 text-xs">
-					Payment method: <span class="font-medium text-neutral-900">{data.order.paymentMethod}</span>
+				<div class="text-muted-foreground flex justify-between pt-2 text-xs">
+					<span>Payment method</span>
+					<span class="text-foreground font-medium">
+						{PAYMENT_METHOD_LABELS[data.order.paymentMethod] ?? data.order.paymentMethod}
+					</span>
 				</div>
 			</div>
 		</section>
+
+		{#if data.order.paymentMethod === 'bank'}
+			<!-- Bank transfer details — what the customer was told to send money to.
+			     Admin uses this to reconcile incoming transfers. -->
+			<section class="bg-card rounded-md border">
+				<h2 class="flex items-center gap-2 border-b p-4 text-sm font-semibold">
+					<Landmark class="size-4" /> Bank transfer details
+				</h2>
+				<div class="space-y-2 p-4 text-sm">
+					<p class="text-muted-foreground text-xs">
+						Customer was instructed to transfer
+						<span class="text-foreground font-semibold">{formatPrice(data.order.totalAmount)}</span>
+						with order number
+						<span class="text-foreground font-semibold">{data.order.orderNumber}</span>
+						as the reference.
+					</p>
+					<div class="mt-3 space-y-1.5 border-t pt-3">
+						<div class="flex justify-between">
+							<span class="text-muted-foreground">Bank</span>
+							<span class="font-medium">{site.bank.name}</span>
+						</div>
+						<div class="flex justify-between">
+							<span class="text-muted-foreground">Account holder</span>
+							<span class="font-medium">{site.bank.accountHolder}</span>
+						</div>
+						<div class="flex justify-between">
+							<span class="text-muted-foreground">Account number</span>
+							<span class="font-mono font-medium">{site.bank.accountNumber}</span>
+						</div>
+					</div>
+					{#if data.order.paymentStatus === 'unpaid'}
+						<p class="mt-3 rounded-md bg-amber-50 p-2 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+							Once the transfer is confirmed, click <span class="font-semibold">Update payment</span> and set to <span class="font-semibold">Paid</span>.
+						</p>
+					{/if}
+				</div>
+			</section>
+		{/if}
 
 		{#if data.order.deliveryNotes}
 			<section class="bg-card rounded-md border">

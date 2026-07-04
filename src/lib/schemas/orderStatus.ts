@@ -29,6 +29,13 @@ export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
 	refunded: 'Refunded'
 };
 
+// Payment methods — currently phase 1 uses bank transfer only, with Toss
+// scheduled for phase 2 once the PG approval clears.
+export const PAYMENT_METHOD_LABELS: Record<string, string> = {
+	bank: 'Bank Transfer',
+	toss: 'Card / Toss'
+};
+
 export const updateOrderStatusSchema = z.object({
 	id: z.string().uuid(),
 	status: z.enum(ORDER_STATUSES)

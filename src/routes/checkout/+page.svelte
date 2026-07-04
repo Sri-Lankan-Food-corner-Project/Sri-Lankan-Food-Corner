@@ -907,29 +907,29 @@
 							{/if}
 						</div>
 
-						<label
-							class="flex cursor-pointer items-center gap-3 rounded-xl border bg-white p-4 transition {paymentMethod ===
-							'toss'
-								? 'border-brand-green ring-brand-green/20 ring-2'
-								: 'border-neutral-200 hover:border-neutral-300'}"
+						<!-- Card / Toss will unlock in phase 2 once PG approval clears.
+						     Left as a disabled preview so customers see it's coming. -->
+						<div
+							class="flex cursor-not-allowed items-center gap-3 rounded-xl border border-neutral-200 bg-neutral-50 p-4 opacity-60"
+							aria-disabled="true"
 						>
 							<input
 								type="radio"
 								name="paymentMethod"
 								value="toss"
-								bind:group={paymentMethod}
-								class="text-brand-green focus:ring-brand-green size-4 border-neutral-300"
+								disabled
+								class="size-4 border-neutral-300"
 							/>
-							<CreditCard class="size-5 text-neutral-700" />
+							<CreditCard class="size-5 text-neutral-400" />
 							<div class="flex-1">
-								<p class="text-sm font-semibold text-neutral-900">
-									Card / Toss Payments
+								<p class="text-sm font-semibold text-neutral-500">
+									Card / Toss Payments <span class="ml-1 rounded-full bg-neutral-200 px-2 py-0.5 text-[10px] font-bold tracking-wider text-neutral-600 uppercase">Coming soon</span>
 								</p>
-								<p class="text-xs text-neutral-500">
+								<p class="text-xs text-neutral-400">
 									신용카드 · KakaoPay · NaverPay · 계좌이체
 								</p>
 							</div>
-						</label>
+						</div>
 					</div>
 				</section>
 			</div>

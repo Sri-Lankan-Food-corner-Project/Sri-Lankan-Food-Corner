@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store';
 
-export type AuthMode = 'login' | 'signup';
+export type AuthMode = 'login' | 'signup' | 'forgot';
 
 type AuthState = {
 	open: boolean;

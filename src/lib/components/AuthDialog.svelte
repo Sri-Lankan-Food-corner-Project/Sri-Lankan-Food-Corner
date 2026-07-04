@@ -2,10 +2,10 @@
 	import { Dialog as DialogPrimitive } from 'bits-ui';
 	import { invalidateAll } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
-	import { signIn, signUp } from '$lib/auth-client';
-	import { authState, resolveAuth, setAuthMode } from '$lib/stores/authUi';
+	import { signIn, signUp, forgetPassword } from '$lib/auth-client';
+	import { authState, resolveAuth, setAuthMode, type AuthMode } from '$lib/stores/authUi';
 	import { formatKoreanMobile, isValidKoreanPhoneE164 } from '$lib/utils/validators';
-	import { Loader2, Lock, Mail, Phone, User as UserIcon, X } from '@lucide/svelte';
+	import { Loader2, Lock, Mail, Phone, User as UserIcon, X, CircleCheck } from '@lucide/svelte';
 
 	let loginEmail = $state('');
 	let loginPassword = $state('');
@@ -14,6 +14,8 @@
 	let signupPhoneDisplay = $state('');
 	let signupPassword = $state('');
 	let signupAgreed = $state(false);
+	let forgotEmail = $state('');
+	let forgotSent = $state(false);
 	const signupPhoneE164 = $derived(`+82${signupPhoneDisplay.replace(/\D/g, '')}`);
 
 	let submitting = $state(false);
@@ -27,9 +29,34 @@
 		if (!open) resolveAuth(false);
 	}
 
-	function switchTo(mode: 'login' | 'signup') {
+	function switchTo(mode: AuthMode) {
 		errorMsg = null;
+		forgotSent = false;
 		setAuthMode(mode);
+	}
+
+	async function handleForgot(e: SubmitEvent) {
+		e.preventDefault();
+		submitting = true;
+		errorMsg = null;
+		try {
+			const { error } = await forgetPassword({
+				email: forgotEmail,
+				redirectTo: '/account/reset-password'
+			});
+			if (error) {
+				errorMsg = error.message ?? "Couldn't send reset email";
+				return;
+			}
+			// Whether or not the email exists in our DB, show success — don't
+			// leak account-existence to spray attackers.
+			forgotSent = true;
+		} catch (err) {
+			console.error(err);
+			errorMsg = "Couldn't send reset email. Please try again.";
+		} finally {
+			submitting = false;
+		}
 	}
 
 	async function handleLogin(e: SubmitEvent) {
@@ -105,7 +132,11 @@
 				sm:data-[state=open]:slide-in-from-bottom-0 sm:data-[state=open]:zoom-in-95"
 		>
 			<DialogPrimitive.Title class="sr-only">
-				{$authState.mode === 'login' ? 'Sign in' : 'Create account'}
+				{$authState.mode === 'forgot'
+					? 'Reset password'
+					: $authState.mode === 'login'
+						? 'Sign in'
+						: 'Create account'}
 			</DialogPrimitive.Title>
 			<DialogPrimitive.Description class="sr-only">
 				{$authState.message ?? 'Sign in or create an account to continue.'}
@@ -121,13 +152,26 @@
 					<X class="size-4" />
 				</button>
 				<h2 class="text-xl font-extrabold sm:text-2xl">
-					{$authState.title ?? ($authState.mode === 'login' ? 'Welcome back' : 'Create account')}
+					{#if $authState.mode === 'forgot'}
+						Reset your password
+					{:else if $authState.title}
+						{$authState.title}
+					{:else if $authState.mode === 'login'}
+						Welcome back
+					{:else}
+						Create account
+					{/if}
 				</h2>
 				<p class="mt-1 text-xs text-white/80 sm:text-sm">
-					{$authState.message ??
-						($authState.mode === 'login'
-							? 'Sign in to your Sri Lankan Food Corner account.'
-							: 'Get faster checkout, saved addresses and wishlist.')}
+					{#if $authState.mode === 'forgot'}
+						We'll email you a link to set a new password.
+					{:else if $authState.message}
+						{$authState.message}
+					{:else if $authState.mode === 'login'}
+						Sign in to your Sri Lankan Food Corner account.
+					{:else}
+						Get faster checkout, saved addresses and wishlist.
+					{/if}
 				</p>
 			</div>
 
@@ -183,7 +227,16 @@
 							</div>
 						</label>
 						<label class="block">
-							<span class="mb-1 block text-xs font-semibold text-neutral-700">Password</span>
+							<div class="mb-1 flex items-baseline justify-between">
+								<span class="text-xs font-semibold text-neutral-700">Password</span>
+								<button
+									type="button"
+									onclick={() => switchTo('forgot')}
+									class="text-brand-green cursor-pointer text-xs font-semibold hover:underline"
+								>
+									Forgot password?
+								</button>
+							</div>
 							<div class="relative">
 								<Lock
 									class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-neutral-400"
@@ -220,6 +273,71 @@
 							</button>
 						</p>
 					</form>
+				{:else if $authState.mode === 'forgot'}
+					{#if forgotSent}
+						<div class="mt-4 space-y-3 text-center">
+							<div
+								class="mx-auto flex size-14 items-center justify-center rounded-full bg-green-100 text-green-700"
+							>
+								<CircleCheck class="size-8" />
+							</div>
+							<h3 class="text-base font-bold text-neutral-900">Check your email</h3>
+							<p class="text-sm text-neutral-600">
+								If an account exists for <span class="font-semibold text-neutral-900">{forgotEmail}</span>, you'll get a link to reset your password in the next minute. The link is valid for 60 minutes.
+							</p>
+							<button
+								type="button"
+								onclick={() => switchTo('login')}
+								class="text-brand-green mt-2 cursor-pointer text-sm font-semibold underline hover:no-underline"
+							>
+								Back to sign in
+							</button>
+						</div>
+					{:else}
+						<form onsubmit={handleForgot} class="mt-4 space-y-3">
+							<p class="text-xs text-neutral-600">
+								Enter the email you signed up with and we'll send a link to set a new password.
+							</p>
+							<label class="block">
+								<span class="mb-1 block text-xs font-semibold text-neutral-700">Email</span>
+								<div class="relative">
+									<Mail
+										class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-neutral-400"
+									/>
+									<input
+										type="email"
+										required
+										autocomplete="email"
+										bind:value={forgotEmail}
+										placeholder="you@example.com"
+										class="focus:border-brand-green focus:ring-brand-green/20 w-full rounded-lg border border-neutral-300 bg-white py-2.5 pr-4 pl-10 text-sm text-neutral-900 placeholder:text-neutral-400 focus:ring-2 focus:outline-none"
+									/>
+								</div>
+							</label>
+							<button
+								type="submit"
+								disabled={submitting}
+								class="bg-brand-charcoal hover:bg-brand-charcoal-hover inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-70"
+							>
+								{#if submitting}
+									<Loader2 class="size-4 animate-spin" />
+									Sending…
+								{:else}
+									Send reset link
+								{/if}
+							</button>
+							<p class="text-center text-xs text-neutral-600">
+								Remembered it?
+								<button
+									type="button"
+									onclick={() => switchTo('login')}
+									class="text-brand-green cursor-pointer font-semibold underline hover:no-underline"
+								>
+									Back to sign in
+								</button>
+							</p>
+						</form>
+					{/if}
 				{:else}
 					<form onsubmit={handleSignup} class="mt-4 space-y-3">
 						<label class="block">
@@ -292,13 +410,13 @@
 							</div>
 						</label>
 
-						<label class="flex items-start gap-2 text-[11px] leading-snug text-neutral-600">
+						<label class="flex items-center gap-2 text-xs leading-tight text-neutral-600">
 							<input
 								type="checkbox"
 								bind:checked={signupAgreed}
-								class="text-brand-green focus:ring-brand-green mt-0.5 size-4 rounded border-neutral-300"
+								class="text-brand-green focus:ring-brand-green size-4 shrink-0 rounded border-neutral-300"
 							/>
-							<span>
+							<span class="flex-1">
 								I agree to the
 								<a href="/terms" class="text-brand-green underline">Terms</a>
 								and

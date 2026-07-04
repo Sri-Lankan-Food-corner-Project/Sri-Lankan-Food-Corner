@@ -31,7 +31,7 @@
 	// straight there once the sign-in resolves successfully.
 	$effect(() => {
 		const auth = page.url.searchParams.get('auth');
-		if (auth !== 'login' && auth !== 'signup') return;
+		if (auth !== 'login' && auth !== 'signup' && auth !== 'forgot') return;
 		const returnTo = safeReturnTo(page.url.searchParams.get('returnTo'));
 
 		// Strip auth flags from the URL immediately so a refresh doesn't

@@ -16,7 +16,7 @@
 		}
 		const ok = await showAuth({
 			mode: 'signup',
-			title: 'Create an account to check out',
+			title: 'Create an account',
 			message: 'Sign in or create your account so we can track your order.'
 		});
 		if (ok) goto('/checkout');

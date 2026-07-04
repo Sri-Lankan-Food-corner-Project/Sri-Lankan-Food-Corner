@@ -12,6 +12,8 @@
 	import { showAuth, type AuthMode } from '$lib/stores/authUi';
 	import { ModeWatcher } from 'mode-watcher';
 	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
+	import { safeReturnTo } from '$lib/utils/safeReturnTo';
 
 	let { data, children } = $props();
 
@@ -25,14 +27,26 @@
 
 	// Open the auth modal when the URL carries `?auth=login|signup` — this is how
 	// protected route redirects surface the sign-in prompt without a full page.
+	// If a `returnTo` param came with it (e.g. `/account/orders`), navigate
+	// straight there once the sign-in resolves successfully.
 	$effect(() => {
 		const auth = page.url.searchParams.get('auth');
 		if (auth !== 'login' && auth !== 'signup') return;
-		showAuth({ mode: auth as AuthMode });
-		// Strip the flag from the URL without re-navigating.
+		const returnTo = safeReturnTo(page.url.searchParams.get('returnTo'));
+
+		// Strip auth flags from the URL immediately so a refresh doesn't
+		// re-trigger the dialog and the returnTo hint doesn't linger.
 		const url = new URL(window.location.href);
 		url.searchParams.delete('auth');
+		url.searchParams.delete('returnTo');
 		history.replaceState(null, '', url.pathname + url.search);
+
+		(async () => {
+			const ok = await showAuth({ mode: auth as AuthMode });
+			if (ok && returnTo !== '/') {
+				await goto(returnTo);
+			}
+		})();
 	});
 
 </script>

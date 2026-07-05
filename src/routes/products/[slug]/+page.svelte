@@ -1,5 +1,6 @@
 <script lang="ts">
 	import AddToCartButton from '$lib/components/AddToCartButton.svelte';
+	import ProductReviews from '$lib/components/ProductReviews.svelte';
 	import { formatPrice } from '$lib/utils/formatPrice';
 	import { cart } from '$lib/stores/cart';
 	import { cartOpen } from '$lib/stores/cartUi';
@@ -174,4 +175,11 @@
 			{/if}
 		</div>
 	</div>
+
+	<ProductReviews
+		user={data.user}
+		reviews={data.reviews}
+		summary={data.reviewSummary}
+		ownReview={data.ownReview}
+	/>
 </section>

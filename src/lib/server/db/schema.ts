@@ -196,6 +196,31 @@ export const orderItems = pgTable('order_items', {
 	lineTotal: integer('line_total').notNull()
 });
 
+// Customer reviews of products. Reviews are only shown publicly when
+// status='approved' — new reviews start as 'pending' and require an admin to
+// approve. One review per (product, user) so a customer can edit their own
+// review but not spam multiple.
+export const productReviews = pgTable(
+	'product_reviews',
+	{
+		id: uuid('id').primaryKey().defaultRandom(),
+		productId: uuid('product_id')
+			.notNull()
+			.references(() => products.id, { onDelete: 'cascade' }),
+		userId: text('user_id')
+			.notNull()
+			.references(() => user.id, { onDelete: 'cascade' }),
+		rating: integer('rating').notNull(),
+		title: text('title'),
+		body: text('body').notNull(),
+		status: text('status').notNull().default('pending'),
+		adminNote: text('admin_note'),
+		createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+		updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
+	},
+	(t) => [unique('product_reviews_product_user_unique').on(t.productId, t.userId)]
+);
+
 // Homepage sliders — admin-managed rows on the storefront home page.
 // `type` picks how products are resolved at render time:
 //   'manual'      → explicit list from home_section_products

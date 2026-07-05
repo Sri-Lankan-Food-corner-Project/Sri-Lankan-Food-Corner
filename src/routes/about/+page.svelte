@@ -16,10 +16,10 @@
 </script>
 
 <svelte:head>
-	<title>About Us — {site.name}</title>
+	<title>About Us  {site.name}</title>
 	<meta
 		name="description"
-		content="Meet {site.name} — a family-run Sri Lankan grocery in Dangjin, Korea. Rice, spices, curry mixes, fresh vegetables and pantry staples from home."
+		content="Meet {site.name}  a family-run Sri Lankan grocery in Dangjin, Korea. Rice, spices, curry mixes, fresh vegetables and pantry staples from home."
 	/>
 </svelte:head>
 
@@ -43,7 +43,7 @@
 		</h1>
 		<p class="mt-4 max-w-2xl text-sm text-white/85 sm:text-base">
 			{site.name} brings Sri Lankan flavours, familiar brands, and everyday grocery
-			essentials to families across South Korea — carefully sourced, honestly priced,
+			essentials to families across South Korea  carefully sourced, honestly priced,
 			and packed with the tastes of home.
 		</p>
 
@@ -77,8 +77,8 @@
 				Built by a Sri Lankan family, for the community we live in.
 			</h2>
 			<p class="mt-5 text-base leading-relaxed text-neutral-600">
-				What began as a small idea — how do we keep cooking the food we grew up with,
-				thousands of kilometres from home? — turned into a shop the whole community
+				What began as a small idea  how do we keep cooking the food we grew up with,
+				thousands of kilometres from home?  turned into a shop the whole community
 				stops by. From wedding-scale rice sacks to a quick pack of pol sambol seasoning
 				on the way back from work, we&apos;re the corner store you know by name.
 			</p>
@@ -131,7 +131,7 @@
 
 <!-- What we offer -->
 <section class="bg-brand-sand">
-	<div class="mx-auto max-w-350 px-4 py-16 sm:px-6 sm:py-10 lg:px-8">
+	<div class="mx-auto max-w-350 px-4 py-5 sm:px-6 sm:py-10 lg:px-8">
 		<div class="max-w-2xl">
 			<p class="text-brand-green text-xs font-bold tracking-[0.3em] uppercase">
 				What&apos;s on our shelves
@@ -141,7 +141,7 @@
 			</h2>
 			<p class="mt-4 text-base leading-relaxed text-neutral-600">
 				Focused on Sri Lankan cooking, but built out to cover the wider Desi and
-				South Asian pantry — plus the Korean everyday essentials you&apos;d expect
+				South Asian pantry  plus the Korean everyday essentials you&apos;d expect
 				from your neighbourhood store.
 			</p>
 		</div>
@@ -168,7 +168,7 @@
 				</div>
 				<h3 class="mt-4 text-base font-bold text-neutral-900">Fresh vegetables</h3>
 				<p class="mt-2 text-sm leading-relaxed text-neutral-500">
-					A rotating pick of fresh produce chosen for the way we actually cook —
+					A rotating pick of fresh produce chosen for the way we actually cook 
 					curries, tempered sides, and everyday tempers.
 				</p>
 			</div>
@@ -194,7 +194,7 @@
 				</div>
 				<h3 class="mt-4 text-base font-bold text-neutral-900">Korean essentials</h3>
 				<p class="mt-2 text-sm leading-relaxed text-neutral-500">
-					The everyday Korean pantry items you shop for anyway — no need to make a
+					The everyday Korean pantry items you shop for anyway  no need to make a
 					second stop somewhere else.
 				</p>
 			</div>
@@ -216,7 +216,7 @@
 			</h2>
 			<p class="mt-4 text-base leading-relaxed text-neutral-600">
 				We serve the local community in person and ship nationwide across South
-				Korea. Stop by, or shop the whole store online — same prices either way.
+				Korea. Stop by, or shop the whole store online  same prices either way.
 			</p>
 
 			<div class="mt-8 grid gap-4">
@@ -277,7 +277,7 @@
 					Order online, get it delivered anywhere in Korea.
 				</h3>
 				<p class="mt-4 text-sm leading-relaxed text-white/80">
-					Browse the whole store from your phone — same stock, same prices, same
+					Browse the whole store from your phone  same stock, same prices, same
 					family behind it. Weight-based shipping and local pickup available at
 					checkout.
 				</p>

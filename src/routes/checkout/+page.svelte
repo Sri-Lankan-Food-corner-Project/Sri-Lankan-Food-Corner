@@ -1017,7 +1017,7 @@
 					<button
 						type="submit"
 						disabled={submitting}
-						class="bg-brand-charcoal hover:bg-brand-charcoal-hover mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-70"
+						class="bg-brand-charcoal cursor-pointer hover:bg-brand-charcoal-hover mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-70"
 					>
 						{#if submitting}
 							Placing order…

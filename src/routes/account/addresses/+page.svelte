@@ -3,6 +3,7 @@
 	import { toast } from 'svelte-sonner';
 	import { showConfirm } from '$lib/stores/confirm';
 	import { MapPin, Pencil, Plus, Star, Trash2 } from '@lucide/svelte';
+	import { z } from 'zod';
 
 	let { data } = $props();
 
@@ -34,11 +35,71 @@
 		isDefault: false
 	};
 
+	// Client-side validation schema. Matches the required-field asterisks in the UI
+	// and applies Korean-specific rules (postcode = 5 digits since 2015).
+	const schema = z.object({
+		fullName: z.string().trim().min(1, 'Full name is required').max(80, 'Too long'),
+		phone: z
+			.string()
+			.trim()
+			.min(1, 'Phone is required')
+			.regex(/^[+0-9\s()\-]{7,20}$/, 'Enter a valid phone number'),
+		street: z.string().trim().min(1, 'Street address is required').max(200, 'Too long'),
+		city: z.string().trim().min(1, 'City is required').max(80, 'Too long'),
+		postcode: z
+			.string()
+			.trim()
+			.regex(/^\d{5}$/, 'Korean postcode must be 5 digits'),
+		label: z.string().max(30, 'Too long'),
+		houseNumber: z.string().max(50, 'Too long'),
+		roomNumber: z.string().max(50, 'Too long'),
+		accessCode: z.string().max(50, 'Too long')
+	});
+
+	type Errors = Partial<Record<keyof FormState, string>>;
+
 	let editing = $state<FormState | null>(null);
 	let saving = $state(false);
+	let errors = $state<Errors>({});
+	let attempted = $state(false);
+
+	function validate(): boolean {
+		if (!editing) return false;
+		const result = schema.safeParse(editing);
+		if (result.success) {
+			errors = {};
+			return true;
+		}
+		const next: Errors = {};
+		for (const issue of result.error.issues) {
+			const key = issue.path[0] as keyof FormState;
+			if (!next[key]) next[key] = issue.message;
+		}
+		errors = next;
+		return false;
+	}
+
+	// Once the user has tried to submit once, re-validate live as they type so
+	// error messages clear the moment the field becomes valid.
+	$effect(() => {
+		if (!attempted || !editing) return;
+		// Touch reactive fields so this effect re-runs on any edit.
+		void editing.fullName;
+		void editing.phone;
+		void editing.street;
+		void editing.city;
+		void editing.postcode;
+		void editing.label;
+		void editing.houseNumber;
+		void editing.roomNumber;
+		void editing.accessCode;
+		validate();
+	});
 
 	function startAdd() {
 		editing = { ...emptyForm };
+		errors = {};
+		attempted = false;
 	}
 
 	function startEdit(a: (typeof data.addresses)[number]) {
@@ -55,10 +116,17 @@
 			postcode: a.postcode,
 			isDefault: a.isDefault
 		};
+		errors = {};
+		attempted = false;
 	}
 
 	async function save() {
 		if (!editing || saving) return;
+		attempted = true;
+		if (!validate()) {
+			toast.error('Please fix the highlighted fields');
+			return;
+		}
 		saving = true;
 		try {
 			const fd = new FormData();
@@ -114,14 +182,10 @@
 
 <div class="space-y-6">
 	{#if data.addresses.length === 0}
-		<div
-			class="bg-brand-cream ring-brand-charcoal/10 rounded-2xl p-10 text-center ring-1"
-		>
+		<div class="bg-brand-cream ring-brand-charcoal/10 rounded-2xl p-10 text-center ring-1">
 			<MapPin class="text-brand-charcoal/30 mx-auto size-14" />
 			<h2 class="mt-4 text-xl font-bold text-neutral-900">No addresses saved yet</h2>
-			<p class="mt-2 text-sm text-neutral-500">
-				Add an address to speed up checkout next time.
-			</p>
+			<p class="mt-2 text-sm text-neutral-500">Add an address to speed up checkout next time.</p>
 			<button
 				type="button"
 				onclick={startAdd}
@@ -137,7 +201,7 @@
 			<button
 				type="button"
 				onclick={startAdd}
-				class="bg-brand-charcoal hover:bg-brand-charcoal-hover inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white transition"
+				class="bg-brand-charcoal cursor-pointer hover:bg-brand-charcoal-hover inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white transition"
 			>
 				<Plus class="size-4" />
 				Add new
@@ -173,7 +237,7 @@
 							<button
 								type="button"
 								onclick={() => startEdit(a)}
-								class="rounded-lg p-1.5 text-neutral-500 transition hover:bg-white hover:text-neutral-900"
+								class="rounded-lg cursor-pointer p-1.5 text-neutral-500 transition hover:bg-white hover:text-neutral-900"
 								aria-label="Edit address"
 							>
 								<Pencil class="size-3.5" />
@@ -181,7 +245,7 @@
 							<button
 								type="button"
 								onclick={() => del(a.id)}
-								class="rounded-lg p-1.5 text-neutral-500 transition hover:bg-red-50 hover:text-red-600"
+								class="rounded-lg p-1.5 cursor-pointer text-neutral-500 transition hover:bg-red-50 hover:text-red-600"
 								aria-label="Delete address"
 							>
 								<Trash2 class="size-3.5" />
@@ -220,8 +284,15 @@
 						required
 						autocomplete="off"
 						bind:value={editing.fullName}
-						class="focus:border-brand-green w-full rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
+						aria-invalid={!!errors.fullName}
+						aria-describedby={errors.fullName ? 'err-fullName' : undefined}
+						class="focus:border-brand-green w-full rounded-lg border bg-white px-4 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none {errors.fullName
+							? 'border-red-500'
+							: 'border-neutral-300'}"
 					/>
+					{#if errors.fullName}
+						<p id="err-fullName" class="mt-1 text-xs text-red-600">{errors.fullName}</p>
+					{/if}
 				</label>
 				<label class="block">
 					<span class="mb-1 block text-xs font-medium text-neutral-700">
@@ -233,8 +304,15 @@
 						autocomplete="off"
 						bind:value={editing.phone}
 						placeholder="010-0000-0000"
-						class="focus:border-brand-green w-full rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
+						aria-invalid={!!errors.phone}
+						aria-describedby={errors.phone ? 'err-phone' : undefined}
+						class="focus:border-brand-green w-full rounded-lg border bg-white px-4 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none {errors.phone
+							? 'border-red-500'
+							: 'border-neutral-300'}"
 					/>
+					{#if errors.phone}
+						<p id="err-phone" class="mt-1 text-xs text-red-600">{errors.phone}</p>
+					{/if}
 				</label>
 				<label class="block sm:col-span-2">
 					<span class="mb-1 block text-xs font-medium text-neutral-700">
@@ -245,8 +323,15 @@
 						required
 						autocomplete="off"
 						bind:value={editing.street}
-						class="focus:border-brand-green w-full rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
+						aria-invalid={!!errors.street}
+						aria-describedby={errors.street ? 'err-street' : undefined}
+						class="focus:border-brand-green w-full rounded-lg border bg-white px-4 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none {errors.street
+							? 'border-red-500'
+							: 'border-neutral-300'}"
 					/>
+					{#if errors.street}
+						<p id="err-street" class="mt-1 text-xs text-red-600">{errors.street}</p>
+					{/if}
 				</label>
 				<label class="block">
 					<span class="mb-1 block text-xs font-medium text-neutral-700">House Number</span>
@@ -275,8 +360,15 @@
 						required
 						autocomplete="off"
 						bind:value={editing.city}
-						class="focus:border-brand-green w-full rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
+						aria-invalid={!!errors.city}
+						aria-describedby={errors.city ? 'err-city' : undefined}
+						class="focus:border-brand-green w-full rounded-lg border bg-white px-4 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none {errors.city
+							? 'border-red-500'
+							: 'border-neutral-300'}"
 					/>
+					{#if errors.city}
+						<p id="err-city" class="mt-1 text-xs text-red-600">{errors.city}</p>
+					{/if}
 				</label>
 				<label class="block">
 					<span class="mb-1 block text-xs font-medium text-neutral-700">
@@ -286,9 +378,19 @@
 						type="text"
 						required
 						autocomplete="off"
+						inputmode="numeric"
+						maxlength="5"
 						bind:value={editing.postcode}
-						class="focus:border-brand-green w-full rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
+						placeholder="12345"
+						aria-invalid={!!errors.postcode}
+						aria-describedby={errors.postcode ? 'err-postcode' : undefined}
+						class="focus:border-brand-green w-full rounded-lg border bg-white px-4 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none {errors.postcode
+							? 'border-red-500'
+							: 'border-neutral-300'}"
 					/>
+					{#if errors.postcode}
+						<p id="err-postcode" class="mt-1 text-xs text-red-600">{errors.postcode}</p>
+					{/if}
 				</label>
 				<label class="block sm:col-span-2">
 					<span class="mb-1 block text-xs font-medium text-neutral-700">Access Code</span>
@@ -321,7 +423,7 @@
 					type="button"
 					onclick={save}
 					disabled={saving}
-					class="bg-brand-charcoal hover:bg-brand-charcoal-hover rounded-full px-5 py-2 text-sm font-semibold text-white transition disabled:opacity-70"
+					class="bg-brand-charcoal cursor-pointer hover:bg-brand-charcoal-hover rounded-full px-5 py-2 text-sm font-semibold text-white transition disabled:opacity-70"
 				>
 					{saving ? 'Saving…' : 'Save address'}
 				</button>

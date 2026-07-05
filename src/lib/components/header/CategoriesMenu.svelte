@@ -14,7 +14,7 @@
 		{#snippet child({ props })}
 			<button
 				{...props}
-				class="hidden shrink-0 items-center gap-2 rounded-full bg-brand-charcoal px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-brand-charcoal-hover md:inline-flex"
+				class="hidden cursor-pointer shrink-0 items-center gap-2 rounded-full bg-brand-charcoal px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-brand-charcoal-hover md:inline-flex"
 			>
 				<Menu class="size-4" />
 				All Categories

@@ -53,7 +53,7 @@
 	}
 </script>
 
-<section class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:py-12">
+<section class="mx-auto max-w-350 px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
 	<button
 		type="button"
 		onclick={() => history.back()}
@@ -64,79 +64,99 @@
 		<span>Back</span>
 	</button>
 
-	<div class="grid gap-8 lg:grid-cols-2 lg:gap-12">
-		<div>
-			<div
-				class="bg-brand-sand group relative aspect-square overflow-hidden rounded-2xl ring-1 ring-black/5"
-			>
-				{#if data.images.length > 0}
-					<img
-						src={data.images[activeImage]}
-						alt={p.name}
-						class="h-full w-full object-cover transition-opacity duration-200 {soldOut
-							? 'opacity-70 grayscale'
-							: ''}"
-					/>
-				{/if}
-
-				{#if soldOut}
-					<div
-						class="bg-brand-charcoal/85 absolute inset-x-0 top-1/2 -translate-y-1/2 py-3 text-center text-sm font-bold tracking-[0.2em] text-white uppercase"
-					>
-						Sold Out
-					</div>
-				{:else if discountPercent > 0}
-					<span
-						class="absolute top-4 left-4 rounded-full bg-red-500 px-3 py-1 text-xs font-bold text-white shadow-md"
-					>
-						-{discountPercent}%
-					</span>
-				{/if}
-
-				{#if data.images.length > 1}
+	<div class="lg:flex lg:items-start lg:gap-6">
+		{#if data.images.length > 1}
+			<div class="hidden lg:flex lg:shrink-0 lg:flex-col lg:gap-3 lg:p-1">
+				{#each data.images as img, i (i)}
 					<button
 						type="button"
-						onclick={prevImage}
-						aria-label="Previous image"
-						class="hover:text-brand-green absolute top-1/2 left-3 inline-flex size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/90 text-neutral-700 shadow-md ring-1 ring-black/5 backdrop-blur-sm transition hover:bg-white sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
+						aria-label="Show image {i + 1}"
+						aria-current={activeImage === i}
+						class="bg-brand-sand relative size-20 shrink-0 overflow-hidden rounded-xl transition {activeImage ===
+						i
+							? 'ring-brand-green ring-offset-brand-sand ring-2 ring-offset-2'
+							: 'cursor-pointer opacity-70 ring-1 ring-black/5 hover:opacity-100 hover:ring-black/20'}"
+						onclick={() => (activeImage = i)}
 					>
-						<ChevronLeft class="size-5" />
+						<img src={img} alt="" class="h-full w-full object-cover" />
 					</button>
-					<button
-						type="button"
-						onclick={nextImage}
-						aria-label="Next image"
-						class="hover:text-brand-green absolute top-1/2 right-3 inline-flex size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/90 text-neutral-700 shadow-md ring-1 ring-black/5 backdrop-blur-sm transition hover:bg-white sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
-					>
-						<ChevronRight class="size-5" />
-					</button>
-					<span
-						class="absolute right-3 bottom-3 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-semibold text-white tabular-nums backdrop-blur-sm"
-					>
-						{activeImage + 1} / {data.images.length}
-					</span>
-				{/if}
+				{/each}
 			</div>
+		{/if}
 
-			{#if data.images.length > 1}
-				<div class="mt-3 -mx-1 flex gap-3 overflow-x-auto p-1">
-					{#each data.images as img, i (i)}
+		<div class="mx-auto grid w-full max-w-6xl gap-8 lg:grid-cols-2 lg:gap-12">
+			<div>
+				<div
+					class="bg-brand-sand group relative aspect-square overflow-hidden rounded-2xl ring-1 ring-black/5"
+				>
+					{#if data.images.length > 0}
+						<img
+							src={data.images[activeImage]}
+							alt={p.name}
+							class="h-full w-full object-cover transition-opacity duration-200 {soldOut
+								? 'opacity-70 grayscale'
+								: ''}"
+						/>
+					{/if}
+
+					{#if soldOut}
+						<div
+							class="bg-brand-charcoal/85 absolute inset-x-0 top-1/2 -translate-y-1/2 py-3 text-center text-sm font-bold tracking-[0.2em] text-white uppercase"
+						>
+							Sold Out
+						</div>
+					{:else if discountPercent > 0}
+						<span
+							class="absolute top-4 left-4 rounded-full bg-red-500 px-3 py-1 text-xs font-bold text-white shadow-md"
+						>
+							-{discountPercent}%
+						</span>
+					{/if}
+
+					{#if data.images.length > 1}
 						<button
 							type="button"
-							aria-label="Show image {i + 1}"
-							aria-current={activeImage === i}
-							class="bg-brand-sand relative size-20 shrink-0 overflow-hidden rounded-xl transition {activeImage ===
-							i
-								? 'ring-brand-green ring-offset-brand-sand ring-2 ring-offset-2'
-								: 'cursor-pointer opacity-70 ring-1 ring-black/5 hover:opacity-100 hover:ring-black/20'}"
-							onclick={() => (activeImage = i)}
+							onclick={prevImage}
+							aria-label="Previous image"
+							class="hover:text-brand-green absolute top-1/2 left-3 inline-flex size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/90 text-neutral-700 shadow-md ring-1 ring-black/5 backdrop-blur-sm transition hover:bg-white sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
 						>
-							<img src={img} alt="" class="h-full w-full object-cover" />
+							<ChevronLeft class="size-5" />
 						</button>
-					{/each}
+						<button
+							type="button"
+							onclick={nextImage}
+							aria-label="Next image"
+							class="hover:text-brand-green absolute top-1/2 right-3 inline-flex size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/90 text-neutral-700 shadow-md ring-1 ring-black/5 backdrop-blur-sm transition hover:bg-white sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
+						>
+							<ChevronRight class="size-5" />
+						</button>
+						<span
+							class="absolute right-3 bottom-3 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-semibold text-white tabular-nums backdrop-blur-sm"
+						>
+							{activeImage + 1} / {data.images.length}
+						</span>
+					{/if}
 				</div>
-			{/if}
-		</div>
+
+				{#if data.images.length > 1}
+					<div class="mt-3 -mx-1 flex gap-3 overflow-x-auto p-1 lg:hidden">
+						{#each data.images as img, i (i)}
+							<button
+								type="button"
+								aria-label="Show image {i + 1}"
+								aria-current={activeImage === i}
+								class="bg-brand-sand relative size-20 shrink-0 overflow-hidden rounded-xl transition {activeImage ===
+								i
+									? 'ring-brand-green ring-offset-brand-sand ring-2 ring-offset-2'
+									: 'cursor-pointer opacity-70 ring-1 ring-black/5 hover:opacity-100 hover:ring-black/20'}"
+								onclick={() => (activeImage = i)}
+							>
+								<img src={img} alt="" class="h-full w-full object-cover" />
+							</button>
+						{/each}
+					</div>
+				{/if}
+			</div>
 
 		<div class="flex flex-col">
 			{#if p.categoryName && p.categorySlug}
@@ -212,8 +232,10 @@
 				</p>
 			{/if}
 		</div>
+		</div>
 	</div>
 
+	<div class="mx-auto max-w-6xl">
 	{#await data.streamed.reviewData}
 		<!-- Skeleton — shown while the reviews query streams in. Matches the
 		     approximate layout of the real review section so the page doesn't
@@ -241,6 +263,8 @@
 			reviews={r.reviews}
 			summary={r.summary}
 			ownReview={r.ownReview}
+			productName={p.name}
 		/>
 	{/await}
+	</div>
 </section>

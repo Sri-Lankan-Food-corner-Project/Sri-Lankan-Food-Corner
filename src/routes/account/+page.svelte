@@ -1,8 +1,32 @@
 <script lang="ts">
 	import { formatPrice } from '$lib/utils/formatPrice';
-	import { ArrowRight, MapPin, Package, ShieldCheck, User } from '@lucide/svelte';
+	import { signOut } from '$lib/auth-client';
+	import { goto, invalidateAll } from '$app/navigation';
+	import {
+		ArrowRight,
+		LoaderCircle,
+		LogOut,
+		MapPin,
+		Package,
+		ShieldCheck,
+		User
+	} from '@lucide/svelte';
 
 	let { data } = $props();
+
+	let signingOut = $state(false);
+
+	async function handleSignOut() {
+		if (signingOut) return;
+		signingOut = true;
+		try {
+			await signOut();
+			await invalidateAll();
+			await goto('/');
+		} finally {
+			signingOut = false;
+		}
+	}
 </script>
 
 <div class="space-y-6">
@@ -84,4 +108,19 @@
 			</ul>
 		</div>
 	{/if}
+
+	<button
+		type="button"
+		onclick={handleSignOut}
+		disabled={signingOut}
+		class="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-full border border-red-200 bg-white px-6 py-3 text-sm font-semibold text-red-600 transition hover:border-red-300 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-70"
+	>
+		{#if signingOut}
+			<LoaderCircle class="size-4 animate-spin" aria-hidden="true" />
+			<span>Signing out…</span>
+		{:else}
+			<LogOut class="size-4" aria-hidden="true" />
+			<span>Sign out</span>
+		{/if}
+	</button>
 </div>

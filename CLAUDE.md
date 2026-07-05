@@ -263,6 +263,103 @@ utility that works for `bg-primary` also works for `bg-brand-green`.
   not `ProductCards`). Match the folder to the section (`home/HeroBanner.svelte`, not
   `HomeHeroBanner.svelte`).
 
+## Performance Patterns (rendering & data loading)
+
+The site targets Korean customers over Vercel `sin1` + Neon Singapore. Perceived
+speed comes from **painting the shell as fast as possible** and letting slower
+data fill in progressively, not from making every query faster.
+
+### 1. Stream heavy queries via `streamed: { ... }`
+
+Anything a `load` function fetches by default blocks the first HTML byte. If a
+query isn't needed for the above-the-fold render (reviews, product listings,
+homepage sliders), return it as an **unawaited** promise nested inside a
+`streamed` object, and consume it with `{#await}` on the client.
+
+```ts
+// +page.server.ts — awaits only what the shell needs, streams the rest
+export const load: PageServerLoad = async ({ params }) => {
+  const [row] = await db.select(...).from(products).where(...);
+  if (!row) throw error(404);
+  const images = await db.select(...).from(productImages).where(...);
+
+  // Nested under `streamed` → SvelteKit ships the HTML first and streams this later.
+  const reviewData = (async () => {
+    const [reviews, summary, own] = await Promise.all([...]);
+    return { reviews, summary, own };
+  })();
+
+  return { product: row, images, streamed: { reviewData } };
+};
+```
+
+```svelte
+<!-- +page.svelte -->
+{#await data.streamed.reviewData}
+  <ReviewsSkeleton />
+{:then r}
+  <ProductReviews {...r} />
+{/await}
+```
+
+Rules:
+- **Top-level Promise → awaited before render. Nested Promise → streamed.** This
+  is why the `streamed: { ... }` wrapper matters — a bare Promise at the top
+  level of the return object gets awaited and defeats the whole point.
+- Always ship a **skeleton** in the `{#await}` pending branch that mirrors the
+  final layout (same heading heights, same grid columns). No CLS when data lands.
+- Await the queries you actually need for the shell (product row + hero image,
+  category record for the page title, 404 checks). Defer everything below the fold.
+
+Already streamed:
+- `/products/[slug]` → reviews section
+- `/products/` and `/category/[slug]` → the full listing (`loadProductListing`)
+- `/` (home) → home sections (`loadHomeSections`)
+
+### 2. In-memory caching for near-static data (`categoriesCache`)
+
+`src/lib/server/categoriesCache.ts` is the pattern to follow when a table is
+read on nearly every request but rarely changes. 60-second TTL, per Vercel
+function instance, invalidated manually by admin mutation actions.
+
+```ts
+// After any create/update/delete in /admin/categories:
+import { invalidateCategoriesCache } from '$lib/server/categoriesCache';
+// ...
+await db.insert(categories).values(...);
+invalidateCategoriesCache();
+```
+
+When to add a similar cache for a new table:
+- Read on most navigations (like categories are, from `+layout.server.ts`).
+- Writes are rare and go through admin-only routes (so we know exactly where
+  to `invalidate*Cache()` from).
+- Data is small and safe to hold in memory (a few KB).
+
+When NOT to cache:
+- Per-user data (wishlist, cart, orders) — freshness matters more than 10 ms.
+- Anything with strong consistency needs (stock quantity, payment status).
+- Data that changes from webhooks / external services (Toss callbacks, etc.).
+
+**Serverless caveat:** each Vercel function instance has its own memory. Cold
+starts miss and query normally. If multiple instances serve concurrent traffic,
+each holds its own cache; a manual invalidation only clears the instance that
+handled the admin request. At ~100 customers/day this is fine — usually one
+warm instance handles everything. Do not add Redis/Vercel KV to fix this
+unless traffic actually justifies it.
+
+### 3. Link preload strategy
+
+`src/app.html` sets `<body data-sveltekit-preload-data="tap">` globally.
+Preloading fires on `mousedown` / `touchstart` — the moment the user starts
+a click — not on `mouseenter`. This gives every navigation a ~50 ms head
+start on desktop and mobile without preloading links people just move their
+cursor past.
+
+Do not switch this back to `hover` without a specific reason. `hover` fires
+on cursor movement across every link, which on a product grid means dozens
+of wasted prefetches per second of casual browsing.
+
 ## General Working Style
 
 - Keep the stack minimal for what it needs to do — 3 services (Neon, Better Auth,

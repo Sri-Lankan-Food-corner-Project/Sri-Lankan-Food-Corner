@@ -153,11 +153,11 @@
 					<span class="text-xs text-neutral-500">{fmtDate(r.createdAt)}</span>
 				</div>
 				{#if r.title}
-					<h3 class="mt-2 text-base font-bold text-neutral-900 wrap-break-word">
+					<h3 class="mt-2 text-base font-bold text-neutral-900 wrap-anywhere">
 						{r.title}
 					</h3>
 				{/if}
-				<p class="mt-1.5 text-sm text-neutral-700 whitespace-pre-line wrap-break-word">
+				<p class="mt-1.5 text-sm text-neutral-700 whitespace-pre-line wrap-anywhere">
 					{r.body}
 				</p>
 				<p class="mt-3 text-xs text-neutral-500"> {r.authorName}</p>
@@ -209,7 +209,7 @@
 	<h2 class="text-2xl font-bold text-neutral-900">Customer Reviews</h2>
 
 	<div class="mt-8 grid gap-10 lg:grid-cols-2 lg:gap-16">
-		<div class="flex flex-col">
+		<div class="flex min-w-0 flex-col">
 			<div class="flex flex-col items-center gap-2">
 				{#if summary.count > 0}
 					<div class="text-5xl font-extrabold text-neutral-900 tabular-nums">
@@ -242,7 +242,7 @@
 			</div>
 		</div>
 
-		<div class="flex flex-col">
+		<div class="flex min-w-0 flex-col">
 			{#if showOwnCallout && ownReview}
 				<div class="mb-6 rounded-2xl border border-neutral-200 bg-white p-6">
 					<p class="text-xs font-semibold uppercase tracking-wide text-neutral-500">
@@ -254,7 +254,7 @@
 							<span class="text-sm font-semibold text-neutral-900">{ownReview.title}</span>
 						{/if}
 					</div>
-					<p class="mt-2 text-sm text-neutral-700 whitespace-pre-line wrap-break-word">
+					<p class="mt-2 text-sm text-neutral-700 whitespace-pre-line wrap-anywhere">
 						{ownReview.body}
 					</p>
 					{#if ownReview.status === 'pending'}

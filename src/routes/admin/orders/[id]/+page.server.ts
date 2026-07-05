@@ -1,7 +1,7 @@
-import { asc, eq } from 'drizzle-orm';
+import { and, asc, eq, inArray, ne, sql } from 'drizzle-orm';
 import { error, fail } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
-import { orderItems, orders, productImages } from '$lib/server/db/schema';
+import { orderItems, orders, productImages, products } from '$lib/server/db/schema';
 import {
 	ORDER_STATUSES,
 	PAYMENT_STATUSES,
@@ -9,7 +9,6 @@ import {
 	type OrderStatus,
 	type PaymentStatus
 } from '$lib/schemas/orderStatus';
-import { inArray } from 'drizzle-orm';
 import type { PageServerLoad, Actions } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {
@@ -49,6 +48,36 @@ export const load: PageServerLoad = async ({ params }) => {
 	return { order, items: itemsWithImages };
 };
 
+/**
+ * Cancel the order and return each line item's quantity back to product stock,
+ * atomically. Uses a conditional update so concurrent cancel clicks can't
+ * double-restore — the row is only touched (and stock only bumped) on the first
+ * transition into `cancelled`.
+ */
+async function cancelAndRestoreStock(orderId: string): Promise<void> {
+	await db.transaction(async (tx) => {
+		const updated = await tx
+			.update(orders)
+			.set({ status: 'cancelled', updatedAt: new Date() })
+			.where(and(eq(orders.id, orderId), ne(orders.status, 'cancelled')))
+			.returning({ id: orders.id });
+		if (updated.length === 0) return; // already cancelled — nothing to restore
+
+		const items = await tx
+			.select({ productId: orderItems.productId, quantity: orderItems.quantity })
+			.from(orderItems)
+			.where(eq(orderItems.orderId, orderId));
+
+		for (const item of items) {
+			if (!item.productId) continue; // product deleted since the order was placed
+			await tx
+				.update(products)
+				.set({ stockQuantity: sql`${products.stockQuantity} + ${item.quantity}` })
+				.where(eq(products.id, item.productId));
+		}
+	});
+}
+
 export const actions: Actions = {
 	updateStatus: async ({ request, params }) => {
 		const form = await request.formData();
@@ -69,10 +98,14 @@ export const actions: Actions = {
 			return fail(400, { error: `Cannot move from ${current.status} to ${next}` });
 		}
 
-		await db
-			.update(orders)
-			.set({ status: next, updatedAt: new Date() })
-			.where(eq(orders.id, params.id));
+		if (next === 'cancelled') {
+			await cancelAndRestoreStock(params.id);
+		} else {
+			await db
+				.update(orders)
+				.set({ status: next, updatedAt: new Date() })
+				.where(eq(orders.id, params.id));
+		}
 		return { ok: true };
 	},
 
@@ -98,12 +131,8 @@ export const actions: Actions = {
 			.where(eq(orders.id, params.id))
 			.limit(1);
 		if (!current) return fail(404, { error: 'Order not found' });
-		if (current.status === 'cancelled') return { ok: true };
 
-		await db
-			.update(orders)
-			.set({ status: 'cancelled', updatedAt: new Date() })
-			.where(eq(orders.id, params.id));
+		await cancelAndRestoreStock(params.id);
 		return { ok: true };
 	}
 };

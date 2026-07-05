@@ -157,7 +157,7 @@
 							aria-label={p.isActive ? 'Deactivate' : 'Activate'}
 							onclick={() => (toggling = p)}
 							class={cn(
-								'inline-flex h-[18.4px] w-8 shrink-0 items-center rounded-full border transition-colors',
+								'inline-flex h-[18.4px] w-8 shrink-0 cursor-pointer items-center rounded-full border transition-colors',
 								p.isActive
 									? 'bg-primary border-transparent'
 									: 'bg-secondary border-border'

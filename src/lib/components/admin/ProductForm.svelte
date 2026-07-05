@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
 	import type { SuperForm } from 'sveltekit-superforms';
-	import { enhance } from '$app/forms';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
@@ -9,7 +8,7 @@
 	import { Switch } from '$lib/components/ui/switch';
 	import { slugify } from '$lib/utils/slugify';
 	import { cn } from '$lib/utils';
-	import { X, Upload } from '@lucide/svelte';
+	import { LoaderCircle, X, Upload } from '@lucide/svelte';
 	import type { ProductInput } from '$lib/schemas/product';
 
 	type Category = { id: string; name: string };
@@ -20,6 +19,7 @@
 		categories = [],
 		existingImages = [],
 		submitLabel = 'Save',
+		submittingLabel = 'Saving…',
 		action = ''
 	}: {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -27,10 +27,11 @@
 		categories?: Category[];
 		existingImages?: ExistingImage[];
 		submitLabel?: string;
+		submittingLabel?: string;
 		action?: string;
 	} = $props();
 
-	const { form, errors } = untrack(() => superform);
+	const { form, errors, submitting, enhance } = untrack(() => superform);
 
 	let slugTouched = $state(untrack(() => Boolean($form.slug)));
 	let toRemove = $state<string[]>([]);
@@ -38,8 +39,7 @@
 	let newFiles = $state<File[]>([]);
 	let previews = $derived(newFiles.map((f) => URL.createObjectURL(f)));
 
-	function handleNameInput(e: Event) {
-		$form.name = (e.target as HTMLInputElement).value;
+	function handleNameInput() {
 		if (!slugTouched) $form.slug = slugify($form.name);
 	}
 
@@ -85,7 +85,7 @@
 		<Input
 			id="name"
 			name="name"
-			value={$form.name}
+			bind:value={$form.name}
 			oninput={handleNameInput}
 			aria-invalid={$errors.name ? 'true' : undefined}
 		/>
@@ -175,13 +175,12 @@
 		<Input
 			id="unit"
 			name="unit"
-			value={$form.unit ?? ''}
-			oninput={(e) => {
-				const v = (e.target as HTMLInputElement).value;
-				$form.unit = v === '' ? null : v;
-			}}
-			placeholder="e.g. 500g, 1 pack"
+			bind:value={$form.unit}
+			placeholder="e.g. 500g, 1kg, 1 pack, family pack"
 		/>
+		<p class="text-muted-foreground text-xs">
+			Free-form text — anything works: "500g", "1 pack", "family pack", "12 개입".
+		</p>
 	</div>
 
 	<div class="grid gap-2">
@@ -206,11 +205,7 @@
 			id="description"
 			name="description"
 			rows={5}
-			value={$form.description ?? ''}
-			oninput={(e) => {
-				const v = (e.target as HTMLTextAreaElement).value;
-				$form.description = v === '' ? null : v;
-			}}
+			bind:value={$form.description}
 		/>
 	</div>
 
@@ -296,6 +291,13 @@
 	</div>
 
 	<div class="flex justify-end gap-2">
-		<Button type="submit">{submitLabel}</Button>
+		<Button type="submit" disabled={$submitting}>
+			{#if $submitting}
+				<LoaderCircle class="mr-2 size-4 animate-spin" aria-hidden="true" />
+				{submittingLabel}
+			{:else}
+				{submitLabel}
+			{/if}
+		</Button>
 	</div>
 </form>

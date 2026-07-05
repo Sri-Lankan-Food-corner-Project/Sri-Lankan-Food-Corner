@@ -2,6 +2,7 @@
 	import { untrack } from 'svelte';
 	import { superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
+	import { toast } from 'svelte-sonner';
 	import ProductForm from '$lib/components/admin/ProductForm.svelte';
 	import ConfirmDialog from '$lib/components/admin/ConfirmDialog.svelte';
 	import { Button } from '$lib/components/ui/button';
@@ -17,6 +18,10 @@
 	});
 
 	const message = sf.message;
+
+	$effect(() => {
+		if ($message) toast.error($message);
+	});
 </script>
 
 <div class="mb-4 flex items-center justify-between">

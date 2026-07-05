@@ -3,14 +3,12 @@
 	import { site, telHref } from '$lib/config/site';
 	import {
 		ArrowRight,
-		Clock,
 		Heart,
 		Leaf,
 		MapPin,
 		Phone,
 		Sparkles,
-		Utensils,
-		Users
+		Utensils
 	} from '@lucide/svelte';
 
 	const openedYear = new Date(site.business.openedDate).getFullYear();
@@ -72,21 +70,21 @@
 
 <!-- Story -->
 <section class="mx-auto max-w-350 px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
-	<div class="grid gap-10 lg:grid-cols-[1fr_1.2fr] lg:items-center lg:gap-16">
+	<div class="grid items-center gap-10 md:grid-cols-2 md:gap-12">
 		<div
-			class="ring-brand-charcoal/10 relative  aspect-[4/5] overflow-hidden rounded-3xl ring-1"
+			class="ring-brand-charcoal/10 relative mx-auto h-50 w-50 overflow-hidden rounded-2xl ring-1 md:justify-self-center"
 		>
 			<img
 				src={shopPhoto}
 				alt="Our store in Dangjin"
-				class="h-[200px] w-[200px] object-cover"
+				class="h-50 w-50 object-cover"
 				loading="lazy"
 			/>
 			<div
 				class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"
 			></div>
 			<div
-				class="absolute bottom-6 left-6 rounded-full bg-white/90 px-4 py-2 text-xs font-semibold text-neutral-900 shadow-sm ring-1 ring-black/5 backdrop-blur"
+				class="absolute bottom-3 left-3 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-semibold text-neutral-900 shadow-sm ring-1 ring-black/5 backdrop-blur"
 			>
 				Since {openedYear}
 				{#if yearsRunning > 0}
@@ -200,53 +198,6 @@
 					second stop somewhere else.
 				</p>
 			</div>
-		</div>
-	</div>
-</section>
-
-<!-- Values -->
-<section class="mx-auto max-w-350 px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
-	<div class="grid gap-10 lg:grid-cols-3 lg:gap-12">
-		<div>
-			<div
-				class="bg-brand-green/10 text-brand-green flex size-12 items-center justify-center rounded-2xl"
-			>
-				<Users class="size-6" />
-			</div>
-			<h3 class="mt-5 text-xl font-bold text-neutral-900">A community, not a checkout</h3>
-			<p class="mt-3 text-sm leading-relaxed text-neutral-600">
-				For a lot of our customers, walking into the shop is the closest thing to
-				walking into a shop back home. Ask us about a recipe. Ask about a brand.
-				That&apos;s what we&apos;re here for.
-			</p>
-		</div>
-
-		<div>
-			<div
-				class="bg-brand-amber/15 text-brand-amber flex size-12 items-center justify-center rounded-2xl"
-			>
-				<Leaf class="size-6" />
-			</div>
-			<h3 class="mt-5 text-xl font-bold text-neutral-900">Quality over volume</h3>
-			<p class="mt-3 text-sm leading-relaxed text-neutral-600">
-				We&apos;d rather stock fewer things and stand behind every one of them, than
-				pile the shelves with brands we don&apos;t trust. Freshness is a rule, not a
-				marketing line.
-			</p>
-		</div>
-
-		<div>
-			<div
-				class="bg-brand-charcoal/10 text-brand-charcoal flex size-12 items-center justify-center rounded-2xl"
-			>
-				<Clock class="size-6" />
-			</div>
-			<h3 class="mt-5 text-xl font-bold text-neutral-900">Fair, transparent pricing</h3>
-			<p class="mt-3 text-sm leading-relaxed text-neutral-600">
-				Prices you can plan a monthly grocery run around — no hidden markups, no
-				gimmicks, and delivery across South Korea when you can&apos;t make it in
-				person.
-			</p>
 		</div>
 	</div>
 </section>

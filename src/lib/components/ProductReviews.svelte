@@ -121,7 +121,7 @@
 			body = '';
 			attempted = false;
 			await invalidateAll();
-			toast.success('Review submitted — pending approval');
+			toast.success('Review submitted - pending approval');
 		} catch (err) {
 			console.error(err);
 			toast.error('Could not submit. Please try again.');
@@ -160,7 +160,7 @@
 				<p class="mt-1.5 text-sm text-neutral-700 whitespace-pre-line wrap-break-word">
 					{r.body}
 				</p>
-				<p class="mt-3 text-xs text-neutral-500">— {r.authorName}</p>
+				<p class="mt-3 text-xs text-neutral-500"> {r.authorName}</p>
 			</article>
 		{/each}
 
@@ -267,7 +267,7 @@
 						<p
 							class="mt-3 inline-flex items-center gap-1 rounded-full bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700"
 						>
-							Rejected{ownReview.adminNote ? ` — ${ownReview.adminNote}` : ''}
+							Rejected{ownReview.adminNote ? `  ${ownReview.adminNote}` : ''}
 						</p>
 					{/if}
 					<p class="mt-3 text-xs text-neutral-500">

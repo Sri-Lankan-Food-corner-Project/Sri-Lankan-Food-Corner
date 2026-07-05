@@ -1,6 +1,7 @@
 <script lang="ts">
 	import AddToCartButton from '$lib/components/AddToCartButton.svelte';
 	import ProductReviews from '$lib/components/ProductReviews.svelte';
+	import ProductSlider from '$lib/components/home/ProductSlider.svelte';
 	import { formatPrice } from '$lib/utils/formatPrice';
 	import { cart } from '$lib/stores/cart';
 	import { cartOpen } from '$lib/stores/cartUi';
@@ -268,3 +269,33 @@
 	{/await}
 	</div>
 </section>
+
+{#await data.streamed.relatedProducts}
+	<section class="mx-auto w-full max-w-350 py-6">
+		<div class="flex items-end justify-between gap-4 px-4 sm:px-6 lg:px-8">
+			<div class="animate-pulse space-y-2">
+				<div class="h-6 w-48 rounded bg-neutral-200"></div>
+			</div>
+		</div>
+		<div class="mt-4 flex gap-3 overflow-hidden px-4 sm:gap-4 sm:px-6 lg:px-8">
+			{#each [0, 1, 2, 3, 4] as i (i)}
+				<div class="w-[45%] shrink-0 sm:w-[32%] md:w-[24%] lg:w-[19%]">
+					<div class="animate-pulse space-y-2">
+						<div class="aspect-square rounded-xl bg-neutral-200"></div>
+						<div class="h-4 w-3/4 rounded bg-neutral-200"></div>
+						<div class="h-3 w-1/2 rounded bg-neutral-200"></div>
+					</div>
+				</div>
+			{/each}
+		</div>
+	</section>
+{:then related}
+	{#if related.length > 0}
+		<ProductSlider
+			title="Related Products"
+			subtitle={p.categoryName ? `More from ${p.categoryName}` : null}
+			products={related}
+			viewAllHref={p.categorySlug ? `/category/${p.categorySlug}` : '/products'}
+		/>
+	{/if}
+{/await}

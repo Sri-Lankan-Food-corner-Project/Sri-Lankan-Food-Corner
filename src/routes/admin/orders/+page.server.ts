@@ -4,7 +4,7 @@ import { orders, user } from '$lib/server/db/schema';
 import { ORDER_STATUSES, PAYMENT_STATUSES } from '$lib/schemas/orderStatus';
 import type { PageServerLoad } from './$types';
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 15;
 
 export const load: PageServerLoad = async ({ url }) => {
 	const status = url.searchParams.get('status') ?? '';

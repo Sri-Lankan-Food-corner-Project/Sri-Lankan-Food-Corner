@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, ne, sql } from 'drizzle-orm';
 import { error, fail } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { products, productImages, categories, productReviews, user } from '$lib/server/db/schema';
@@ -98,10 +98,67 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		};
 	})();
 
+	// Related products — same category, minus the current one. Streamed so it
+	// doesn't block first paint; the reviews section pattern.
+	const relatedProducts = (async () => {
+		if (!row.categoryId) return [];
+
+		const relatedRows = await db
+			.select({
+				id: products.id,
+				categoryId: products.categoryId,
+				name: products.name,
+				slug: products.slug,
+				description: products.description,
+				price: products.price,
+				compareAtPrice: products.compareAtPrice,
+				unit: products.unit,
+				stockQuantity: products.stockQuantity,
+				isActive: products.isActive,
+				createdAt: products.createdAt,
+				updatedAt: products.updatedAt
+			})
+			.from(products)
+			.where(
+				and(
+					eq(products.categoryId, row.categoryId),
+					eq(products.isActive, true),
+					ne(products.id, row.id)
+				)
+			)
+			.orderBy(desc(products.createdAt))
+			.limit(12);
+
+		if (relatedRows.length === 0) return [];
+
+		const relatedIds = relatedRows.map((r) => r.id);
+		const imgs = await db
+			.select({
+				productId: productImages.productId,
+				imageUrl: productImages.imageUrl
+			})
+			.from(productImages)
+			.where(inArray(productImages.productId, relatedIds))
+			.orderBy(asc(productImages.sortOrder));
+
+		const imagesByProduct = new Map<string, string[]>();
+		for (const img of imgs) {
+			if (!img.productId) continue;
+			const list = imagesByProduct.get(img.productId) ?? [];
+			list.push(img.imageUrl);
+			imagesByProduct.set(img.productId, list);
+		}
+
+		return relatedRows.map((r) => {
+			const list = imagesByProduct.get(r.id) ?? [];
+			return { ...r, imageUrl: list[0] ?? null, hoverImageUrl: list[1] ?? null };
+		});
+	})();
+
 	return {
 		product: row,
 		images: images.map((i) => i.imageUrl),
-		streamed: { reviewData }
+		streamed: { reviewData, relatedProducts }
 	};
 };
 

@@ -400,7 +400,7 @@
 					{:else}
 						<ul class="flex flex-wrap gap-2">
 							{#each managing.picks as pick (pick.productId)}
-								<li class="inline-flex items-center gap-2 rounded-full border bg-white px-3 py-1 text-sm">
+								<li class="inline-flex items-center gap-2 rounded-full border bg-secondary text-secondary-foreground px-3 py-1 text-sm">
 									<span>{pick.productName}</span>
 									<form method="POST" action="?/removeProduct" use:enhance>
 										<input type="hidden" name="sectionId" value={managing.id} />

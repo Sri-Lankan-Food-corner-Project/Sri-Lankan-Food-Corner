@@ -2,6 +2,7 @@
 	import { untrack } from 'svelte';
 	import { superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
+	import { toast } from 'svelte-sonner';
 	import ProductForm from '$lib/components/admin/ProductForm.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { ChevronLeft } from '@lucide/svelte';
@@ -14,6 +15,10 @@
 	});
 
 	const message = sf.message;
+
+	$effect(() => {
+		if ($message) toast.error($message);
+	});
 </script>
 
 <div class="mb-4 flex items-center gap-2">
@@ -27,4 +32,9 @@
 	<p class="text-destructive mb-4 text-sm">{$message}</p>
 {/if}
 
-<ProductForm superform={sf} categories={data.categories} submitLabel="Create product" />
+<ProductForm
+	superform={sf}
+	categories={data.categories}
+	submitLabel="Create product"
+	submittingLabel="Creating…"
+/>

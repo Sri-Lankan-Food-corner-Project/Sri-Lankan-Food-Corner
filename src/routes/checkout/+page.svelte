@@ -13,6 +13,7 @@
 		Building2,
 		CircleCheck,
 		CreditCard,
+		LoaderCircle,
 		Pencil,
 		Plus,
 		ShieldCheck,
@@ -510,9 +511,14 @@
 													type="button"
 													onclick={saveEdit}
 													disabled={savingAddress}
-													class="bg-brand-charcoal hover:bg-brand-charcoal-hover rounded-full px-4 py-2 text-xs font-semibold text-white transition disabled:opacity-70"
+													class="bg-brand-charcoal hover:bg-brand-charcoal-hover inline-flex cursor-pointer items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-70"
 												>
-													{savingAddress ? 'Saving…' : 'Save Changes'}
+													{#if savingAddress}
+														<LoaderCircle class="size-3.5 animate-spin" aria-hidden="true" />
+														<span>Saving…</span>
+													{:else}
+														<span>Save Changes</span>
+													{/if}
 												</button>
 											</div>
 										</div>
@@ -1020,9 +1026,10 @@
 						class="bg-brand-charcoal cursor-pointer hover:bg-brand-charcoal-hover mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-70"
 					>
 						{#if submitting}
-							Placing order…
+							<LoaderCircle class="size-4 animate-spin" aria-hidden="true" />
+							<span>Placing order…</span>
 						{:else}
-							Place Order · {formatPrice(total)}
+							<span>Place Order · {formatPrice(total)}</span>
 						{/if}
 					</button>
 

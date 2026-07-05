@@ -119,7 +119,7 @@
 					disabled={togglingWishlist}
 					aria-label={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
 					aria-pressed={inWishlist}
-					class="absolute top-3 right-3 z-10 inline-flex size-9 items-center justify-center rounded-full bg-white/90 text-neutral-700 shadow-sm ring-1 ring-black/5 transition hover:bg-white hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-70"
+					class="absolute cursor-pointer top-3 right-3 z-10 inline-flex size-9 items-center justify-center rounded-full bg-white/90 text-neutral-700 shadow-sm ring-1 ring-black/5 transition hover:bg-white hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-70"
 				>
 					<Heart
 						class="size-4 transition {inWishlist ? 'fill-red-500 text-red-500' : ''}"

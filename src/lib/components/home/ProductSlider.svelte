@@ -46,7 +46,7 @@
 			type="button"
 			onclick={() => scrollBy(-1)}
 			aria-label="Scroll left"
-			class="pointer-events-none absolute top-1/2 left-1 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-neutral-200 bg-white/95 text-neutral-700 opacity-0 shadow-md backdrop-blur transition-opacity duration-200 group-hover/slider:pointer-events-auto group-hover/slider:opacity-100 hover:text-neutral-900 sm:flex"
+			class="pointer-events-none absolute top-1/2 cursor-pointer left-1 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-neutral-200 bg-white/95 text-neutral-700 opacity-0 shadow-md backdrop-blur transition-opacity duration-200 group-hover/slider:pointer-events-auto group-hover/slider:opacity-100 hover:text-neutral-900 sm:flex"
 		>
 			<ChevronLeft class="size-5" />
 		</button>
@@ -54,14 +54,15 @@
 			type="button"
 			onclick={() => scrollBy(1)}
 			aria-label="Scroll right"
-			class="pointer-events-none absolute top-1/2 right-1 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-neutral-200 bg-white/95 text-neutral-700 opacity-0 shadow-md backdrop-blur transition-opacity duration-200 group-hover/slider:pointer-events-auto group-hover/slider:opacity-100 hover:text-neutral-900 sm:flex"
+			class="pointer-events-none absolute top-1/2 cursor-pointer right-1 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-neutral-200 bg-white/95 text-neutral-700 opacity-0 shadow-md backdrop-blur transition-opacity duration-200 group-hover/slider:pointer-events-auto group-hover/slider:opacity-100 hover:text-neutral-900 sm:flex"
 		>
 			<ChevronRight class="size-5" />
 		</button>
 
+		<div class="px-4 sm:px-6 lg:px-8">
 		<div
 			bind:this={track}
-			class="slider-track flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-4 sm:gap-4 sm:px-6 lg:px-8"
+			class="slider-track flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth sm:gap-4"
 		>
 			{#each products as p (p.id)}
 				<div class="w-[45%] shrink-0 snap-start sm:w-[32%] md:w-[24%] lg:w-[19%]">

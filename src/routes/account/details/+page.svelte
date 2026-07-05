@@ -83,7 +83,7 @@
 				<button
 					type="submit"
 					disabled={saving}
-					class="bg-brand-charcoal hover:bg-brand-charcoal-hover rounded-full px-6 py-2.5 text-sm font-semibold text-white transition disabled:opacity-70"
+					class="bg-brand-charcoal cursor-pointer hover:bg-brand-charcoal-hover rounded-full px-6 py-2.5 text-sm font-semibold text-white transition disabled:opacity-70"
 				>
 					{saving ? 'Saving…' : 'Save changes'}
 				</button>

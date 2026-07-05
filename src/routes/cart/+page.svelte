@@ -85,7 +85,7 @@
 										<button
 											type="button"
 											onclick={() => cart.remove(line.productId)}
-											class="text-neutral-400 transition-colors hover:text-neutral-900"
+											class="text-neutral-400 cursor-pointer transition-colors hover:text-neutral-900"
 											aria-label="Remove"
 										>
 											<X class="size-4" />
@@ -117,7 +117,7 @@
 												<button
 													type="button"
 													onclick={() => cart.setQuantity(line.productId, line.quantity - 1)}
-													class="flex size-8 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/70"
+													class="flex cursor-pointer size-8 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/70"
 													aria-label="Decrease"
 												>
 													<Minus class="size-3.5" />
@@ -128,7 +128,7 @@
 												<button
 													type="button"
 													onclick={() => cart.setQuantity(line.productId, line.quantity + 1)}
-													class="flex size-8 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/70"
+													class="flex size-8 cursor-pointer items-center justify-center rounded-full text-neutral-700 transition hover:bg-white/70"
 													aria-label="Increase"
 												>
 													<Plus class="size-3.5" />

@@ -14,10 +14,10 @@
 	type Item = { icon: Component; label: string };
 
 	const items: Item[] = [
-		{ icon: BadgePercent, label: 'Low Prices Than Other Stores' },
+		{ icon: BadgePercent, label: 'Low prices, High quality' },
 		{ icon: Truck, label: 'Fast, Safe & Secure Delivery' },
 		{ icon: Leaf, label: 'Fresh Products Every Day' },
-		{ icon: ShieldCheck, label: 'Safe Payment With Toss' },
+		{ icon: ShieldCheck, label: 'Secure Payment Options' },
 		{ icon: Headphones, label: '24/7 Customer Support' },
 		{ icon: Soup, label: 'Authentic Sri Lankan Food' },
 		{ icon: ShoppingBasket, label: 'Everyday Grocery Items' },

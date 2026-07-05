@@ -229,7 +229,7 @@
 
 			{#if !soldOut && p.stockQuantity < 10}
 				<p class="mt-4 text-xs font-medium text-amber-700">
-					Only {p.stockQuantity} left in stock — order soon.
+					Only {p.stockQuantity} left in stock  order soon.
 				</p>
 			{/if}
 		</div>

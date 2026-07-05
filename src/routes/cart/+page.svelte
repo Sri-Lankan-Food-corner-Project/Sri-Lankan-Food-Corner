@@ -8,6 +8,7 @@
 		ArrowRight,
 		CircleCheck,
 		CreditCard,
+		LoaderCircle,
 		Minus,
 		Plus,
 		ShoppingCart,
@@ -15,17 +16,25 @@
 		X
 	} from '@lucide/svelte';
 
+	let checkingOut = $state(false);
+
 	async function goToCheckout() {
-		if (page.data.user) {
-			goto('/checkout');
-			return;
+		if (checkingOut) return;
+		checkingOut = true;
+		try {
+			if (page.data.user) {
+				await goto('/checkout');
+				return;
+			}
+			const ok = await showAuth({
+				mode: 'signup',
+				title: 'Create an account',
+				message: 'Sign in or create your account so we can track your order.'
+			});
+			if (ok) await goto('/checkout');
+		} finally {
+			checkingOut = false;
 		}
-		const ok = await showAuth({
-			mode: 'signup',
-			title: 'Create an account',
-			message: 'Sign in or create your account so we can track your order.'
-		});
-		if (ok) goto('/checkout');
 	}
 </script>
 
@@ -231,9 +240,15 @@
 				<button
 					type="button"
 					onclick={goToCheckout}
-					class="bg-brand-charcoal hover:bg-brand-charcoal-hover mt-6 inline-flex w-full cursor-pointer items-center justify-center rounded-full px-6 py-3 text-sm font-semibold text-white transition"
+					disabled={checkingOut}
+					class="bg-brand-charcoal hover:bg-brand-charcoal-hover mt-6 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-70"
 				>
-					Proceed To Checkout
+					{#if checkingOut}
+						<LoaderCircle class="size-4 animate-spin" aria-hidden="true" />
+						<span>Proceeding…</span>
+					{:else}
+						<span>Proceed To Checkout</span>
+					{/if}
 				</button>
 			</aside>
 		</div>

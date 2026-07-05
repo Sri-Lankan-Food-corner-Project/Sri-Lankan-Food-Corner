@@ -272,10 +272,14 @@
 								<div class="mt-2 flex items-center gap-2">
 									<StarRating value={r.rating} size="sm" />
 									{#if r.title}
-										<span class="text-sm font-semibold text-neutral-900">{r.title}</span>
+										<span class="text-sm font-semibold text-neutral-900 wrap-break-word">
+											{r.title}
+										</span>
 									{/if}
 								</div>
-								<p class="mt-2 whitespace-pre-line text-sm text-neutral-700">{r.body}</p>
+								<p class="mt-2 text-sm text-neutral-700 whitespace-pre-line wrap-break-word">
+									{r.body}
+								</p>
 								<p
 									class="mt-3 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium {statusStyle[
 										s

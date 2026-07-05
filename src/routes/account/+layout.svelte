@@ -152,7 +152,10 @@
 				</ul>
 			</aside>
 
-			<div>
+			<!-- min-w-0 lets this grid column shrink below its content's intrinsic
+			     width; without it, unbreakable strings (long reviews, urls) force
+			     the column wider than the viewport and break wrap-break-word. -->
+			<div class="min-w-0">
 				{@render children()}
 			</div>
 		</div>

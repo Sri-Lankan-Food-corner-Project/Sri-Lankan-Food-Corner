@@ -144,7 +144,7 @@
 					<span class="text-sm font-semibold text-neutral-900">{ownReview.title}</span>
 				{/if}
 			</div>
-			<p class="mt-2 whitespace-pre-line text-sm text-neutral-700">{ownReview.body}</p>
+			<p class="mt-2 text-sm text-neutral-700 whitespace-pre-line wrap-break-word">{ownReview.body}</p>
 			{#if ownReview.status === 'pending'}
 				<p
 					class="mt-3 inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700"
@@ -265,9 +265,9 @@
 						<span class="text-xs text-neutral-500">{fmtDate(r.createdAt)}</span>
 					</div>
 					{#if r.title}
-						<h3 class="mt-2 text-base font-bold text-neutral-900">{r.title}</h3>
+						<h3 class="mt-2 text-base font-bold text-neutral-900 wrap-break-word">{r.title}</h3>
 					{/if}
-					<p class="mt-1.5 whitespace-pre-line text-sm text-neutral-700">{r.body}</p>
+					<p class="mt-1.5 text-sm text-neutral-700 whitespace-pre-line wrap-break-word">{r.body}</p>
 					<p class="mt-3 text-xs text-neutral-500">— {r.authorName}</p>
 				</article>
 			{/each}

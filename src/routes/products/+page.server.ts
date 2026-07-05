@@ -2,12 +2,12 @@ import { loadProductListing } from '$lib/server/loadProductListing';
 import { parseListingFilters } from '$lib/utils/productFilters';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ url }) => {
+export const load: PageServerLoad = ({ url }) => {
 	const filters = parseListingFilters(url);
-	const listing = await loadProductListing({ filters });
-
+	// Stream the listing query — the page can show title + filter shell
+	// immediately and swap in real products when the DB responds.
 	return {
 		filters,
-		...listing
+		streamed: { listing: loadProductListing({ filters }) }
 	};
 };

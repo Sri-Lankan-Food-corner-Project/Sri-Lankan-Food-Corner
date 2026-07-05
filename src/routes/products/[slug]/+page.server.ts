@@ -29,64 +29,79 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 
 	if (!row) throw error(404, 'Product not found');
 
-	const [images, approvedReviews, summaryRows, ownReviewRows] = await Promise.all([
-		db
-			.select({ imageUrl: productImages.imageUrl })
-			.from(productImages)
-			.where(eq(productImages.productId, row.id))
-			.orderBy(asc(productImages.sortOrder)),
-		db
-			.select({
-				id: productReviews.id,
-				rating: productReviews.rating,
-				title: productReviews.title,
-				body: productReviews.body,
-				createdAt: productReviews.createdAt,
-				authorName: user.name
-			})
-			.from(productReviews)
-			.innerJoin(user, eq(productReviews.userId, user.id))
-			.where(and(eq(productReviews.productId, row.id), eq(productReviews.status, 'approved')))
-			.orderBy(desc(productReviews.createdAt))
-			.limit(50),
-		db
-			.select({
-				count: sql<number>`count(*)::int`,
-				average: sql<number>`coalesce(avg(${productReviews.rating}), 0)::float`
-			})
-			.from(productReviews)
-			.where(and(eq(productReviews.productId, row.id), eq(productReviews.status, 'approved'))),
-		locals.user
-			? db
-					.select({
-						id: productReviews.id,
-						rating: productReviews.rating,
-						title: productReviews.title,
-						body: productReviews.body,
-						status: productReviews.status,
-						adminNote: productReviews.adminNote
-					})
-					.from(productReviews)
-					.where(
-						and(eq(productReviews.productId, row.id), eq(productReviews.userId, locals.user.id))
-					)
-					.limit(1)
-			: Promise.resolve([])
-	]);
+	// Images are awaited — the product page needs them for first paint.
+	const images = await db
+		.select({ imageUrl: productImages.imageUrl })
+		.from(productImages)
+		.where(eq(productImages.productId, row.id))
+		.orderBy(asc(productImages.sortOrder));
 
-	const summary = summaryRows[0] ?? { count: 0, average: 0 };
+	// Review data is deferred. Nested under `streamed`, so SvelteKit ships it
+	// to the client separately after the product HTML has already rendered.
+	// The customer sees the product page instantly and the review section fills
+	// in when this promise resolves — no waiting for the DB round-trip up-front.
+	const reviewData = (async () => {
+		const [approvedReviews, summaryRows, ownReviewRows] = await Promise.all([
+			db
+				.select({
+					id: productReviews.id,
+					rating: productReviews.rating,
+					title: productReviews.title,
+					body: productReviews.body,
+					createdAt: productReviews.createdAt,
+					authorName: user.name
+				})
+				.from(productReviews)
+				.innerJoin(user, eq(productReviews.userId, user.id))
+				.where(and(eq(productReviews.productId, row.id), eq(productReviews.status, 'approved')))
+				.orderBy(desc(productReviews.createdAt))
+				.limit(50),
+			db
+				.select({
+					count: sql<number>`count(*)::int`,
+					average: sql<number>`coalesce(avg(${productReviews.rating}), 0)::float`
+				})
+				.from(productReviews)
+				.where(and(eq(productReviews.productId, row.id), eq(productReviews.status, 'approved'))),
+			locals.user
+				? db
+						.select({
+							id: productReviews.id,
+							rating: productReviews.rating,
+							title: productReviews.title,
+							body: productReviews.body,
+							status: productReviews.status,
+							adminNote: productReviews.adminNote
+						})
+						.from(productReviews)
+						.where(
+							and(
+								eq(productReviews.productId, row.id),
+								eq(productReviews.userId, locals.user.id)
+							)
+						)
+						.limit(1)
+				: Promise.resolve([])
+		]);
+
+		const summary = summaryRows[0] ?? { count: 0, average: 0 };
+
+		return {
+			reviews: approvedReviews,
+			summary: { count: Number(summary.count), average: Number(summary.average) },
+			ownReview: ownReviewRows[0]
+				? {
+						...ownReviewRows[0],
+						status: ownReviewRows[0].status as 'pending' | 'approved' | 'rejected'
+					}
+				: null
+		};
+	})();
 
 	return {
 		product: row,
 		images: images.map((i) => i.imageUrl),
-		reviews: approvedReviews,
-		reviewSummary: { count: Number(summary.count), average: Number(summary.average) },
-		ownReview: ownReviewRows[0]
-			? {
-					...ownReviewRows[0],
-					status: ownReviewRows[0].status as 'pending' | 'approved' | 'rejected'
-				}
-			: null
+		streamed: { reviewData }
 	};
 };
 

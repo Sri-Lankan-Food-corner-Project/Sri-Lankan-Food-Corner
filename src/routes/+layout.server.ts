@@ -1,14 +1,12 @@
-import { asc, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { db } from '$lib/server/db';
-import { categories, wishlistItems } from '$lib/server/db/schema';
+import { wishlistItems } from '$lib/server/db/schema';
+import { getCachedCategories } from '$lib/server/categoriesCache';
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ locals }) => {
 	const [cats, wishlist] = await Promise.all([
-		db
-			.select({ slug: categories.slug, name: categories.name })
-			.from(categories)
-			.orderBy(asc(categories.sortOrder), asc(categories.name)),
+		getCachedCategories(),
 		locals.user?.id
 			? db
 					.select({ productId: wishlistItems.productId })

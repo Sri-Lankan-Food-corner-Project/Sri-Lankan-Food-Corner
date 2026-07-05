@@ -71,28 +71,6 @@
 <!-- Story -->
 <section class="mx-auto max-w-350 px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
 	<div class="grid items-center gap-10 md:grid-cols-2 md:gap-12">
-		<div
-			class="ring-brand-charcoal/10 relative mx-auto h-50 w-50 overflow-hidden rounded-2xl ring-1 md:justify-self-center"
-		>
-			<img
-				src={shopPhoto}
-				alt="Our store in Dangjin"
-				class="h-50 w-50 object-cover"
-				loading="lazy"
-			/>
-			<div
-				class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"
-			></div>
-			<div
-				class="absolute bottom-3 left-3 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-semibold text-neutral-900 shadow-sm ring-1 ring-black/5 backdrop-blur"
-			>
-				Since {openedYear}
-				{#if yearsRunning > 0}
-					· {yearsRunning}+ years
-				{/if}
-			</div>
-		</div>
-
 		<div>
 			<p class="text-brand-green text-xs font-bold tracking-[0.3em] uppercase">Our Story</p>
 			<h2 class="mt-3 text-3xl font-extrabold text-neutral-900 sm:text-4xl">
@@ -124,6 +102,28 @@
 					<p class="text-brand-green text-3xl font-extrabold">100%</p>
 					<p class="mt-1 text-xs font-medium text-neutral-500">Owned &amp; run locally</p>
 				</div>
+			</div>
+		</div>
+
+		<div
+			class="ring-brand-charcoal/10 relative mx-auto h-50 w-50 overflow-hidden rounded-2xl ring-1 md:mx-0 md:justify-self-end md:order-last"
+		>
+			<img
+				src={shopPhoto}
+				alt="Our store in Dangjin"
+				class="h-50 w-50 object-cover"
+				loading="lazy"
+			/>
+			<div
+				class="pointer-events-none absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent"
+			></div>
+			<div
+				class="absolute bottom-3 left-3 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-semibold text-neutral-900 shadow-sm ring-1 ring-black/5 backdrop-blur"
+			>
+				Since {openedYear}
+				{#if yearsRunning > 0}
+					· {yearsRunning}+ years
+				{/if}
 			</div>
 		</div>
 	</div>

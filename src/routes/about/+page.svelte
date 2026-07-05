@@ -34,20 +34,20 @@
 		></div>
 	</div>
 
-	<div class="mx-auto max-w-350 px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24 relative">
+	<div class="mx-auto max-w-350 px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16 relative">
 		<p class="text-brand-amber text-xs font-bold tracking-[0.3em] uppercase">
 			About {site.tagline}
 		</p>
-		<h1 class="mt-3 max-w-3xl text-4xl font-extrabold leading-tight sm:text-5xl lg:text-6xl">
+		<h1 class="mt-3 max-w-3xl text-3xl font-extrabold leading-tight sm:text-4xl lg:text-5xl">
 			A little piece of home, on your Korean kitchen shelf.
 		</h1>
-		<p class="mt-5 max-w-2xl text-base text-white/85 sm:text-lg">
+		<p class="mt-4 max-w-2xl text-sm text-white/85 sm:text-base">
 			{site.name} brings Sri Lankan flavours, familiar brands, and everyday grocery
 			essentials to families across South Korea — carefully sourced, honestly priced,
 			and packed with the tastes of home.
 		</p>
 
-		<div class="mt-8 flex flex-wrap items-center gap-3">
+		<div class="mt-6 flex flex-wrap items-center gap-3">
 			<a
 				href="/products"
 				class="bg-brand-amber hover:bg-brand-amber-hover inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-neutral-900 transition"
@@ -70,7 +70,7 @@
 
 <!-- Story -->
 <section class="mx-auto max-w-350 px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
-	<div class="grid items-center gap-10 md:grid-cols-2 md:gap-12">
+	<div class="grid gap-10 md:grid-cols-2 md:items-stretch md:gap-12">
 		<div>
 			<p class="text-brand-green text-xs font-bold tracking-[0.3em] uppercase">Our Story</p>
 			<h2 class="mt-3 text-3xl font-extrabold text-neutral-900 sm:text-4xl">
@@ -106,19 +106,19 @@
 		</div>
 
 		<div
-			class="ring-brand-charcoal/10 relative mx-auto h-50 w-50 overflow-hidden rounded-2xl ring-1 md:mx-0 md:justify-self-end md:order-last"
+			class="ring-brand-charcoal/10 relative mx-auto aspect-square w-full max-w-sm overflow-hidden rounded-2xl ring-1 md:mx-0 md:aspect-auto md:h-full md:max-w-none md:justify-self-stretch md:order-last"
 		>
 			<img
 				src={shopPhoto}
 				alt="Our store in Dangjin"
-				class="h-50 w-50 object-cover"
+				class="h-full w-full object-cover"
 				loading="lazy"
 			/>
 			<div
 				class="pointer-events-none absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent"
 			></div>
 			<div
-				class="absolute bottom-3 left-3 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-semibold text-neutral-900 shadow-sm ring-1 ring-black/5 backdrop-blur"
+				class="absolute bottom-4 left-4 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-neutral-900 shadow-sm ring-1 ring-black/5 backdrop-blur"
 			>
 				Since {openedYear}
 				{#if yearsRunning > 0}

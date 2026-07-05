@@ -6,7 +6,7 @@
 export const site = {
 	name: 'Sri Lankan Food Corner',
 	shortName: 'Food Corner',
-	tagline: 'Asian Mart',
+	tagline: 'Food corner',
 	description:
 		'Sri Lankan groceries, fresh vegetables, and pantry staples — delivered across South Korea.',
 

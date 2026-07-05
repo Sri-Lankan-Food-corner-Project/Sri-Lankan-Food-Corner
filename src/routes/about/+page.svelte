@@ -131,7 +131,7 @@
 
 <!-- What we offer -->
 <section class="bg-brand-sand">
-	<div class="mx-auto max-w-350 px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+	<div class="mx-auto max-w-350 px-4 py-16 sm:px-6 sm:py-10 lg:px-8">
 		<div class="max-w-2xl">
 			<p class="text-brand-green text-xs font-bold tracking-[0.3em] uppercase">
 				What&apos;s on our shelves

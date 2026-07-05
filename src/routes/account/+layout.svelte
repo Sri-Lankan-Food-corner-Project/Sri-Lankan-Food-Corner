@@ -7,6 +7,7 @@
 		LayoutDashboard,
 		MapPin,
 		Package,
+		Star,
 		User
 	} from '@lucide/svelte';
 
@@ -36,6 +37,12 @@
 			label: 'Wishlist',
 			icon: Heart,
 			match: (p: string) => p.startsWith('/account/wishlist')
+		},
+		{
+			href: '/account/reviews',
+			label: 'Reviews',
+			icon: Star,
+			match: (p: string) => p.startsWith('/account/reviews')
 		},
 		{
 			href: '/account/details',

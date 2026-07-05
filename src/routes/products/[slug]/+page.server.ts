@@ -141,18 +141,5 @@ export const actions: Actions = {
 			});
 
 		return { ok: true };
-	},
-
-	deleteReview: async ({ request, locals }) => {
-		if (!locals.user?.id) return fail(401, { error: 'Please sign in.' });
-		const fd = await request.formData();
-		const id = String(fd.get('reviewId') ?? '');
-		if (!id) return fail(400, { error: 'Missing review id.' });
-
-		// Own-review only — the userId condition doubles as the auth check.
-		await db
-			.delete(productReviews)
-			.where(and(eq(productReviews.id, id), eq(productReviews.userId, locals.user.id)));
-		return { ok: true };
 	}
 };

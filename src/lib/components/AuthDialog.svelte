@@ -226,9 +226,11 @@
 								/>
 							</div>
 						</label>
-						<label class="block">
+						<div class="block">
 							<div class="mb-1 flex items-baseline justify-between">
-								<span class="text-xs font-semibold text-neutral-700">Password</span>
+								<label for="login-password" class="text-xs font-semibold text-neutral-700"
+									>Password</label
+								>
 								<button
 									type="button"
 									onclick={() => switchTo('forgot')}
@@ -242,6 +244,7 @@
 									class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-neutral-400"
 								/>
 								<input
+									id="login-password"
 									type="password"
 									required
 									autocomplete="current-password"
@@ -249,7 +252,7 @@
 									class="focus:border-brand-green focus:ring-brand-green/20 w-full rounded-lg border border-neutral-300 bg-white py-2.5 pr-4 pl-10 text-sm text-neutral-900 focus:ring-2 focus:outline-none"
 								/>
 							</div>
-						</label>
+						</div>
 						<button
 							type="submit"
 							disabled={submitting}

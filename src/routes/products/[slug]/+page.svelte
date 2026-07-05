@@ -4,7 +4,7 @@
 	import { formatPrice } from '$lib/utils/formatPrice';
 	import { cart } from '$lib/stores/cart';
 	import { cartOpen } from '$lib/stores/cartUi';
-	import { ArrowLeft, Minus, Plus } from '@lucide/svelte';
+	import { ArrowLeft, ChevronLeft, ChevronRight, Minus, Plus } from '@lucide/svelte';
 
 	let { data } = $props();
 
@@ -25,6 +25,15 @@
 	}
 	function dec() {
 		if (quantity > 1) quantity -= 1;
+	}
+
+	function prevImage() {
+		if (data.images.length === 0) return;
+		activeImage = (activeImage - 1 + data.images.length) % data.images.length;
+	}
+	function nextImage() {
+		if (data.images.length === 0) return;
+		activeImage = (activeImage + 1) % data.images.length;
 	}
 
 	async function addToCart() {
@@ -48,22 +57,25 @@
 	<button
 		type="button"
 		onclick={() => history.back()}
-		class="hover:text-brand-green cursor-pointer mb-6 inline-flex items-center gap-2 text-sm font-medium text-neutral-600 transition-colors"
+		class="hover:text-brand-green hover:bg-brand-cream mb-6 inline-flex cursor-pointer items-center gap-2 rounded-full bg-white/80 px-3.5 py-2 text-sm font-medium text-neutral-700 shadow-sm ring-1 ring-black/5 backdrop-blur-sm transition sm:px-4"
+		aria-label="Go back"
 	>
 		<ArrowLeft class="size-4" />
-		Back
+		<span>Back</span>
 	</button>
 
 	<div class="grid gap-8 lg:grid-cols-2 lg:gap-12">
 		<div>
 			<div
-				class="bg-brand-sand relative aspect-square overflow-hidden rounded-2xl ring-1 ring-black/5"
+				class="bg-brand-sand group relative aspect-square overflow-hidden rounded-2xl ring-1 ring-black/5"
 			>
 				{#if data.images.length > 0}
 					<img
 						src={data.images[activeImage]}
 						alt={p.name}
-						class="h-full w-full object-cover {soldOut ? 'opacity-70 grayscale' : ''}"
+						class="h-full w-full object-cover transition-opacity duration-200 {soldOut
+							? 'opacity-70 grayscale'
+							: ''}"
 					/>
 				{/if}
 
@@ -80,17 +92,43 @@
 						-{discountPercent}%
 					</span>
 				{/if}
+
+				{#if data.images.length > 1}
+					<button
+						type="button"
+						onclick={prevImage}
+						aria-label="Previous image"
+						class="hover:text-brand-green absolute top-1/2 left-3 inline-flex size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/90 text-neutral-700 shadow-md ring-1 ring-black/5 backdrop-blur-sm transition hover:bg-white sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
+					>
+						<ChevronLeft class="size-5" />
+					</button>
+					<button
+						type="button"
+						onclick={nextImage}
+						aria-label="Next image"
+						class="hover:text-brand-green absolute top-1/2 right-3 inline-flex size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/90 text-neutral-700 shadow-md ring-1 ring-black/5 backdrop-blur-sm transition hover:bg-white sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
+					>
+						<ChevronRight class="size-5" />
+					</button>
+					<span
+						class="absolute right-3 bottom-3 rounded-full bg-black/60 px-2.5 py-1 text-[11px] font-semibold text-white tabular-nums backdrop-blur-sm"
+					>
+						{activeImage + 1} / {data.images.length}
+					</span>
+				{/if}
 			</div>
 
 			{#if data.images.length > 1}
-				<div class="mt-4 flex gap-3 overflow-x-auto">
+				<div class="mt-3 -mx-1 flex gap-3 overflow-x-auto p-1">
 					{#each data.images as img, i (i)}
 						<button
 							type="button"
-							class="bg-brand-sand size-20 shrink-0 overflow-hidden rounded-xl ring-inset transition {activeImage ===
+							aria-label="Show image {i + 1}"
+							aria-current={activeImage === i}
+							class="bg-brand-sand relative size-20 shrink-0 overflow-hidden rounded-xl transition {activeImage ===
 							i
-								? 'ring-brand-green ring-2'
-								: 'ring-1 ring-black/5 hover:ring-black/20'}"
+								? 'ring-brand-green ring-offset-brand-sand ring-2 ring-offset-2'
+								: 'cursor-pointer opacity-70 ring-1 ring-black/5 hover:opacity-100 hover:ring-black/20'}"
 							onclick={() => (activeImage = i)}
 						>
 							<img src={img} alt="" class="h-full w-full object-cover" />
@@ -140,7 +178,7 @@
 					<button
 						type="button"
 						onclick={dec}
-						class="flex size-9 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+						class="flex size-9 cursor-pointer items-center justify-center rounded-full text-neutral-700 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
 						disabled={quantity <= 1 || soldOut}
 						aria-label="Decrease quantity"
 					>
@@ -150,7 +188,7 @@
 					<button
 						type="button"
 						onclick={inc}
-						class="flex size-9 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+						class="flex size-9 cursor-pointer items-center justify-center rounded-full text-neutral-700 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
 						disabled={quantity >= p.stockQuantity || soldOut}
 						aria-label="Increase quantity"
 					>

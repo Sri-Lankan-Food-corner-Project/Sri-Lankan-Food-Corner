@@ -29,7 +29,7 @@
 		{#snippet child({ props })}
 			<button
 				{...props}
-				class="flex items-center gap-1.5 transition-colors hover:text-white"
+				class="flex items-center cursor-pointer gap-1.5 transition-colors hover:text-white"
 			>
 				<User class="size-3.5" />
 				My Account

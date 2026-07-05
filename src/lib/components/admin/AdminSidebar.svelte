@@ -7,6 +7,7 @@
 		FolderTree,
 		ShoppingBag,
 		LogOut,
+		Star,
 		Store,
 		LayoutGrid,
 		Users
@@ -27,7 +28,8 @@
 		{ href: '/admin/categories', label: 'Categories', icon: FolderTree },
 		{ href: '/admin/home-sections', label: 'Home sections', icon: LayoutGrid },
 		{ href: '/admin/orders', label: 'Orders', icon: ShoppingBag },
-		{ href: '/admin/customers', label: 'Customers', icon: Users }
+		{ href: '/admin/customers', label: 'Customers', icon: Users },
+		{ href: '/admin/reviews', label: 'Reviews', icon: Star }
 	];
 
 	function initials(name?: string | null) {

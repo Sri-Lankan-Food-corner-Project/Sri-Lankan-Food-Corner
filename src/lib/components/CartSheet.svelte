@@ -33,7 +33,7 @@
 			<Sheet.Title class="text-lg font-bold text-neutral-900">Shopping cart</Sheet.Title>
 			<Sheet.Description class="sr-only">Review items in your cart</Sheet.Description>
 			<Sheet.Close
-				class="inline-flex items-center gap-1.5 text-sm text-neutral-600 transition-colors hover:text-neutral-900"
+				class="inline-flex cursor-pointer items-center gap-1.5 text-sm text-neutral-600 transition-colors hover:text-neutral-900"
 			>
 				<X class="size-4" />
 				<span>Close</span>
@@ -76,7 +76,7 @@
 									<button
 										type="button"
 										onclick={() => cart.remove(line.productId)}
-										class="shrink-0 text-neutral-400 transition-colors hover:text-neutral-700"
+										class="shrink-0 text-neutral-400 cursor-pointer transition-colors hover:text-neutral-700"
 										aria-label="Remove"
 									>
 										<X class="size-4" />
@@ -87,7 +87,7 @@
 										<button
 											type="button"
 											onclick={() => cart.setQuantity(line.productId, line.quantity - 1)}
-											class="flex size-7 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white"
+											class="flex size-7 cursor-pointer items-center justify-center rounded-full text-neutral-700 transition hover:bg-white"
 											aria-label="Decrease"
 										>
 											<Minus class="size-3" />
@@ -98,7 +98,7 @@
 										<button
 											type="button"
 											onclick={() => cart.setQuantity(line.productId, line.quantity + 1)}
-											class="flex size-7 items-center justify-center rounded-full text-neutral-700 transition hover:bg-white"
+											class="flex size-7 cursor-pointer items-center justify-center rounded-full text-neutral-700 transition hover:bg-white"
 											aria-label="Increase"
 										>
 											<Plus class="size-3" />

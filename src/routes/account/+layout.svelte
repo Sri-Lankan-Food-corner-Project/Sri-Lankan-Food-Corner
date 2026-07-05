@@ -7,6 +7,7 @@
 		LayoutDashboard,
 		MapPin,
 		Package,
+		Star,
 		User
 	} from '@lucide/svelte';
 
@@ -36,6 +37,12 @@
 			label: 'Wishlist',
 			icon: Heart,
 			match: (p: string) => p.startsWith('/account/wishlist')
+		},
+		{
+			href: '/account/reviews',
+			label: 'Reviews',
+			icon: Star,
+			match: (p: string) => p.startsWith('/account/reviews')
 		},
 		{
 			href: '/account/details',
@@ -145,7 +152,10 @@
 				</ul>
 			</aside>
 
-			<div>
+			<!-- min-w-0 lets this grid column shrink below its content's intrinsic
+			     width; without it, unbreakable strings (long reviews, urls) force
+			     the column wider than the viewport and break wrap-break-word. -->
+			<div class="min-w-0">
 				{@render children()}
 			</div>
 		</div>

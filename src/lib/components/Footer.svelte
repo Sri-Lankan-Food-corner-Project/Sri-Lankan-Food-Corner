@@ -236,7 +236,7 @@
 				<a href="/terms" class="transition-colors hover:text-white">
 					Terms and Conditions
 				</a>
-				<a href="/sitemap" class="transition-colors hover:text-white">Sitemap</a>
+			
 			</div>
 		</div>
 	</div>

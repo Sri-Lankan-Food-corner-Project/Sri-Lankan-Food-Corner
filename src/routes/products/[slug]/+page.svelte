@@ -1,5 +1,6 @@
 <script lang="ts">
 	import AddToCartButton from '$lib/components/AddToCartButton.svelte';
+	import ProductReviews from '$lib/components/ProductReviews.svelte';
 	import { formatPrice } from '$lib/utils/formatPrice';
 	import { cart } from '$lib/stores/cart';
 	import { cartOpen } from '$lib/stores/cartUi';
@@ -174,4 +175,34 @@
 			{/if}
 		</div>
 	</div>
+
+	{#await data.streamed.reviewData}
+		<!-- Skeleton — shown while the reviews query streams in. Matches the
+		     approximate layout of the real review section so the page doesn't
+		     jump when the data arrives. -->
+		<section class="mt-16 border-t border-neutral-200 pt-10">
+			<div class="animate-pulse space-y-3">
+				<div class="h-7 w-48 rounded bg-neutral-200"></div>
+				<div class="h-4 w-40 rounded bg-neutral-200"></div>
+			</div>
+			<div class="mt-10 space-y-4">
+				{#each [0, 1] as i (i)}
+					<div class="rounded-2xl border border-neutral-200 bg-white p-5">
+						<div class="animate-pulse space-y-3">
+							<div class="h-4 w-24 rounded bg-neutral-200"></div>
+							<div class="h-3 w-full rounded bg-neutral-200"></div>
+							<div class="h-3 w-3/4 rounded bg-neutral-200"></div>
+						</div>
+					</div>
+				{/each}
+			</div>
+		</section>
+	{:then r}
+		<ProductReviews
+			user={data.user}
+			reviews={r.reviews}
+			summary={r.summary}
+			ownReview={r.ownReview}
+		/>
+	{/await}
 </section>

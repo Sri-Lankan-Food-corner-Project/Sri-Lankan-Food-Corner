@@ -4,6 +4,7 @@ import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { db } from '$lib/server/db';
 import { categories } from '$lib/server/db/schema';
+import { invalidateCategoriesCache } from '$lib/server/categoriesCache';
 import { categorySchema } from '$lib/schemas/category';
 import { slugify } from '$lib/utils/slugify';
 import type { PageServerLoad, Actions } from './$types';
@@ -38,6 +39,7 @@ export const actions: Actions = {
 		} catch (e) {
 			return fail(400, { form: { ...form, message: 'A category with that slug already exists' } });
 		}
+		invalidateCategoriesCache();
 		return { form };
 	},
 
@@ -61,6 +63,7 @@ export const actions: Actions = {
 		} catch (e) {
 			return fail(400, { form: { ...form, message: 'A category with that slug already exists' } });
 		}
+		invalidateCategoriesCache();
 		return { form };
 	},
 
@@ -69,6 +72,7 @@ export const actions: Actions = {
 		const id = String(form.get('id') ?? '');
 		if (!id) return fail(400, { error: 'Missing id' });
 		await db.delete(categories).where(eq(categories.id, id));
+		invalidateCategoriesCache();
 		return { ok: true };
 	}
 };

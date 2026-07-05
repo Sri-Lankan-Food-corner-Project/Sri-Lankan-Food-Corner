@@ -36,14 +36,14 @@
 			<button
 				type="button"
 				onclick={() => resolveConfirm(false)}
-				class="rounded-full border border-neutral-300 bg-white px-4 py-2 text-sm font-semibold text-neutral-700 transition hover:bg-neutral-50"
+				class="rounded-full border cursor-pointer  border-neutral-300 bg-white px-4 py-2 text-sm font-semibold text-neutral-700 transition hover:bg-neutral-50"
 			>
 				{$confirmState?.cancelLabel ?? 'Cancel'}
 			</button>
 			<button
 				type="button"
 				onclick={() => resolveConfirm(true)}
-				class="rounded-full px-4 py-2 text-sm font-semibold text-white transition {$confirmState?.destructive
+				class="rounded-full cursor-pointer px-4 py-2 text-sm font-semibold text-white transition {$confirmState?.destructive
 					? 'bg-red-600 hover:bg-red-700'
 					: 'bg-brand-charcoal hover:bg-brand-charcoal-hover'}"
 			>

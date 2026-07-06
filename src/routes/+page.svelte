@@ -1,10 +1,13 @@
 <script lang="ts">
+	import SEO from '$lib/components/SEO.svelte';
 	import HeroBanner from '$lib/components/home/HeroBanner.svelte';
 	import FeatureMarquee from '$lib/components/home/FeatureMarquee.svelte';
 	import ProductSlider from '$lib/components/home/ProductSlider.svelte';
 
 	let { data } = $props();
 </script>
+
+<SEO />
 
 <HeroBanner />
 <FeatureMarquee />

@@ -37,8 +37,10 @@ free/low-cost at this traffic level by avoiding Supabase's egress-based pricing 
   do not assume production payment keys are available.
 - **Styling:** Tailwind CSS v4 with `@tailwindcss/vite`. Brand palette is registered
   as theme tokens (see "Design System / Color Palette" below) — use `bg-brand-green`,
-  `text-brand-amber`, etc. Fonts: Poppins (Latin) + Noto Sans KR (Korean), loaded via
-  `@import url(...)` in `src/routes/layout.css`.
+  `text-brand-amber`, etc. Fonts: Poppins (Latin) + Noto Sans KR (Korean) + Noto Sans
+  Sinhala, loaded via `<link rel="stylesheet">` in `src/app.html` (NOT via
+  `@import` in CSS — `@import` blocks render until the CSS bundle downloads and
+  parses, which cost ~2.8 s of FCP on mobile). Do not move these back into CSS.
 
 ### Why this stack (context for future decisions)
 

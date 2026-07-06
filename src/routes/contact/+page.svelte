@@ -1,15 +1,39 @@
 <script lang="ts">
 	import { site, telHref } from '$lib/config/site';
+	import SEO from '$lib/components/SEO.svelte';
+	import { SITE_URL, SITE_NAME } from '$lib/config/seo';
 	import { ArrowRight, Mail, MapPin, Phone } from '@lucide/svelte';
+
+	const contactJsonLd = {
+		'@context': 'https://schema.org',
+		'@type': 'ContactPage',
+		mainEntity: {
+			'@type': 'GroceryStore',
+			name: SITE_NAME,
+			telephone: site.phone.primary,
+			address: {
+				'@type': 'PostalAddress',
+				streetAddress: site.address.en,
+				addressLocality: 'Dangjin',
+				addressRegion: 'Chungcheongnam-do',
+				addressCountry: 'KR'
+			}
+		},
+		breadcrumb: {
+			'@type': 'BreadcrumbList',
+			itemListElement: [
+				{ '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+				{ '@type': 'ListItem', position: 2, name: 'Contact', item: `${SITE_URL}/contact` }
+			]
+		}
+	};
 </script>
 
-<svelte:head>
-	<title>Contact Us  {site.name}</title>
-	<meta
-		name="description"
-		content="Get in touch with {site.name} — visit our store in Dangjin, call us, or send an email. We ship Sri Lankan groceries across South Korea."
-	/>
-</svelte:head>
+<SEO
+	title="Contact Us — Visit or call our Dangjin store"
+	description="Get in touch with {site.name} — visit our store in Dangjin, call {site.phone.primary}, or send an email. We ship Sri Lankan groceries across South Korea."
+	jsonLd={contactJsonLd}
+/>
 
 <!-- Hero -->
 <section class="bg-brand-green relative overflow-hidden text-white">

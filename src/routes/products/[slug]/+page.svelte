@@ -2,6 +2,8 @@
 	import AddToCartButton from '$lib/components/AddToCartButton.svelte';
 	import ProductReviews from '$lib/components/ProductReviews.svelte';
 	import ProductSlider from '$lib/components/home/ProductSlider.svelte';
+	import SEO from '$lib/components/SEO.svelte';
+	import { SITE_URL, SITE_NAME } from '$lib/config/seo';
 	import { formatPrice } from '$lib/utils/formatPrice';
 	import { cart } from '$lib/stores/cart';
 	import { cartOpen } from '$lib/stores/cartUi';
@@ -20,6 +22,62 @@
 			? Math.round(((p.compareAtPrice - p.price) / p.compareAtPrice) * 100)
 			: 0
 	);
+
+	const heroImage = $derived(data.images[0] ?? `${SITE_URL}/og-default.jpg`);
+
+	// Product + Breadcrumb JSON-LD — feeds Google Shopping / rich results.
+	const productJsonLd = $derived([
+		{
+			'@context': 'https://schema.org',
+			'@type': 'Product',
+			name: p.name,
+			image: data.images,
+			description: p.description ?? `${p.name} — available at ${SITE_NAME}, Dangjin.`,
+			sku: p.id,
+			brand: { '@type': 'Brand', name: SITE_NAME },
+			offers: {
+				'@type': 'Offer',
+				url: `${SITE_URL}/products/${p.slug}`,
+				priceCurrency: 'KRW',
+				price: p.price,
+				availability: soldOut
+					? 'https://schema.org/OutOfStock'
+					: 'https://schema.org/InStock',
+				seller: { '@type': 'Organization', name: SITE_NAME }
+			}
+		},
+		{
+			'@context': 'https://schema.org',
+			'@type': 'BreadcrumbList',
+			itemListElement: [
+				{ '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+				{ '@type': 'ListItem', position: 2, name: 'Products', item: `${SITE_URL}/products` },
+				...(p.categoryName && p.categorySlug
+					? [
+						{
+							'@type': 'ListItem',
+							position: 3,
+							name: p.categoryName,
+							item: `${SITE_URL}/category/${p.categorySlug}`
+						},
+						{
+							'@type': 'ListItem',
+							position: 4,
+							name: p.name,
+							item: `${SITE_URL}/products/${p.slug}`
+						}
+					]
+					: [
+						{
+							'@type': 'ListItem',
+							position: 3,
+							name: p.name,
+							item: `${SITE_URL}/products/${p.slug}`
+						}
+					])
+			]
+		}
+	]);
 
 	function inc() {
 		if (quantity < p.stockQuantity) quantity += 1;
@@ -53,6 +111,14 @@
 		cartOpen.set(true);
 	}
 </script>
+
+<SEO
+	title={p.name}
+	description="{p.description ?? `Buy ${p.name} online at ${SITE_NAME}.`} Delivered across South Korea from our Dangjin store."
+	image={heroImage}
+	type="product"
+	jsonLd={productJsonLd}
+/>
 
 <section class="mx-auto max-w-350 px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
 	<button

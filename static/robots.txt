@@ -1,3 +1,16 @@
-# allow crawling everything by default
+# Sri Lankan Food Corner — crawler policy
 User-agent: *
-Disallow:
+Allow: /
+
+# Private / user-scoped routes — nothing to index here
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /account
+Disallow: /account/*
+Disallow: /checkout
+Disallow: /checkout/*
+Disallow: /api/
+Disallow: /cart
+
+# Point crawlers to the sitemap
+Sitemap: https://srilankanfoodcorner.com/sitemap.xml

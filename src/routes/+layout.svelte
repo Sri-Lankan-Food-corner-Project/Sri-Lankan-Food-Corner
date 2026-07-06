@@ -1,6 +1,7 @@
 <script lang="ts">
 	import './layout.css';
-	import favicon from '$lib/assets/favicon.svg';
+	import SEO from '$lib/components/SEO.svelte';
+	import { SITE_NAME, SITE_URL } from '$lib/config/seo';
 	import Header from '$lib/components/Header.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import MobileBottomNav from '$lib/components/MobileBottomNav.svelte';
@@ -19,6 +20,25 @@
 	let { data, children } = $props();
 
 	const isAdmin = $derived(page.url.pathname.startsWith('/admin'));
+
+	// Business identity structured data — helps Google build a rich business panel.
+	// Update address/phone/hours to match reality once you have them.
+	const businessJsonLd = {
+		'@context': 'https://schema.org',
+		'@type': 'GroceryStore',
+		name: SITE_NAME,
+		url: SITE_URL,
+		logo: `${SITE_URL}/android-chrome-512x512.png`,
+		description:
+			'Sri Lankan grocery and fresh food store in Dangjin, South Korea. Rice, spices, coconut products, curry ingredients and Sri Lankan snacks.',
+		address: {
+			'@type': 'PostalAddress',
+			addressLocality: 'Dangjin',
+			addressRegion: 'Chungcheongnam-do',
+			addressCountry: 'KR'
+		},
+		areaServed: { '@type': 'City', name: 'Dangjin' }
+	};
 
 	// Sync the client wishlist store whenever the server's list changes
 	// (after login/logout, invalidateAll, navigation).
@@ -52,7 +72,8 @@
 
 </script>
 
-<svelte:head><link rel="icon" href={favicon} /></svelte:head>
+<!-- Default SEO — individual pages can render their own <SEO /> to override. -->
+<SEO jsonLd={businessJsonLd} noindex={isAdmin} />
 
 <ModeWatcher />
 

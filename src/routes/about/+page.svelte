@@ -1,6 +1,8 @@
 <script lang="ts">
 	import shopPhoto from '$lib/assets/aboutus/shop.webp';
 	import { site, telHref } from '$lib/config/site';
+	import SEO from '$lib/components/SEO.svelte';
+	import { SITE_URL } from '$lib/config/seo';
 	import {
 		ArrowRight,
 		Heart,
@@ -13,15 +15,32 @@
 
 	const openedYear = new Date(site.business.openedDate).getFullYear();
 	const yearsRunning = new Date().getFullYear() - openedYear;
+
+	const aboutJsonLd = {
+		'@context': 'https://schema.org',
+		'@type': 'AboutPage',
+		mainEntity: {
+			'@type': 'GroceryStore',
+			name: site.name,
+			foundingDate: site.business.openedDate,
+			description: `Family-run Sri Lankan grocery in Dangjin, South Korea — open since ${openedYear}.`
+		},
+		breadcrumb: {
+			'@type': 'BreadcrumbList',
+			itemListElement: [
+				{ '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+				{ '@type': 'ListItem', position: 2, name: 'About Us', item: `${SITE_URL}/about` }
+			]
+		}
+	};
 </script>
 
-<svelte:head>
-	<title>About Us  {site.name}</title>
-	<meta
-		name="description"
-		content="Meet {site.name}  a family-run Sri Lankan grocery in Dangjin, Korea. Rice, spices, curry mixes, fresh vegetables and pantry staples from home."
-	/>
-</svelte:head>
+<SEO
+	title="About Us — Family-run Sri Lankan grocery in Dangjin"
+	description="Meet {site.name} — a family-run Sri Lankan grocery in Dangjin, South Korea. Rice, spices, curry mixes, fresh vegetables and pantry staples from home. Open since {openedYear}."
+	type="website"
+	jsonLd={aboutJsonLd}
+/>
 
 <!-- Hero -->
 <section class="bg-brand-green relative overflow-hidden text-white">

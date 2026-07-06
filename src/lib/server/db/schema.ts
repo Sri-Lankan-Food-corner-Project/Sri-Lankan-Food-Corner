@@ -93,18 +93,6 @@ export const productImages = pgTable('product_images', {
 	sortOrder: integer('sort_order').default(0)
 });
 
-export const cartItems = pgTable(
-	'cart_items',
-	{
-		id: uuid('id').primaryKey().defaultRandom(),
-		customerId: text('customer_id').references(() => user.id, { onDelete: 'cascade' }),
-		productId: uuid('product_id').references(() => products.id, { onDelete: 'cascade' }),
-		quantity: integer('quantity').notNull().default(1),
-		createdAt: timestamp('created_at', { withTimezone: true }).defaultNow()
-	},
-	(t) => ({ uniqCustomerProduct: unique().on(t.customerId, t.productId) })
-);
-
 export const wishlistItems = pgTable(
 	'wishlist_items',
 	{

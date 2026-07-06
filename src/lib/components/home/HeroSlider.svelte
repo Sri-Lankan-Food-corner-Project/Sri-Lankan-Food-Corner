@@ -31,7 +31,7 @@
 			title: 'Curated for the Sri Lankan Kitchen',
 			subtitle: 'Handpicked ingredients you actually cook with, restocked every week.',
 			cta: 'Browse Categories',
-			href: '/category'
+			href: '/products'
 		}
 	];
 

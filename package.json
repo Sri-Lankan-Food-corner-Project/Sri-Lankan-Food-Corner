@@ -11,18 +11,20 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --check . && eslint .",
-		"format": "prettier --write ."
+		"format": "prettier --write .",
+		"db:reset": "tsx scripts/reset-db.ts",
+		"db:restore": "tsx scripts/restore-db.ts"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
 		"@sveltejs/adapter-vercel": "^6.3.4",
 		"@sveltejs/kit": "^2.63.0",
-		"@types/ws": "^8.5.13",
 		"@sveltejs/vite-plugin-svelte": "^7.1.2",
 		"@tailwindcss/forms": "^0.5.11",
 		"@tailwindcss/typography": "^0.5.19",
 		"@tailwindcss/vite": "^4.3.0",
 		"@types/node": "^22",
+		"@types/ws": "^8.5.13",
 		"dotenv": "^17.4.2",
 		"drizzle-kit": "^0.31.10",
 		"eslint": "^10.4.1",
@@ -35,6 +37,7 @@
 		"svelte": "^5.56.1",
 		"svelte-check": "^4.6.0",
 		"tailwindcss": "^4.3.0",
+		"tsx": "^4.23.0",
 		"typescript": "^6.0.3",
 		"typescript-eslint": "^8.60.1",
 		"vite": "^8.0.16"

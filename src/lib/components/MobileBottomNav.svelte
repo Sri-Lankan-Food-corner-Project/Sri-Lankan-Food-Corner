@@ -7,7 +7,18 @@
 	import { cartOpen } from '$lib/stores/cartUi';
 	import { showAuth } from '$lib/stores/authUi';
 	import { cn } from '$lib/utils';
-	import { Menu, Heart, Home, ShoppingCart, User, ChevronRight, LayoutGrid, X } from '@lucide/svelte';
+	import {
+		Menu,
+		Heart,
+		Home,
+		ShoppingCart,
+		User,
+		ChevronRight,
+		LayoutGrid,
+		X,
+		Info,
+		Phone
+	} from '@lucide/svelte';
 
 	type Category = { slug: string; name: string };
 	type NavUser = { email: string; role?: string | null | undefined };
@@ -37,7 +48,7 @@
 	function itemClass(active: boolean) {
 		return cn(
 			'flex flex-col items-center justify-center gap-1 py-2 text-xs transition-colors',
-			active ? 'text-brand-green' : 'text-neutral-500 hover:text-neutral-900'
+			active ? 'text-brand-charcoal font-semibold' : 'text-neutral-500 hover:text-neutral-900'
 		);
 	}
 
@@ -113,6 +124,25 @@
 							</a>
 						{/each}
 					{/if}
+
+					<div class="my-2 h-px bg-black/5"></div>
+					<p class="px-3 pt-1 pb-1.5 text-[10px] font-semibold tracking-wider text-neutral-500 uppercase">
+						Info
+					</p>
+					<a href="/about" onclick={() => (menuOpen = false)} class={linkClass}>
+						<span class="flex items-center gap-2.5">
+							<Info class="size-4 text-neutral-500" />
+							<span class="font-medium">About Us</span>
+						</span>
+						<ChevronRight class="chev size-3.5 text-neutral-400 transition-opacity" />
+					</a>
+					<a href="/contact" onclick={() => (menuOpen = false)} class={linkClass}>
+						<span class="flex items-center gap-2.5">
+							<Phone class="size-4 text-neutral-500" />
+							<span class="font-medium">Contact Us</span>
+						</span>
+						<ChevronRight class="chev size-3.5 text-neutral-400 transition-opacity" />
+					</a>
 				</nav>
 			</Sheet.Content>
 		</Sheet.Root>

@@ -275,7 +275,7 @@
 		>
 			<input type="hidden" name="cart" value={cartPayload} />
 
-			<div class="space-y-6">
+			<div class="min-w-0 space-y-6">
 				{#if form?.error}
 					<div
 						class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
@@ -917,18 +917,24 @@
 										> as the payment reference. Your order will not be shipped until the funds have cleared
 										in our account.
 									</p>
-									<div class="border-brand-charcoal/10 mt-3 grid gap-1.5 border-t pt-3">
-										<div class="flex justify-between gap-2">
+									<div class="border-brand-charcoal/10 mt-3 grid gap-2 border-t pt-3">
+										<div class="flex flex-col gap-0.5 sm:flex-row sm:justify-between sm:gap-3">
 											<span class="text-neutral-500">Bank</span>
-											<span class="font-semibold text-neutral-900">{site.bank.name}</span>
+											<span class="font-semibold break-words text-neutral-900 sm:text-right">
+												{site.bank.name}
+											</span>
 										</div>
-										<div class="flex justify-between gap-2">
+										<div class="flex flex-col gap-0.5 sm:flex-row sm:justify-between sm:gap-3">
 											<span class="text-neutral-500">Account Holder</span>
-											<span class="font-semibold text-neutral-900">{site.bank.accountHolder}</span>
+											<span class="font-semibold break-words text-neutral-900 sm:text-right">
+												{site.bank.accountHolder}
+											</span>
 										</div>
-										<div class="flex justify-between gap-2">
+										<div class="flex flex-col gap-0.5 sm:flex-row sm:justify-between sm:gap-3">
 											<span class="text-neutral-500">Account Number</span>
-											<span class="font-semibold text-neutral-900">{site.bank.accountNumber}</span>
+											<span class="font-semibold break-words text-neutral-900 sm:text-right">
+												{site.bank.accountNumber}
+											</span>
 										</div>
 									</div>
 								</div>
@@ -963,8 +969,8 @@
 			</div>
 
 			<!-- Order Summary Sidebar -->
-			<aside class="lg:sticky lg:top-24 lg:self-start">
-				<div class="bg-brand-cream ring-brand-charcoal/10 rounded-2xl p-6 ring-1">
+			<aside class="min-w-0 lg:sticky lg:top-24 lg:self-start">
+				<div class="bg-brand-cream ring-brand-charcoal/10 rounded-2xl p-5 ring-1 sm:p-6">
 					<h2 class="text-lg font-bold text-neutral-900">Your Order</h2>
 
 					<div

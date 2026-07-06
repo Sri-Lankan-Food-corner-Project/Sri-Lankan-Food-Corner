@@ -74,6 +74,7 @@
 				</div>
 			{/each}
 		</div>
+		</div>
 	</div>
 </section>
 

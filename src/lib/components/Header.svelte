@@ -49,8 +49,8 @@
 				<a href="/about" class="transition-colors hover:text-white">About Us</a>
 				<span class="text-white/25">|</span>
 				<a href="/contact" class="transition-colors hover:text-white">Contact Us</a>
-				<span class="text-white/25">|</span>
-				<a href="/blog" class="transition-colors hover:text-white">Blog</a>
+				
+				
 			</nav>
 			<div class="flex items-center gap-5">
 				<a

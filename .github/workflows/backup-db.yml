@@ -11,32 +11,23 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Install Postgres 18 client
-        # Neon is on Postgres 18.x — pg_dump must be >= server version.
-        # Remove any preinstalled older client so `pg_dump` on PATH resolves to 18.
-        run: |
-          sudo apt-get remove -y 'postgresql-client-*' || true
-          sudo apt-get update
-          sudo apt-get install -y curl ca-certificates lsb-release gnupg
-          sudo install -d /etc/apt/keyrings
-          curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /etc/apt/keyrings/postgresql.gpg
-          echo "deb [signed-by=/etc/apt/keyrings/postgresql.gpg] http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
-          sudo apt-get update
-          sudo apt-get install -y postgresql-client-18
-          # Fail fast if the wrong binary is on PATH
-          pg_dump --version
-          pg_dump --version | grep -q ' 18\.' || { echo 'pg_dump is not v18'; exit 1; }
-
-      - name: Dump database
+      - name: Dump database (Postgres 18 via Docker)
+        # Use the official postgres:18 image so pg_dump always matches Neon's
+        # server version. No apt fiddling, no PATH surprises.
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           STAMP=$(date -u +%Y-%m-%d_%H%M%S)
           echo "STAMP=$STAMP" >> $GITHUB_ENV
-          # --no-owner --no-acl: Neon uses its own role model, don't restore ownership
-          # -Fc: custom (compressed) format — smaller and restore-friendly with pg_restore
-          pg_dump --no-owner --no-acl -Fc "$DATABASE_URL" > "food-corner-$STAMP.dump"
+          docker run --rm \
+            -e PGCONNECT_TIMEOUT=30 \
+            -e DATABASE_URL="$DATABASE_URL" \
+            postgres:18-alpine \
+            pg_dump --no-owner --no-acl -Fc "$DATABASE_URL" \
+            > "food-corner-$STAMP.dump"
           ls -lh "food-corner-$STAMP.dump"
+          # Sanity check — pg_dump exits 0 on failure sometimes; ensure file has content
+          test -s "food-corner-$STAMP.dump" || { echo 'Dump file is empty'; exit 1; }
 
       - name: Upload to R2
         env:

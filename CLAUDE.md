@@ -4,7 +4,7 @@ Guidance for Claude Code when working in this repository.
 
 ## Project Overview
 
-E-commerce website for **Sri Lankan Food Corner (Asian Mart)** — a Sri Lankan grocery
+E-commerce website for **Sri Lankan Food Corner** — a Sri Lankan grocery
 store based in Dangjin, South Korea, selling Sri Lankan food items, fresh vegetables,
 and groceries. The site has two parts in one codebase:
 

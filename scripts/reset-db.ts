@@ -39,7 +39,6 @@ async function main() {
 		'orders',
 		'home_section_products',
 		'home_sections',
-		'cart_items',
 		'wishlist_items',
 		'product_reviews',
 		'product_images',

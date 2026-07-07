@@ -10,15 +10,15 @@
 	const year = new Date().getFullYear();
 </script>
 
-<footer class="bg-brand-green relative mt-2 overflow-hidden text-white">
+<footer class="bg-brand-charcoal relative mt-2 overflow-hidden text-white">
 	<!-- Decorative glows (matches the policy page heroes) -->
 	<div class="pointer-events-none absolute inset-0 opacity-20">
-		<div class="bg-brand-amber absolute -top-40 -right-24 size-96 rounded-full blur-3xl"></div>
+		<div class="bg-brand-amber/60 absolute -top-40 -right-24 size-96 rounded-full blur-3xl opacity-50"></div>
 		<div class="bg-brand-cream absolute -bottom-48 -left-24 size-96 rounded-full blur-3xl"></div>
 	</div>
 
 	<!-- Top thin amber accent line -->
-	<div class="bg-brand-amber/60 relative h-0.5 w-full"></div>
+	<div class="bg-white relative h-0.5 w-full"></div>
 
 	<div
 		class="relative mx-auto grid max-w-350 gap-10 px-4 py-14 sm:px-6 lg:grid-cols-12 lg:gap-12 lg:px-8"
@@ -248,7 +248,7 @@
 	</div>
 
 	<!-- Korean business info strip -->
-	<div class="bg-brand-green-hover relative border-t border-white/10">
+	<div class="bg-brand-charcoal relative border-t border-white/10">
 		<div class="mx-auto max-w-350 px-4 py-6 text-xs text-white/70 sm:px-6 lg:px-8">
 			<p class="text-brand-amber mb-3 text-[10px] font-bold tracking-[0.3em] uppercase">
 				사업자 정보 · Business Info
@@ -295,7 +295,7 @@
 	</div>
 
 	<!-- Copyright bar -->
-	<div class="bg-brand-charcoal relative">
+	<div class="relative bg-brand-green ">
 		<div
 			class="mx-auto flex max-w-350 flex-col items-center justify-between gap-2 px-4 py-4 text-xs text-white/60 sm:flex-row sm:px-6 lg:px-8"
 		>

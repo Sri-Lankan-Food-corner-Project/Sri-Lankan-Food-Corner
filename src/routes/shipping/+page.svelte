@@ -388,9 +388,9 @@
 					</div>
 
 					<div
-						class="border-brand-amber/40 bg-brand-amber/10 rounded-2xl border p-5"
+						class="border-brand-amber/50 bg-brand-amber/15 rounded-2xl border p-5"
 					>
-						<p class="text-brand-amber-hover text-xs font-bold tracking-widest uppercase">
+						<p class="text-xs font-bold tracking-widest text-neutral-900 uppercase">
 							Free shipping · 무료배송
 						</p>
 						<p class="mt-2 text-3xl font-extrabold text-neutral-900">

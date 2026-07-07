@@ -21,16 +21,16 @@
 	<div class="bg-white relative h-0.5 w-full"></div>
 
 	<div
-		class="relative mx-auto grid max-w-350 gap-10 px-4 py-14 sm:px-6 lg:grid-cols-12 lg:gap-12 lg:px-8"
+		class="relative mx-auto grid max-w-350 gap-8 px-4 py-10 sm:px-6 sm:py-14 lg:grid-cols-12 lg:gap-12 lg:px-8"
 	>
 		<!-- Brand / about -->
 		<div class="lg:col-span-4">
-			<img src={logo} alt={site.name} class="h-14 w-auto sm:h-16 md:h-24" />
-			<p class="mt-5 max-w-sm text-sm leading-relaxed text-white/75">
+			<img src={logo} alt={site.name} class="h-12 w-auto sm:h-16 md:h-24" />
+			<p class="mt-4 max-w-sm text-sm leading-relaxed text-white/75">
 				{site.description}
 			</p>
 
-			<div class="mt-7">
+			<div class="mt-5 sm:mt-7">
 				<p class="text-brand-amber text-[11px] font-bold tracking-[0.3em] uppercase">
 					Follow Us
 				</p>
@@ -99,6 +99,8 @@
 			</div>
 		</div>
 
+		<!-- Popular + Useful sit side-by-side on mobile, become separate columns on desktop -->
+		<div class="grid grid-cols-2 gap-6 lg:contents">
 		<!-- Popular Categories -->
 		<div class="lg:col-span-2">
 			<p class="text-brand-amber text-[11px] font-bold tracking-[0.3em] uppercase">
@@ -151,6 +153,7 @@
 					</li>
 				{/each}
 			</ul>
+		</div>
 		</div>
 
 		<!-- Contact us -->

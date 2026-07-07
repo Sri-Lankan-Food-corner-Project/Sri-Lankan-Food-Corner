@@ -127,9 +127,7 @@
 				<li>
 					<a href="/shipping" class="transition-colors hover:text-white">Shipping Policy</a>
 				</li>
-				<li>
-					<a href="/disclaimer" class="transition-colors hover:text-white">Disclaimer</a>
-				</li>
+				
 			</ul>
 		</div>
 

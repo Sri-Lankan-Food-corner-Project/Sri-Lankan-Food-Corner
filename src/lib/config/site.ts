@@ -33,11 +33,10 @@ export const site = {
 		openedDate: '2023-07-29'
 	},
 
-	// TODO: replace with real bank details before going live
 	bank: {
-		name: 'Shinhan Bank',
+		name: 'NongHyup Bank (농협은행)',
 		accountHolder: 'GUNAWARDANA LIYANAGE LAL CHANDANA',
-		accountNumber: '000-000-000000'
+		accountNumber: '301-0338-3017-51'
 	},
 
 	shipping: {

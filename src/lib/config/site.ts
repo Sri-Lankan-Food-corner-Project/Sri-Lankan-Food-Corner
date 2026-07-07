@@ -8,7 +8,7 @@ export const site = {
 	shortName: 'Food Corner',
 	tagline: 'Food corner',
 	description:
-		'Sri Lankan groceries, fresh vegetables, and pantry staples — delivered across South Korea.',
+		'Sri Lankan groceries, fresh vegetables, and pantry staples, delivered across South Korea.',
 
 	// TODO: replace with the real customer-facing email once confirmed with the client
 	email: 'info@srilankanfoodcorner.kr',
@@ -33,11 +33,10 @@ export const site = {
 		openedDate: '2023-07-29'
 	},
 
-	// TODO: replace with real bank details before going live
 	bank: {
-		name: 'Shinhan Bank',
+		name: 'NongHyup Bank (농협은행)',
 		accountHolder: 'GUNAWARDANA LIYANAGE LAL CHANDANA',
-		accountNumber: '000-000-000000'
+		accountNumber: '301-0338-3017-51'
 	},
 
 	shipping: {

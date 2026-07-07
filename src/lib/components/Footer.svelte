@@ -1,7 +1,7 @@
 <script lang="ts">
 	import logo from '$lib/assets/logo2.webp';
 	import { site, telHref } from '$lib/config/site';
-	import { MapPin } from '@lucide/svelte';
+	import { ArrowUpRight, Mail, MapPin, Phone } from '@lucide/svelte';
 
 	type Category = { slug: string; name: string };
 	let { categories = [] }: { categories?: Category[] } = $props();
@@ -10,29 +10,38 @@
 	const year = new Date().getFullYear();
 </script>
 
-<footer class="mt-2 bg-brand-charcoal text-white/85">
+<footer class="bg-brand-charcoal relative mt-2 overflow-hidden text-white">
+	<!-- Decorative glows (matches the policy page heroes) -->
+	<div class="pointer-events-none absolute inset-0 opacity-20">
+		<div class="bg-brand-amber/60 absolute -top-40 -right-24 size-96 rounded-full blur-3xl opacity-50"></div>
+		<div class="bg-brand-cream absolute -bottom-48 -left-24 size-96 rounded-full blur-3xl"></div>
+	</div>
+
+	<!-- Top thin amber accent line -->
+	<div class="bg-white relative h-0.5 w-full"></div>
+
 	<div
-		class="mx-auto grid max-w-350 gap-10 px-4 py-14 sm:px-6 lg:grid-cols-4 lg:px-8"
+		class="relative mx-auto grid max-w-350 gap-8 px-4 py-10 sm:px-6 sm:py-14 lg:grid-cols-12 lg:gap-12 lg:px-8"
 	>
 		<!-- Brand / about -->
-		<div>
-			<img src={logo} alt={site.name} class="h-14 w-auto sm:h-16 md:h-30" />
-			<p class="mt-5 text-sm leading-relaxed text-white/70">
+		<div class="lg:col-span-4">
+			<img src={logo} alt={site.name} class="h-12 w-auto sm:h-16 md:h-24" />
+			<p class="mt-4 max-w-sm text-sm leading-relaxed text-white/75">
 				{site.description}
 			</p>
 
-			<div class="mt-6">
-				<p class="text-xs font-semibold tracking-widest text-white/60 uppercase">
+			<div class="mt-5 sm:mt-7">
+				<p class="text-brand-amber text-[11px] font-bold tracking-[0.3em] uppercase">
 					Follow Us
 				</p>
-				<div class="mt-3 flex items-center gap-4 text-white/75">
+				<div class="mt-3 flex items-center gap-2.5">
 					{#if site.social.facebook}
 						<a
 							href={site.social.facebook}
 							target="_blank"
 							rel="noopener"
 							aria-label="Facebook"
-							class="transition-colors hover:text-white"
+							class="hover:bg-brand-amber flex size-9 items-center justify-center rounded-full bg-white/10 text-white transition hover:text-neutral-900"
 						>
 							<svg viewBox="0 0 24 24" fill="currentColor" class="size-5">
 								<path
@@ -47,7 +56,7 @@
 							target="_blank"
 							rel="noopener"
 							aria-label="TikTok"
-							class="transition-colors hover:text-white"
+							class="hover:bg-brand-amber flex size-9 items-center justify-center rounded-full bg-white/10 text-white transition hover:text-neutral-900"
 						>
 							<svg viewBox="0 0 24 24" fill="currentColor" class="size-5">
 								<path
@@ -62,7 +71,7 @@
 							target="_blank"
 							rel="noopener"
 							aria-label="YouTube"
-							class="transition-colors hover:text-white"
+							class="hover:bg-brand-amber flex size-9 items-center justify-center rounded-full bg-white/10 text-white transition hover:text-neutral-900"
 						>
 							<svg viewBox="0 0 24 24" fill="currentColor" class="size-5">
 								<path
@@ -77,7 +86,7 @@
 							target="_blank"
 							rel="noopener"
 							aria-label="Instagram"
-							class="transition-colors hover:text-white"
+							class="hover:bg-brand-amber flex size-9 items-center justify-center rounded-full bg-white/10 text-white transition hover:text-neutral-900"
 						>
 							<svg viewBox="0 0 24 24" fill="currentColor" class="size-5">
 								<path
@@ -90,136 +99,198 @@
 			</div>
 		</div>
 
+		<!-- Popular + Useful sit side-by-side on mobile, become separate columns on desktop -->
+		<div class="grid grid-cols-2 gap-6 lg:contents">
 		<!-- Popular Categories -->
-		<div>
-			<h4 class="text-base font-semibold text-white">Popular Categories</h4>
-			<ul class="mt-5 space-y-3 text-sm text-white/75">
+		<div class="lg:col-span-2">
+			<p class="text-brand-amber text-[11px] font-bold tracking-[0.3em] uppercase">
+				Shop
+			</p>
+			<h4 class="mt-2 text-base font-bold text-white">Popular Categories</h4>
+			<ul class="mt-5 space-y-2.5 text-sm">
 				{#if popular.length > 0}
 					{#each popular as c (c.slug)}
 						<li>
-							<a href="/category/{c.slug}" class="transition-colors hover:text-white">
+							<a
+								href="/category/{c.slug}"
+								class="hover:text-brand-amber inline-flex items-center gap-1.5 text-white/75 transition"
+							>
+								<span
+									class="bg-brand-amber/0 group-hover:bg-brand-amber inline-block size-1 rounded-full"
+								></span>
 								{c.name}
 							</a>
 						</li>
 					{/each}
 				{:else}
 					<li>
-						<a href="/products" class="transition-colors hover:text-white">All Products</a>
+						<a
+							href="/products"
+							class="hover:text-brand-amber text-white/75 transition"
+						>
+							All Products
+						</a>
 					</li>
 				{/if}
 			</ul>
 		</div>
 
 		<!-- Useful Links -->
-		<div>
-			<h4 class="text-base font-semibold text-white">Useful Links</h4>
-			<ul class="mt-5 space-y-3 text-sm text-white/75">
-				<li><a href="/about" class="transition-colors hover:text-white">About Us</a></li>
-				<li>
-					<a href="/contact" class="transition-colors hover:text-white">Contact Us</a>
-				</li>
-				<li>
-					<a href="/privacy" class="transition-colors hover:text-white">Privacy Policy</a>
-				</li>
-				<li>
-					<a href="/returns" class="transition-colors hover:text-white">Returns Policy</a>
-				</li>
-				<li>
-					<a href="/shipping" class="transition-colors hover:text-white">Shipping Policy</a>
-				</li>
-				<li>
-					<a href="/disclaimer" class="transition-colors hover:text-white">Disclaimer</a>
-				</li>
+		<div class="lg:col-span-2">
+			<p class="text-brand-amber text-[11px] font-bold tracking-[0.3em] uppercase">
+				Info
+			</p>
+			<h4 class="mt-2 text-base font-bold text-white">Useful Links</h4>
+			<ul class="mt-5 space-y-2.5 text-sm">
+				{#each [{ href: '/about', label: 'About Us' }, { href: '/contact', label: 'Contact Us' }, { href: '/privacy', label: 'Privacy Policy' }, { href: '/returns', label: 'Returns Policy' }, { href: '/shipping', label: 'Shipping Policy' }] as link (link.href)}
+					<li>
+						<a
+							href={link.href}
+							class="hover:text-brand-amber text-white/75 transition"
+						>
+							{link.label}
+						</a>
+					</li>
+				{/each}
 			</ul>
+		</div>
 		</div>
 
 		<!-- Contact us -->
-		<div>
-			<h4 class="text-base font-semibold text-white">Contact us</h4>
-			<div class="mt-5 space-y-5 text-sm text-white/75">
-				<div>
-					<p class="font-medium text-white">Email (이메일 문의):</p>
+		<div class="lg:col-span-4">
+			<p class="text-brand-amber text-[11px] font-bold tracking-[0.3em] uppercase">
+				Get in touch
+			</p>
+			<h4 class="mt-2 text-base font-bold text-white">Contact us</h4>
+
+			<ul class="mt-5 space-y-3 text-sm">
+				<li>
 					<a
 						href="mailto:{site.email}"
-						class="mt-1 inline-block break-all transition-colors hover:text-white"
+						class="group flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-3 transition hover:border-white/20 hover:bg-white/10"
 					>
-						{site.email}
+						<span
+							class="bg-brand-amber/15 text-brand-amber flex size-9 shrink-0 items-center justify-center rounded-lg"
+						>
+							<Mail class="size-4" />
+						</span>
+						<span class="min-w-0">
+							<span
+								class="block text-[10px] font-bold tracking-widest text-white/50 uppercase"
+							>
+								Email · 이메일
+							</span>
+							<span class="mt-0.5 block truncate font-semibold text-white">
+								{site.email}
+							</span>
+						</span>
 					</a>
-				</div>
+				</li>
 
-				<div>
-					<p class="font-medium text-white">Phone Number (전화번호):</p>
+				<li>
 					<a
 						href={telHref(site.phone.primary)}
-						class="mt-1 block transition-colors hover:text-white"
+						class="group flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-3 transition hover:border-white/20 hover:bg-white/10"
 					>
-						{site.phone.primary}
+						<span
+							class="bg-brand-amber/15 text-brand-amber flex size-9 shrink-0 items-center justify-center rounded-lg"
+						>
+							<Phone class="size-4" />
+						</span>
+						<span class="min-w-0">
+							<span
+								class="block text-[10px] font-bold tracking-widest text-white/50 uppercase"
+							>
+								Phone · 전화번호
+							</span>
+							<span class="mt-0.5 block font-semibold text-white">
+								{site.phone.primary}
+							</span>
+							{#if site.phone.secondary}
+								<span class="block text-white/70">{site.phone.secondary}</span>
+							{/if}
+						</span>
 					</a>
-					<a
-						href={telHref(site.phone.secondary)}
-						class="block transition-colors hover:text-white"
-					>
-						{site.phone.secondary}
-					</a>
-				</div>
+				</li>
 
-				<div>
-					<p class="font-medium text-white">Address:</p>
-					<p class="mt-1 leading-relaxed">
-						<span class="text-white">(EN):</span>
-						{site.address.en}
-					</p>
-					<p class="leading-relaxed">
-						<span class="text-white">(KR):</span>
-						{site.address.kr}
-					</p>
+				<li>
 					<a
 						href={site.mapUrl}
 						target="_blank"
 						rel="noopener"
-						class="mt-2 inline-flex items-center gap-1.5 text-white/90 underline underline-offset-2 hover:text-white"
+						class="group flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-3 transition hover:border-white/20 hover:bg-white/10"
 					>
-						<MapPin class="size-3.5" /> View on Google Maps
+						<span
+							class="bg-brand-amber/15 text-brand-amber flex size-9 shrink-0 items-center justify-center rounded-lg"
+						>
+							<MapPin class="size-4" />
+						</span>
+						<span class="min-w-0">
+							<span
+								class="block text-[10px] font-bold tracking-widest text-white/50 uppercase"
+							>
+								Address · 주소
+							</span>
+							<span class="mt-0.5 block text-sm leading-snug font-medium text-white">
+								{site.address.kr}
+							</span>
+							<span class="mt-0.5 block text-xs leading-snug text-white/60">
+								{site.address.en}
+							</span>
+							<span
+								class="text-brand-amber mt-1.5 inline-flex items-center gap-1 text-[11px] font-semibold underline underline-offset-2 group-hover:no-underline"
+							>
+								<ArrowUpRight class="size-3" />
+								View on Google Maps
+							</span>
+						</span>
 					</a>
-				</div>
-			</div>
+				</li>
+			</ul>
 		</div>
 	</div>
 
 	<!-- Korean business info strip -->
-	<div class="border-t border-white/10">
-		<div
-			class="mx-auto max-w-350 px-4 py-6 text-xs text-white/60 sm:px-6 lg:px-8"
-		>
-			<div class="flex flex-wrap items-center gap-x-4 gap-y-1.5">
+	<div class="bg-brand-charcoal relative border-t border-white/10">
+		<div class="mx-auto max-w-350 px-4 py-6 text-xs text-white/70 sm:px-6 lg:px-8">
+			<p class="text-brand-amber mb-3 text-[10px] font-bold tracking-[0.3em] uppercase">
+				사업자 정보 · Business Info
+			</p>
+			<div class="flex flex-wrap items-center gap-x-4 gap-y-2">
 				<span>
-					<span class="text-white/80">회사명:</span>
+					<span class="font-semibold text-white/90">회사명</span>
+					<span class="text-white/40"> · </span>
 					{site.name}
 				</span>
 				<span class="text-white/25">|</span>
 				<span>
-					<span class="text-white/80">대표자:</span>
+					<span class="font-semibold text-white/90">대표자</span>
+					<span class="text-white/40"> · </span>
 					{site.business.representative}
 				</span>
 				<span class="text-white/25">|</span>
 				<span>
-					<span class="text-white/80">사업자등록번호:</span>
+					<span class="font-semibold text-white/90">사업자등록번호</span>
+					<span class="text-white/40"> · </span>
 					{site.business.registrationNumber}
 				</span>
 			</div>
-			<div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5">
+			<div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
 				<span>
-					<span class="text-white/80">주소:</span>
+					<span class="font-semibold text-white/90">주소</span>
+					<span class="text-white/40"> · </span>
 					{site.address.kr}
 				</span>
 				<span class="text-white/25">|</span>
 				<span>
-					<span class="text-white/80">고객센터:</span>
+					<span class="font-semibold text-white/90">고객센터</span>
+					<span class="text-white/40"> · </span>
 					{site.phone.primary}
 				</span>
 				<span class="text-white/25">|</span>
 				<span>
-					<span class="text-white/80">이메일:</span>
+					<span class="font-semibold text-white/90">이메일</span>
+					<span class="text-white/40"> · </span>
 					{site.email}
 				</span>
 			</div>
@@ -227,16 +298,21 @@
 	</div>
 
 	<!-- Copyright bar -->
-	<div class="border-t border-white/10">
+	<div class="relative bg-brand-green ">
 		<div
 			class="mx-auto flex max-w-350 flex-col items-center justify-between gap-2 px-4 py-4 text-xs text-white/60 sm:flex-row sm:px-6 lg:px-8"
 		>
-			<p>© {year} {site.name}. All Rights Reserved.</p>
+			<p>
+				© {year}
+				<span class="font-semibold text-white/80">{site.name}</span>. All Rights Reserved.
+			</p>
 			<div class="flex items-center gap-5">
-				<a href="/terms" class="transition-colors hover:text-white">
+				<a
+					href="/terms"
+					class="hover:text-brand-amber transition-colors"
+				>
 					Terms and Conditions
 				</a>
-			
 			</div>
 		</div>
 	</div>

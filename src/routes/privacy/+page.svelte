@@ -91,7 +91,7 @@
 </script>
 
 <SEO
-	title="Privacy Policy — 개인정보처리방침"
+	title="Privacy Policy | 개인정보처리방침"
 	description="How {site.name} collects, uses, and protects your personal information. Compliant with Korea's Personal Information Protection Act (PIPA)."
 	type="website"
 	jsonLd={privacyJsonLd}

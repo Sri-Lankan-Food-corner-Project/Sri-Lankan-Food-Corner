@@ -65,7 +65,7 @@
 </script>
 
 <SEO
-	title="Returns & Refunds — 반품 및 환불 정책"
+	title="Returns & Refunds | 반품 및 환불 정책"
 	description="Return and refund policy for {site.name}. 7-day return window, conditions, non-returnable items, and refund process."
 	type="website"
 	jsonLd={returnsJsonLd}

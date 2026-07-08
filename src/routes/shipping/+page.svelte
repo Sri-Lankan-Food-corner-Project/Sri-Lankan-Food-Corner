@@ -70,7 +70,7 @@
 </script>
 
 <SEO
-	title="Shipping Policy — 배송 정책"
+	title="Shipping Policy | 배송 정책"
 	description="Shipping policy for {site.name}. 2 PM same-day cutoff, {baseFee}원 base fee, free shipping over {freeThreshold}원."
 	type="website"
 	jsonLd={shippingJsonLd}

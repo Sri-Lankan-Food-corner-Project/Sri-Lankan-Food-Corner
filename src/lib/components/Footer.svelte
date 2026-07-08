@@ -6,7 +6,7 @@
 	type Category = { slug: string; name: string };
 	let { categories = [] }: { categories?: Category[] } = $props();
 
-	const popular = $derived(categories.slice(0, 6));
+	const popular = $derived(categories.slice(0, 5));
 	const year = new Date().getFullYear();
 </script>
 
@@ -113,7 +113,7 @@
 						<li>
 							<a
 								href="/category/{c.slug}"
-								class="hover:text-brand-amber inline-flex items-center gap-1.5 text-white/75 transition"
+								class="hover:text-brand-amber inline-flex items-center  text-white/75 transition"
 							>
 								<span
 									class="bg-brand-amber/0 group-hover:bg-brand-amber inline-block size-1 rounded-full"

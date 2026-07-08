@@ -30,7 +30,7 @@
 </script>
 
 <SEO
-	title="Contact Us — Visit or call our Dangjin store"
+	title="Contact Us | Visit or call our Dangjin store"
 	description="Get in touch with {site.name} — visit our store in Dangjin, call {site.phone.primary}, or send an email. We ship Sri Lankan groceries across South Korea."
 	jsonLd={contactJsonLd}
 />

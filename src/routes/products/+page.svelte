@@ -17,7 +17,7 @@
 </script>
 
 <SEO
-	title="All Products — Sri Lankan groceries in Korea"
+	title="All Products | Sri Lankan groceries in Korea"
 	description="Browse the full Sri Lankan Food Corner catalogue. Rice, spices, coconut products, snacks, curry mixes and fresh vegetables — delivered across South Korea from Dangjin."
 	jsonLd={productsListJsonLd}
 />

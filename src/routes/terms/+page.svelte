@@ -107,7 +107,7 @@
 </script>
 
 <SEO
-	title="Terms and Conditions — 이용약관"
+	title="Terms and Conditions | 이용약관"
 	description="Terms and conditions governing the use of {site.name} — account, orders, payments, refunds, and liability."
 	type="website"
 	jsonLd={termsJsonLd}

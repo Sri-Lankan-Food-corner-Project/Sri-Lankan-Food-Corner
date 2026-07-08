@@ -36,7 +36,7 @@
 </script>
 
 <SEO
-	title="About Us — Family-run Sri Lankan grocery in Dangjin"
+	title="About Us | Family-run Sri Lankan grocery in Dangjin"
 	description="Meet {site.name} — a family-run Sri Lankan grocery in Dangjin, South Korea. Rice, spices, curry mixes, fresh vegetables and pantry staples from home. Open since {openedYear}."
 	type="website"
 	jsonLd={aboutJsonLd}

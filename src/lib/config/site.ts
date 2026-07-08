@@ -11,7 +11,7 @@ export const site = {
 		'Sri Lankan groceries, fresh vegetables, and pantry staples, delivered across South Korea.',
 
 	// TODO: replace with the real customer-facing email once confirmed with the client
-	email: 'info@srilankanfoodcorner.kr',
+	email: 'srilankanfoodcorner0@gmail.com',
 
 	phone: {
 		primary: '+82 10-6369-3340',
@@ -46,7 +46,8 @@ export const site = {
 
 	// Fill in the real profile URLs when available.
 	social: {
-		facebook: 'https://www.facebook.com/',
+		facebook:
+			'https://m.facebook.com/profile.php?id=61550018936373&mibextid=wwXIfr&mibextid=wwXIfr',
 		tiktok: 'https://www.tiktok.com/',
 		youtube: 'https://www.youtube.com/',
 		instagram: ''

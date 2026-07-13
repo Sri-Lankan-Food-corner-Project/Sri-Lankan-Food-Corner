@@ -6,6 +6,7 @@
 	import Footer from '$lib/components/Footer.svelte';
 	import MobileBottomNav from '$lib/components/MobileBottomNav.svelte';
 	import CartSheet from '$lib/components/CartSheet.svelte';
+	import WhatsAppFloat from '$lib/components/WhatsAppFloat.svelte';
 	import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
 	import AuthDialog from '$lib/components/AuthDialog.svelte';
 	import NavigationProgress from '$lib/components/NavigationProgress.svelte';
@@ -89,6 +90,7 @@
 	</div>
 
 	<MobileBottomNav categories={data.categories} user={data.user} />
+	<WhatsAppFloat />
 	<CartSheet />
 {/if}
 

@@ -22,6 +22,13 @@
 	--color-brand-charcoal: #353535;
 	--color-brand-charcoal-hover: #2a2a2a;
 
+	/* WhatsApp brand colors — third-party identity, reserved for WhatsApp chat
+	   surfaces only (floating chat button, product inquiry link). Users recognise
+	   WhatsApp by this exact green, so it deliberately sits outside the site palette. */
+	--color-whatsapp: #25d366;
+	--color-whatsapp-hover: #1daa54;
+	--color-whatsapp-dark: #128c7e;
+
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);

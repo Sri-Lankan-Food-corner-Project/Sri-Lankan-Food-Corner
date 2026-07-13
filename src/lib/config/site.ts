@@ -18,6 +18,9 @@ export const site = {
 		secondary: '+82 10-2738-6732'
 	},
 
+	// Number that receives WhatsApp chats — floating chat button + product inquiry links.
+	whatsapp: '+82 10-6369-3340',
+
 	address: {
 		en: '574 Deokpyeong-ro, Hapdeok-eup, Dangjin-si, Chungcheongnam-do, 31811 (1F)',
 		kr: '충청남도 당진시 합덕읍 덕평로 574, 1층',
@@ -57,4 +60,30 @@ export const site = {
 /** Strip spaces/dashes so a phone string can be used as a `tel:` href. */
 export function telHref(phone: string): string {
 	return `tel:${phone.replace(/[\s-]/g, '')}`;
+}
+
+/**
+ * Build a WhatsApp chat link for the shop's number, optionally pre-filling a
+ * message. wa.me expects the number in international format with digits only
+ * ('+82 10-6369-3340' → '821063693340'). Works in both the WhatsApp app
+ * (mobile) and WhatsApp Web (desktop).
+ */
+export function waHref(message?: string): string {
+	const digits = site.whatsapp.replace(/\D/g, '');
+	return message
+		? `https://wa.me/${digits}?text=${encodeURIComponent(message)}`
+		: `https://wa.me/${digits}`;
+}
+
+/**
+ * Build a WhatsApp chat link to an arbitrary phone number (e.g. a customer's
+ * number on an order). Korean local numbers ('010-…') are converted to
+ * international form; numbers already in international form pass through.
+ */
+export function waHrefTo(phone: string, message?: string): string {
+	let digits = phone.replace(/\D/g, '');
+	if (digits.startsWith('0')) digits = `82${digits.slice(1)}`;
+	return message
+		? `https://wa.me/${digits}?text=${encodeURIComponent(message)}`
+		: `https://wa.me/${digits}`;
 }

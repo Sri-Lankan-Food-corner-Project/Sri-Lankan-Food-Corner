@@ -84,6 +84,7 @@ export const load: PageServerLoad = async ({ url }) => {
 					.select({
 						id: orders.id,
 						orderNumber: orders.orderNumber,
+						customerId: orders.customerId,
 						customerName: orders.shippingFullName,
 						customerEmail: orders.customerEmail,
 						customerPhone: orders.customerPhone,

@@ -1,6 +1,8 @@
 <script lang="ts">
 	import AddToCartButton from '$lib/components/AddToCartButton.svelte';
 	import ProductReviews from '$lib/components/ProductReviews.svelte';
+	import WhatsAppIcon from '$lib/components/WhatsAppIcon.svelte';
+	import { waHref } from '$lib/config/site';
 	import ProductSlider from '$lib/components/home/ProductSlider.svelte';
 	import SEO from '$lib/components/SEO.svelte';
 	import { SITE_URL, SITE_NAME } from '$lib/config/seo';
@@ -24,6 +26,16 @@
 	);
 
 	const heroImage = $derived(data.images[0] ?? `${SITE_URL}/og-default.jpg`);
+
+	// Pre-filled WhatsApp inquiry — *asterisks* render bold in WhatsApp, and the
+	// product link lets the shop owner see exactly which item the chat is about.
+	const waLink = $derived(
+		waHref(
+			soldOut
+				? `Hi! Is *${p.name}* coming back in stock?\n${SITE_URL}/products/${p.slug}`
+				: `Hi! I'd like to ask about *${p.name}* (${formatPrice(p.price)}).\n${SITE_URL}/products/${p.slug}`
+		)
+	);
 
 	// Product + Breadcrumb JSON-LD — feeds Google Shopping / rich results.
 	const productJsonLd = $derived([
@@ -292,6 +304,16 @@
 					/>
 				</div>
 			</div>
+
+			<a
+				href={waLink}
+				target="_blank"
+				rel="noopener noreferrer"
+				class="border-whatsapp/50 text-whatsapp-dark hover:bg-whatsapp hover:border-whatsapp focus-visible:ring-whatsapp/40 mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full border bg-white px-4 py-2.5 text-sm font-semibold shadow-sm transition-colors hover:text-white focus-visible:ring-4 focus-visible:outline-none sm:w-auto sm:self-start"
+			>
+				<WhatsAppIcon class="size-4.5" />
+				<span>{soldOut ? 'Ask about availability on WhatsApp' : 'Ask about this item on WhatsApp'}</span>
+			</a>
 
 			{#if !soldOut && p.stockQuantity < 10}
 				<p class="mt-4 text-xs font-medium text-amber-700">

@@ -74,3 +74,16 @@ export function waHref(message?: string): string {
 		? `https://wa.me/${digits}?text=${encodeURIComponent(message)}`
 		: `https://wa.me/${digits}`;
 }
+
+/**
+ * Build a WhatsApp chat link to an arbitrary phone number (e.g. a customer's
+ * number on an order). Korean local numbers ('010-…') are converted to
+ * international form; numbers already in international form pass through.
+ */
+export function waHrefTo(phone: string, message?: string): string {
+	let digits = phone.replace(/\D/g, '');
+	if (digits.startsWith('0')) digits = `82${digits.slice(1)}`;
+	return message
+		? `https://wa.me/${digits}?text=${encodeURIComponent(message)}`
+		: `https://wa.me/${digits}`;
+}

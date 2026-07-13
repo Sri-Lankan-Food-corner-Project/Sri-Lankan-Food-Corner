@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Pagination from '$lib/components/Pagination.svelte';
 	import { formatPrice } from '$lib/utils/formatPrice';
+	import { formatDate } from '$lib/utils/formatDate';
 	import { AlertCircle, ArrowRight, Package } from '@lucide/svelte';
 
 	let { data } = $props();
@@ -56,7 +57,7 @@
 						<tr class="text-sm">
 							<td class="px-5 py-4 font-semibold text-neutral-900">{o.orderNumber}</td>
 							<td class="px-5 py-4 text-neutral-600">
-								{new Date(o.createdAt).toLocaleDateString('en-GB')}
+								{formatDate(o.createdAt)}
 							</td>
 							<td class="px-5 py-4">
 								<span
@@ -94,7 +95,7 @@
 						<div>
 							<p class="text-sm font-semibold text-neutral-900">{o.orderNumber}</p>
 							<p class="mt-0.5 text-xs text-neutral-500">
-								{new Date(o.createdAt).toLocaleDateString('en-GB')}
+								{formatDate(o.createdAt)}
 							</p>
 						</div>
 						<span

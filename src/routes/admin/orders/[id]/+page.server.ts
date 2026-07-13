@@ -1,4 +1,4 @@
-import { and, asc, eq, inArray, ne, sql } from 'drizzle-orm';
+import { and, asc, eq, inArray, isNull, ne, sql } from 'drizzle-orm';
 import { error, fail } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { orderItems, orders, productImages, products } from '$lib/server/db/schema';
@@ -63,10 +63,12 @@ async function cancelAndRestoreStock(orderId: string): Promise<void> {
 			.returning({ id: orders.id });
 		if (updated.length === 0) return; // already cancelled — nothing to restore
 
+		// Individually-cancelled items already had their stock handled when they
+		// were cancelled — restoring them again here would double-count.
 		const items = await tx
 			.select({ productId: orderItems.productId, quantity: orderItems.quantity })
 			.from(orderItems)
-			.where(eq(orderItems.orderId, orderId));
+			.where(and(eq(orderItems.orderId, orderId), isNull(orderItems.cancelledAt)));
 
 		for (const item of items) {
 			if (!item.productId) continue; // product deleted since the order was placed
@@ -133,6 +135,89 @@ export const actions: Actions = {
 		if (!current) return fail(404, { error: 'Order not found' });
 
 		await cancelAndRestoreStock(params.id);
+		return { ok: true };
+	},
+
+	/**
+	 * Cancel a single line item (e.g. it turned out not to be in the store).
+	 * Keeps the row for history, recomputes the order's subtotal/total from the
+	 * remaining items (shipping fee stays as originally charged — it's still one
+	 * delivery), and optionally zeroes the product's stock so it can't be
+	 * ordered again until restocked.
+	 */
+	cancelItem: async ({ request, params }) => {
+		const form = await request.formData();
+		const itemId = String(form.get('itemId') ?? '');
+		const reason = String(form.get('reason') ?? '').trim();
+		const zeroStock = form.get('zeroStock') === 'on';
+
+		if (!itemId) return fail(400, { error: 'Missing item' });
+		if (!reason) {
+			return fail(400, { error: 'Please give a short reason — the customer will see it.' });
+		}
+
+		const [order] = await db
+			.select({ status: orders.status, shippingFee: orders.shippingFee })
+			.from(orders)
+			.where(eq(orders.id, params.id))
+			.limit(1);
+		if (!order) return fail(404, { error: 'Order not found' });
+		if (order.status !== 'pending' && order.status !== 'preparing') {
+			return fail(400, { error: `Items cannot be cancelled on a ${order.status} order.` });
+		}
+
+		try {
+			await db.transaction(async (tx) => {
+				// Conditional update doubles as a concurrency guard: only the first
+				// request transitions the item into cancelled.
+				const [item] = await tx
+					.update(orderItems)
+					.set({ cancelledAt: new Date(), cancelReason: reason })
+					.where(
+						and(
+							eq(orderItems.id, itemId),
+							eq(orderItems.orderId, params.id),
+							isNull(orderItems.cancelledAt)
+						)
+					)
+					.returning({ productId: orderItems.productId });
+				if (!item) throw new Error('item:not-cancellable');
+
+				const active = await tx
+					.select({ lineTotal: orderItems.lineTotal })
+					.from(orderItems)
+					.where(and(eq(orderItems.orderId, params.id), isNull(orderItems.cancelledAt)));
+				if (active.length === 0) throw new Error('item:last-item'); // rolls back
+
+				const subtotal = active.reduce((sum, r) => sum + r.lineTotal, 0);
+				await tx
+					.update(orders)
+					.set({
+						subtotal,
+						totalAmount: subtotal + order.shippingFee,
+						updatedAt: new Date()
+					})
+					.where(eq(orders.id, params.id));
+
+				if (zeroStock && item.productId) {
+					await tx
+						.update(products)
+						.set({ stockQuantity: 0 })
+						.where(eq(products.id, item.productId));
+				}
+			});
+		} catch (e) {
+			const msg = e instanceof Error ? e.message : '';
+			if (msg === 'item:last-item') {
+				return fail(400, {
+					error: 'This is the only remaining item — use “Cancel order” instead.'
+				});
+			}
+			if (msg === 'item:not-cancellable') {
+				return fail(400, { error: 'Item not found or already cancelled.' });
+			}
+			throw e;
+		}
 		return { ok: true };
 	}
 };

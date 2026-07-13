@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { formatPrice } from '$lib/utils/formatPrice';
+	import { formatDate } from '$lib/utils/formatDate';
 	import { signOut } from '$lib/auth-client';
 	import { goto, invalidateAll } from '$app/navigation';
 	import {
@@ -99,7 +100,7 @@
 						<div>
 							<p class="text-sm font-semibold text-neutral-900">Order {o.orderNumber}</p>
 							<p class="text-xs text-neutral-500">
-								{new Date(o.createdAt).toLocaleDateString('en-GB')} · {o.status}
+								{formatDate(o.createdAt)} · {o.status}
 							</p>
 						</div>
 						<span class="text-sm font-bold text-neutral-900">{formatPrice(o.totalAmount)}</span>

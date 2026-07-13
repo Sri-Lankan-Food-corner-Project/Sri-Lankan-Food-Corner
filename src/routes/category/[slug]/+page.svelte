@@ -30,8 +30,8 @@
 
 <SEO
 	title="{data.category.name} | Sri Lankan groceries in Korea"
-	description="{data.category.description ??
-		`Shop ${data.category.name} online. Authentic Sri Lankan groceries delivered across South Korea from our Dangjin store.`}"
+	description={data.category.description ??
+		`Shop ${data.category.name} online. Authentic Sri Lankan groceries delivered across South Korea from our Dangjin store.`}
 	jsonLd={categoryJsonLd}
 />
 

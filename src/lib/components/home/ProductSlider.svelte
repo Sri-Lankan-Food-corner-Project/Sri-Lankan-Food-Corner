@@ -65,7 +65,7 @@
 		     matching negative margins cancel it out so layout spacing is unchanged. -->
 		<div
 			bind:this={track}
-			class="slider-track -mx-1 -mt-1 -mb-4 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-1 pt-1 pb-4 sm:gap-4"
+			class="slider-track -mx-1 -mt-1 -mb-4 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth scroll-pl-1 px-1 pt-1 pb-4 sm:gap-4"
 		>
 			{#each products as p (p.id)}
 				<div class="w-[45%] shrink-0 snap-start sm:w-[32%] md:w-[24%] lg:w-[19%]">

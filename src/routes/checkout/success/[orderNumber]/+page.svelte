@@ -4,6 +4,7 @@
 	import { page } from '$app/state';
 	import { cart } from '$lib/stores/cart';
 	import { formatPrice } from '$lib/utils/formatPrice';
+	import { formatDate } from '$lib/utils/formatDate';
 	import { site } from '$lib/config/site';
 	import { ArrowRight, CircleCheck, Clock, CreditCard, ShoppingCart } from '@lucide/svelte';
 
@@ -76,7 +77,7 @@
 			<div>
 				<p class="text-xs text-neutral-500">Date</p>
 				<p class="mt-1 font-semibold text-neutral-900">
-					{new Date(order.createdAt).toLocaleDateString('en-GB')}
+					{formatDate(order.createdAt)}
 				</p>
 			</div>
 			<div>

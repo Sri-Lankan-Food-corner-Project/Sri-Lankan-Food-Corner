@@ -181,7 +181,14 @@ export const orderItems = pgTable('order_items', {
 	productName: text('product_name').notNull(),
 	unitPrice: integer('unit_price').notNull(),
 	quantity: integer('quantity').notNull(),
-	lineTotal: integer('line_total').notNull()
+	lineTotal: integer('line_total').notNull(),
+
+	// Per-item cancellation by the admin (e.g. item turns out not to be in the
+	// store). The row is never deleted — it stays visible with a strikethrough on
+	// both admin and customer order pages, and the order's subtotal/totalAmount
+	// are recomputed to exclude it. cancelReason is shown to the customer.
+	cancelledAt: timestamp('cancelled_at', { withTimezone: true }),
+	cancelReason: text('cancel_reason')
 });
 
 // Customer reviews of products. Reviews are only shown publicly when

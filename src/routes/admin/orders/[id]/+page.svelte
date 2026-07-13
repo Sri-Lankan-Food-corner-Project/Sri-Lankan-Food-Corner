@@ -16,7 +16,8 @@
 		type OrderStatus
 	} from '$lib/schemas/orderStatus';
 	import { formatPrice } from '$lib/utils/formatPrice';
-	import { site } from '$lib/config/site';
+	import { site, waHrefTo } from '$lib/config/site';
+	import WhatsAppIcon from '$lib/components/WhatsAppIcon.svelte';
 	import {
 		ArrowLeft,
 		Package,
@@ -24,7 +25,8 @@
 		MapPin,
 		CreditCard,
 		StickyNote,
-		Landmark
+		Landmark,
+		AlertTriangle
 	} from '@lucide/svelte';
 
 	let { data } = $props();
@@ -32,6 +34,20 @@
 	let statusDialogOpen = $state(false);
 	let paymentDialogOpen = $state(false);
 	let cancelDialogOpen = $state(false);
+
+	// Per-item cancellation dialog state
+	type OrderItem = (typeof data.items)[number];
+	let cancelItemTarget = $state<OrderItem | null>(null);
+	let cancelItemReason = $state('');
+	let cancelItemZeroStock = $state(false);
+	let cancelItemError = $state('');
+
+	function openCancelItemDialog(item: OrderItem) {
+		cancelItemTarget = item;
+		cancelItemReason = '';
+		cancelItemZeroStock = false;
+		cancelItemError = '';
+	}
 
 	let nextStatus = $state<OrderStatus>('preparing');
 	let nextPaymentStatus = $state('paid');
@@ -65,6 +81,32 @@
 
 	const isCancelled = $derived(data.order.status === 'cancelled');
 	const hasBilling = $derived(!!data.order.billingFullName);
+
+	// Item-level cancellation only makes sense before the parcel leaves.
+	const canEditItems = $derived(
+		data.order.status === 'pending' || data.order.status === 'preparing'
+	);
+	const activeItems = $derived(data.items.filter((i) => !i.cancelledAt));
+	const cancelledItems = $derived(data.items.filter((i) => i.cancelledAt));
+	const cancelledValue = $derived(cancelledItems.reduce((sum, i) => sum + i.lineTotal, 0));
+
+	// Pre-written WhatsApp message so the admin can tell the customer about the
+	// change in one tap — lists the cancelled items and the new total, with
+	// transfer-or-refund guidance based on payment status.
+	const waNotifyHref = $derived.by(() => {
+		if (cancelledItems.length === 0) return null;
+		const names = cancelledItems.map((i) => `*${i.productName}*`).join(', ');
+		const lines = [
+			`Hello ${data.order.shippingFullName}! This is ${site.name} regarding your order ${data.order.orderNumber}.`,
+			`Unfortunately we had to cancel: ${names}.`,
+			`Your updated total is *${formatPrice(data.order.totalAmount)}*.`,
+			data.order.paymentStatus === 'paid'
+				? 'Since you have already paid, we will refund the difference — please reply with your bank account details.'
+				: `If you have not transferred yet, please transfer the updated amount to ${site.bank.name} ${site.bank.accountNumber} (${site.bank.accountHolder}) with reference ${data.order.orderNumber}.`,
+			'Sorry for the inconvenience, and thank you for your understanding!'
+		];
+		return waHrefTo(data.order.customerPhone, lines.join('\n'));
+	});
 </script>
 
 <!-- Header -->
@@ -102,7 +144,9 @@
 		<!-- Items -->
 		<section class="bg-card rounded-md border">
 			<h2 class="flex items-center gap-2 border-b p-4 text-sm font-semibold">
-				<Package class="size-4" /> Items ({data.items.length})
+				<Package class="size-4" /> Items ({activeItems.length}{cancelledItems.length
+					? ` · ${cancelledItems.length} cancelled`
+					: ''})
 			</h2>
 			<Table.Root>
 				<Table.Header>
@@ -111,21 +155,34 @@
 						<Table.Head class="w-24 text-right">Unit</Table.Head>
 						<Table.Head class="w-20 text-right">Qty</Table.Head>
 						<Table.Head class="w-28 text-right">Line total</Table.Head>
+						{#if canEditItems}
+							<Table.Head class="w-24"></Table.Head>
+						{/if}
 					</Table.Row>
 				</Table.Header>
 				<Table.Body>
 					{#each data.items as item (item.id)}
-						<Table.Row>
+						<Table.Row class={item.cancelledAt ? 'opacity-60' : ''}>
 							<Table.Cell>
 								<div class="flex items-center gap-3">
 									<div class="bg-brand-sand size-12 shrink-0 overflow-hidden rounded ring-1 ring-black/5">
 										{#if item.imageUrl}
-											<img src={item.imageUrl} alt="" class="h-full w-full object-cover" />
+											<img
+												src={item.imageUrl}
+												alt=""
+												class="h-full w-full object-cover {item.cancelledAt ? 'grayscale' : ''}"
+											/>
 										{/if}
 									</div>
 									<div>
-										<div class="font-medium">{item.productName}</div>
-										{#if !item.productId}
+										<div class="font-medium {item.cancelledAt ? 'line-through' : ''}">
+											{item.productName}
+										</div>
+										{#if item.cancelledAt}
+											<div class="text-xs font-medium text-red-600 dark:text-red-400">
+												Cancelled{item.cancelReason ? ` — ${item.cancelReason}` : ''}
+											</div>
+										{:else if !item.productId}
 											<div class="text-xs text-neutral-400">Product deleted</div>
 										{/if}
 									</div>
@@ -133,12 +190,66 @@
 							</Table.Cell>
 							<Table.Cell class="text-right">{formatPrice(item.unitPrice)}</Table.Cell>
 							<Table.Cell class="text-right">{item.quantity}</Table.Cell>
-							<Table.Cell class="text-right font-semibold">{formatPrice(item.lineTotal)}</Table.Cell>
+							<Table.Cell class="text-right font-semibold {item.cancelledAt ? 'line-through' : ''}">
+								{formatPrice(item.lineTotal)}
+							</Table.Cell>
+							{#if canEditItems}
+								<Table.Cell class="text-right">
+									{#if !item.cancelledAt && activeItems.length > 1}
+										<Button
+											variant="ghost"
+											size="sm"
+											class="text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/40"
+											onclick={() => openCancelItemDialog(item)}
+										>
+											Cancel item
+										</Button>
+									{/if}
+								</Table.Cell>
+							{/if}
 						</Table.Row>
 					{/each}
 				</Table.Body>
 			</Table.Root>
 		</section>
+
+		{#if cancelledItems.length > 0}
+			<!-- Money changed after the customer placed (and maybe paid) the order —
+			     remind the admin to settle the difference and offer a one-tap
+			     WhatsApp message so the customer isn't left guessing. -->
+			<div
+				class="flex flex-wrap items-start justify-between gap-3 rounded-md border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200"
+			>
+				<div class="flex items-start gap-2.5">
+					<AlertTriangle class="mt-0.5 size-4 shrink-0" />
+					<div>
+						<p class="font-semibold">
+							{formatPrice(cancelledValue)} in items cancelled — order total is now
+							{formatPrice(data.order.totalAmount)}.
+						</p>
+						<p class="mt-1 text-xs">
+							{#if data.order.paymentStatus === 'paid'}
+								The customer already paid the original amount — refund
+								<span class="font-semibold">{formatPrice(cancelledValue)}</span> by bank transfer.
+							{:else}
+								If the customer hasn't transferred yet, ask them to send the new total instead.
+							{/if}
+						</p>
+					</div>
+				</div>
+				{#if waNotifyHref}
+					<a
+						href={waNotifyHref}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="bg-whatsapp hover:bg-whatsapp-hover inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold text-white shadow-sm transition-colors"
+					>
+						<WhatsAppIcon class="size-4" />
+						Notify customer on WhatsApp
+					</a>
+				{/if}
+			</div>
+		{/if}
 
 		<!-- Payment totals -->
 		<section class="bg-card rounded-md border">
@@ -350,6 +461,88 @@
 					Cancel
 				</Button>
 				<Button type="submit">Save</Button>
+			</Dialog.Footer>
+		</form>
+	</Dialog.Content>
+</Dialog.Root>
+
+<!-- Cancel single item dialog -->
+<Dialog.Root
+	open={cancelItemTarget !== null}
+	onOpenChange={(v) => {
+		if (!v) cancelItemTarget = null;
+	}}
+>
+	<Dialog.Content>
+		<Dialog.Header>
+			<Dialog.Title>Cancel “{cancelItemTarget?.productName}”?</Dialog.Title>
+			<Dialog.Description>
+				The item stays on the order with a strikethrough, and the totals are recalculated.
+				The reason you write here is shown to the customer.
+			</Dialog.Description>
+		</Dialog.Header>
+		<form
+			method="POST"
+			action="?/cancelItem"
+			use:enhance={() =>
+				async ({ result, update }) => {
+					if (result.type === 'failure') {
+						cancelItemError = String(result.data?.error ?? 'Could not cancel the item.');
+						return;
+					}
+					if (result.type === 'success' || result.type === 'redirect') cancelItemTarget = null;
+					await update();
+				}}
+			class="grid gap-4"
+		>
+			<input type="hidden" name="itemId" value={cancelItemTarget?.id ?? ''} />
+			<div class="grid gap-2">
+				<label class="text-sm font-medium" for="cancel-item-reason">Reason (shown to customer)</label>
+				<input
+					id="cancel-item-reason"
+					name="reason"
+					bind:value={cancelItemReason}
+					required
+					placeholder="e.g. Out of stock at the moment"
+					class="border-input bg-background rounded-md border px-3 py-2 text-sm"
+				/>
+			</div>
+			{#if cancelItemTarget?.productId}
+				<label class="flex items-start gap-2.5 text-sm">
+					<input
+						type="checkbox"
+						name="zeroStock"
+						bind:checked={cancelItemZeroStock}
+						class="mt-0.5 rounded border-neutral-300"
+					/>
+					<span>
+						Also set this product's stock to 0
+						<span class="text-muted-foreground block text-xs">
+							Stops new orders for it until you restock. Use this when the item isn't actually in
+							the store.
+						</span>
+					</span>
+				</label>
+			{/if}
+			<p class="text-muted-foreground rounded-md bg-neutral-50 p-2.5 text-xs dark:bg-neutral-900">
+				{#if data.order.paymentStatus === 'paid'}
+					This order is already <span class="font-semibold">paid</span> — after cancelling, refund
+					the item amount ({formatPrice(cancelItemTarget?.lineTotal ?? 0)}) by bank transfer.
+				{:else}
+					This order is <span class="font-semibold">unpaid</span> — the customer should transfer
+					the new, lower total. You can notify them on WhatsApp after saving.
+				{/if}
+			</p>
+			{#if cancelItemError}
+				<p class="rounded-md bg-red-50 p-2.5 text-xs font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300">
+					{cancelItemError}
+				</p>
+			{/if}
+			<Dialog.Footer>
+				<Button type="button" variant="outline" onclick={() => (cancelItemTarget = null)}>
+					Keep item
+				</Button>
+				<Button type="submit" variant="destructive">Cancel item</Button>
 			</Dialog.Footer>
 		</form>
 	</Dialog.Content>

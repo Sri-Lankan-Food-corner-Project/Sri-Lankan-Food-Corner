@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { formatPrice } from '$lib/utils/formatPrice';
+	import { formatDate } from '$lib/utils/formatDate';
 	import { ArrowLeft } from '@lucide/svelte';
 
 	let { data } = $props();
@@ -35,7 +36,7 @@
 			<div>
 				<p class="text-xs text-neutral-500">Date</p>
 				<p class="mt-1 font-semibold text-neutral-900">
-					{new Date(order.createdAt).toLocaleDateString('en-GB')}
+					{formatDate(order.createdAt)}
 				</p>
 			</div>
 			<div>
@@ -97,14 +98,24 @@
 			<h3 class="text-sm font-bold text-neutral-900">Items</h3>
 			<ul class="divide-brand-charcoal/10 mt-3 divide-y">
 				{#each items as item (item.id)}
-					<li class="flex items-center justify-between py-3 text-sm">
+					<li class="flex items-center justify-between py-3 text-sm {item.cancelledAt ? 'opacity-70' : ''}">
 						<div>
-							<p class="font-medium text-neutral-900">{item.productName}</p>
+							<p class="font-medium text-neutral-900 {item.cancelledAt ? 'line-through' : ''}">
+								{item.productName}
+							</p>
 							<p class="text-xs text-neutral-500">
 								{item.quantity} × {formatPrice(item.unitPrice)}
 							</p>
+							{#if item.cancelledAt}
+								<p class="mt-0.5 text-xs font-medium text-red-600">
+									Cancelled by the store{item.cancelReason ? ` — ${item.cancelReason}` : ''}. Not
+									charged.
+								</p>
+							{/if}
 						</div>
-						<span class="font-semibold text-neutral-900">{formatPrice(item.lineTotal)}</span>
+						<span class="font-semibold text-neutral-900 {item.cancelledAt ? 'line-through' : ''}">
+							{formatPrice(item.lineTotal)}
+						</span>
 					</li>
 				{/each}
 			</ul>
